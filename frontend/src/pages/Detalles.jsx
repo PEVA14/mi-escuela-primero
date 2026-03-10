@@ -1,10 +1,13 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from 'react-router-dom';
 import { useParams } from "react-router-dom";
 import { getEscuelaById } from "../services/api";
 
 export default function Detalles() {
     const [escuela, setEscuela] = useState(null);
     const { id } = useParams(); 
+    const navigate = useNavigate();
+
     useEffect( ()=> {
         async function load() {
             try{
@@ -17,10 +20,16 @@ export default function Detalles() {
         } load();
         }, [id])
 
+    
+    function redirect(){
+        navigate('/escuelas')
+    }
+
     return (
         <div>
             <h1>{escuela?.nombre}</h1> 
             <h2>{escuela?.turno}</h2>
+            <button onClick={redirect}> Back </button>
         </div>
     );
 }
