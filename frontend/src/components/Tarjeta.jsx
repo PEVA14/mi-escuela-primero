@@ -1,30 +1,21 @@
-import { useEffect, useState } from "react";
-import { getEscuelas } from "../services/api";
+import { useNavigate } from 'react-router-dom';
 
-function Tarjeta() {
-    const [escuelas , setEscuelas] = useState([])
-        useEffect(() => {
-        async function load() {
-            try {
-                const res = await getEscuelas();
-                setEscuelas(res.data);
-            } catch (err) {
-                console.log(err);
-            }
-        }
-        load();
-    }, []);
+export default function Tarjeta( {escuela}) {
+    const navigate = useNavigate();
+
+    function manejarClick() {
+        navigate(`/escuelas/${escuela.id_escuela}`);
+    }
+
    return (
         <div>
-            {escuelas.map((escuela) => (
                 <div key={escuela.id_escuela} style={{ border: '1px solid #ccc', margin: '10px', padding: '10px' }}>
-                    <h1>{escuela.nombre}</h1>
+                    <h1>{escuela.nombre} </h1>
                     <p>{escuela.municipio} - {escuela.nivelEducativo}</p>
+
+                    <button onClick={manejarClick}> Ver Detalles </button>
                 </div>
-            ))}
         </div>
     );
 
 }
-
-export default Tarjeta;

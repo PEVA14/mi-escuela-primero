@@ -8,6 +8,10 @@ export function getEscuelas() {
     return api.get("/escuelas");
 }
 
+export function getEscuelaById(id) {
+    return api.get(`/escuelas/${id}`);
+};
+
 export default api;
 
 

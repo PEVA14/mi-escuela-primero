@@ -160,8 +160,18 @@ const PORT = 3000;
 app.use(cors());
 
 app.get('/api/escuelas', (req,res) => {
-    res.json(escuelas);
+  res.json(escuelas);
 })
+
+app.get('/api/escuelas/:id', (req,res) => {
+  const idBuscado = parseInt(req.params.id);
+  const escuelaEncontrada = escuelas.find(e => e.id_escuela === idBuscado);
+  if (escuelaEncontrada) {
+    res.json(escuelaEncontrada);
+  } else {
+    res.status(404).json({ mensaje: "Escuela no encontrada" });
+  }
+});
 
 app.listen(PORT, () => {
     console.log(`Listening in Port: ${PORT}`)
