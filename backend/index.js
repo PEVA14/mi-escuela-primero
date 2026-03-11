@@ -13,7 +13,7 @@ const escuelas = [
     modalidad: "Escolarizada",
     turno: "Matutino",
     sostenimiento: "Público",
-    categoria: "Material"
+    categoria: ["Material", "Salud"]
   },
   {
     id_escuela: 2,
@@ -29,7 +29,7 @@ const escuelas = [
     modalidad: "Técnica",
     turno: "Vespertino",
     sostenimiento: "Público",
-    categoria: "Infraestructura"
+    categoria: ["Infraestructura", "Material"]
   },
   {
     id_escuela: 3,
@@ -45,7 +45,7 @@ const escuelas = [
     modalidad: "Privada",
     turno: "Matutino",
     sostenimiento: "Privado",
-    categoria: "Formacion"
+    categoria: ["Formacion"]
   },
   {
     id_escuela: 4,
@@ -61,7 +61,7 @@ const escuelas = [
     modalidad: "Escolarizada",
     turno: "Matutino",
     sostenimiento: "Público",
-    categoria: "Salud"
+    categoria: ["Salud"]
   },
   {
     id_escuela: 5,
@@ -77,7 +77,7 @@ const escuelas = [
     modalidad: "Bivalente",
     turno: "Continuo",
     sostenimiento: "Autónomo",
-    categoria: "Infraestructura"
+    categoria: ["Infraestructura"]
   },
   {
     id_escuela: 6,
@@ -93,7 +93,7 @@ const escuelas = [
     modalidad: "Multigrado",
     turno: "Matutino",
     sostenimiento: "Público",
-    categoria: "Material"
+    categoria: ["Material"]
   },
   {
     id_escuela: 7,
@@ -109,7 +109,7 @@ const escuelas = [
     modalidad: "Ingeniería",
     turno: "Mixto",
     sostenimiento: "Público",
-    categoria: "Formacion"
+    categoria: ["Formacion"]
   },
   {
     id_escuela: 8,
@@ -125,7 +125,7 @@ const escuelas = [
     modalidad: "Privada",
     turno: "Matutino",
     sostenimiento: "Privado",
-    categoria: "Material"
+    categoria: ["Material"]
   },
   {
     id_escuela: 9,
@@ -141,7 +141,7 @@ const escuelas = [
     modalidad: "Presencial",
     turno: "Nocturno",
     sostenimiento: "Público",
-    categoria: "Formacion"
+    categoria: ["Formacion"]
   },
   {
     id_escuela: 10,
@@ -157,7 +157,7 @@ const escuelas = [
     modalidad: "Telebachillerato",
     turno: "Vespertino",
     sostenimiento: "Público",
-    categoria: "Infraestructura"
+    categoria: ["Infraestructura"]
   }
 ];
 

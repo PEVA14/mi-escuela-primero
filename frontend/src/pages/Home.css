@@ -1,0 +1,35 @@
+.quotes-icon {
+    width: 24px;
+    height: auto;
+  }
+  
+.profile-pic {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+
+#testimonies{
+    background-color: lightcoral;
+    margin-bottom: 3rem;
+}
+
+.testimony{
+    border: solid 1px white;
+}
+
+.username{
+    display: inline;
+}
+
+.backphoto{
+    background-color: rgb(8, 154, 154);
+    margin-bottom: 4rem;
+    padding: 3rem;
+}
+
+.convincer{
+    background-color: rgb(101, 181, 101);
+    padding: 2rem;
+}
