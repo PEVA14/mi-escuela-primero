@@ -7,7 +7,6 @@ export default function Home(){
         <>
         <NavBar/>
         <Lobby/>
-        <h1>This is homeee</h1>
         <Footer/>
         </>
     );

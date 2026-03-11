@@ -32,8 +32,9 @@ export default function Footer(){
             <section id="navegacion">
                 <h2>Navegacion</h2>
                 <Link to="/">Inicio </Link>
-                <Link to="/escuelas">Explorar Escuelas </Link>
-                <span>Aviso de privacidad</span> {/*Lo deje como p porque no se como hacer eso del pdf todavia */}
+                <Link to="/escuelas"> Explorar Escuelas </Link>
+                <span> Aviso de privacidad </span> {/*Lo deje como p porque no se como hacer eso del pdf todavia */}
+                <Link to="/admin"> Administrador </Link>
             </section>
 
             <small>© 2026 Mexicanos Primero Jalisco A.C. Todos los derechos reservados.</small>
