@@ -21,13 +21,13 @@ export default function Buscador({escuelas}){
     const filteredSchools = escuelas.filter((school) => {
         const schoolName = school.nombre?.toLowerCase() || "";
         const schoolLevel = school.nivelEducativo?.toLowerCase() || "";
-        const schoolCateg = school.categoria.toLowerCase() || "";
+        const schoolCateg = school.categoria || "";
         const schoolMun = school.municipio?.toLowerCase() || "";
 
 
         const mathchesName = schoolName.includes(searchInp);
         const mathchesLevel = !levelInp || schoolLevel === levelInp;
-        const matchesCateg = !categInp || schoolCateg === categInp;
+        const matchesCateg = !categInp || schoolCateg.some((cat) => cat.toLowerCase() === categInp);
         const matchesMun = !munInp || schoolMun === munInp;
 
         return mathchesName && mathchesLevel && matchesCateg && matchesMun;
@@ -59,7 +59,7 @@ export default function Buscador({escuelas}){
             <select name="municipio" id="municipio" value={munInp} onChange={handleChange}>
                 <option value=""> Todas las Municipios </option>
                 <option value="arandas"> Arandas </option>
-                <option value="tlaquepaque"> San Pedro Tlaquepaque </option>
+                <option value="san pedro tlaquepaque"> San Pedro Tlaquepaque </option>
                 <option value="san juan de los lagos"> San Juan de los Lagos </option>
                 <option value="zapopan"> Zapopan </option>
             </select>
