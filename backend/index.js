@@ -183,6 +183,13 @@ app.get('/api/escuelas/:id', (req,res) => {
   }
 });
 
+app.post('/api/escuelas/admin', (req, res) => {});
+
+
+
+
+
+
 app.get('/api/home', (req, res) => {
   
 })
