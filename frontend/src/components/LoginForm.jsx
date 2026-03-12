@@ -7,12 +7,16 @@ export default function LoginForm() {
     const [contraseña, setContraseña] = useState("");
 
     const navigate = useNavigate();
+    let authToken = null;
 
     async function handleSubmit(e){
         e.preventDefault()
         try {
             const res = await login({usuario: usuario, contraseña: contraseña });
-            console.log(res.data)
+            authToken = res.data.token;
+            /*authToken = res.token; guardo el token que se gener*, así no ya que por axios el formato es data y adentro viene token*/
+            localStorage.setItem("token",authToken);
+            console.log(res.data);
             navigate("/escuelas"); 
 
         } catch {

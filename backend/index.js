@@ -172,6 +172,25 @@ const SECRET_KEY = "pachandini";
 app.use(cors());
 app.use(express.json())
 
+/*Middleware */
+
+function authenticateToken(req, res, next) {
+
+  const authHeader = req.headers["authorization"];
+  const token = authHeader && authHeader.split(" ")[1];
+  if (!token) {
+    return res.status(401).json({ mensaje: "Token requerido" });
+  }
+  jwt.verify(token, SECRET_KEY, (err, user) => {
+    if (err) {
+      return res.status(403).json({ mensaje: "Token inválido o expirado" });
+    }
+    req.user = user;
+    next();
+  });
+}
+
+/*Endpoints */
 app.get('/api/escuelas', (req,res) => {
   res.json(escuelas);
 })
@@ -186,6 +205,7 @@ app.get('/api/escuelas/:id', (req,res) => {
   }
 });
 
+
 const usuariosDB = [{usuario: "Lepe", password:"Hola"}, {usuario:"Nicole", password:"cool"}];
 app.post('/api/login', (req, res) => {
   const { usuario, contraseña} = req.body;
@@ -196,6 +216,13 @@ app.post('/api/login', (req, res) => {
   } else {
     res.status(401).json({ mensaje: "Error" });
   }
+  const token = jwt.sign(
+    { usuario: usuarioEncontrado.usuario }, // payload
+    SECRET_KEY,
+    { expiresIn: "10m" }
+  );
+  res.json({ token });
+
 });
 
 
