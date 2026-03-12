@@ -12,6 +12,10 @@ export function getEscuelaById(id) {
     return api.get(`/escuelas/${id}`);
 };
 
+export function login(datos){
+    return api.post('/login', datos)
+}
+
 export default api;
 
 

@@ -518,12 +518,34 @@ estado: "Pendientes"
 
 const express = require('express');
 const cors = require('cors');
-
+const jwt= require("jsonwebtoken");
 const app = express();
+
 const PORT = 3000;
+const SECRET_KEY = "pachandini";
 
 app.use(cors());
+app.use(express.json())
 
+/*Middleware */
+
+function authenticateToken(req, res, next) {
+
+  const authHeader = req.headers["authorization"];
+  const token = authHeader && authHeader.split(" ")[1];
+  if (!token) {
+    return res.status(401).json({ mensaje: "Token requerido" });
+  }
+  jwt.verify(token, SECRET_KEY, (err, user) => {
+    if (err) {
+      return res.status(403).json({ mensaje: "Token inválido o expirado" });
+    }
+    req.user = user;
+    next();
+  });
+}
+
+/*Endpoints */
 app.get('/api/escuelas', (req,res) => {
   res.json(escuelas);
 })
@@ -537,6 +559,27 @@ app.get('/api/escuelas/:id', (req,res) => {
     res.status(404).json({ mensaje: "Escuela no encontrada" });
   }
 });
+
+
+const usuariosDB = [{usuario: "Lepe", password:"Hola"}, {usuario:"Nicole", password:"cool"}];
+app.post('/api/login', (req, res) => {
+  const { usuario, contraseña} = req.body;
+  const usuarioEncontrado = usuariosDB.find((u) => {
+    return u.usuario === usuario && u.password === contraseña;  });
+  if (usuarioEncontrado) {
+    res.status(200).json({ mensaje: "Login OK" });
+  } else {
+    res.status(401).json({ mensaje: "Error" });
+  }
+  const token = jwt.sign(
+    { usuario: usuarioEncontrado.usuario }, // payload
+    SECRET_KEY,
+    { expiresIn: "10m" }
+  );
+  res.json({ token });
+
+});
+
 
 app.get('/api/home', (req, res) => {
   
