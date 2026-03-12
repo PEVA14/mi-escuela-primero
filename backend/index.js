@@ -163,11 +163,14 @@ const escuelas = [
 
 const express = require('express');
 const cors = require('cors');
-
+const jwt= require("jsonwebtoken");
 const app = express();
+
 const PORT = 3000;
+const SECRET_KEY = "pachandini";
 
 app.use(cors());
+app.use(express.json())
 
 app.get('/api/escuelas', (req,res) => {
   res.json(escuelas);
@@ -183,18 +186,8 @@ app.get('/api/escuelas/:id', (req,res) => {
   }
 });
 
-/* This middleware allows the server to read JSON
-from incoming requests (like login requests) */
-app.use(express.json());
-
-const jwt= require("jsonwebtoken");
-const SECRET_KEY = "pachandini";
 
 app.post('/api/login', (req, res) => {});
-
-
-
-
 
 
 app.get('/api/home', (req, res) => {

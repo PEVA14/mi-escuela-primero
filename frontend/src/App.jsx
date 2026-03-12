@@ -5,6 +5,7 @@ import ListaTarjeta from "./components/ListaTarjeta.jsx";
 import Detalles from "./pages/Detalles.jsx";
 import Catalogo from "./pages/Catalogo.jsx";
 import Home from "./pages/Home.jsx";
+import Login from "./pages/Login.jsx";
 
 function App() {
   return (
@@ -14,6 +15,7 @@ function App() {
        <Route path="/escuelas" element={<Catalogo/>} />
        <Route path="/escuelas/:id" element={<Detalles/>} />
        <Route path="/" element={<Home/>} />
+       <Route path="/login" element={<Login/>} />
       </Routes>
     </BrowserRouter>
     </>)
