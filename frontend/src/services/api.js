@@ -16,6 +16,10 @@ export function login(datos){
     return api.post('/login', datos)
 }
 
+export function agregarEscuela(datos) {
+    return api.post('/escuelas', datos);
+}
+
 export default api;
 
 

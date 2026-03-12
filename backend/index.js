@@ -234,7 +234,6 @@ app.put('api/escuelas/:id', /*authenticateToken,*/ (req,res)=>{
     res.status(404).json({mensaje: "Escuela no encontrada"});
   }
   const { nombre, plantel, municipio, direccion, ubicacion, cct, personal_escolar, estudiantes, nivelEducativo, modalidad, turno, sostenimiento, categoria } = req.body;
-
   // Actualiza
   escuelas[escuelaIndex] = {
     ...escuelas[escuelaIndex],
@@ -255,11 +254,43 @@ app.put('api/escuelas/:id', /*authenticateToken,*/ (req,res)=>{
 
   res.json({ mensaje: "Escuela actualizada", escuela: escuelas[escuelaIndex] });
 });
+app.post('/api/escuelas', (req, res) => {
+  console.log("--- Petición recibida en POST /api/escuelas ---");
+  console.log("Cuerpo de la petición:", req.body); 
 
+  try {
+    const { nombre, plantel, municipio, direccion, ubicacion, cct, 
+      personal_escolar, estudiantes, nivelEducativo, modalidad, 
+      turno, sostenimiento, categoria } = req.body;
 
-app.get('/api/home', (req, res) => {
-  
-})
+    const nuevaEscuela = {
+      id_escuela: escuelas.length > 0 ? escuelas[escuelas.length - 1].id_escuela + 1 : 1, 
+      nombre,
+      plantel: plantel || "No especificado",
+      municipio: municipio || "No especificado",
+      direccion: direccion || "",
+      ubicacion: ubicacion || "",
+      cct: cct || "",
+      personal_escolar: parseInt(personal_escolar) || 0,
+      estudiantes: parseInt(estudiantes) || 0,
+      nivelEducativo: nivelEducativo || "",
+      modalidad: modalidad || "",
+      turno: turno || "",
+      sostenimiento: sostenimiento || "",
+      categoria: categoria || "General" 
+    };
+
+    escuelas.push(nuevaEscuela);
+
+    res.status(201).json({ 
+      mensaje: "Escuela registrada con éxito", 
+      escuela: nuevaEscuela 
+    });
+
+  } catch (error) {
+    res.status(500).json({ mensaje: "Error interno del servidor" });
+  }
+});
 
 app.listen(PORT, () => {
     console.log(`Listening in Port: ${PORT}`)

@@ -15,10 +15,10 @@ export default function Tarjeta( {escuela}) {
         <div>
                 <div key={escuela.id_escuela} style={{ border: '1px solid #ccc', margin: '10px', padding: '10px' }}>
                     <h1>{escuela.nombre} </h1>
-                    {
+                    {/* {
                     escuela.categoria.map(es => {
                         return <Badge content={es}/>
-                    })}
+                    })} */}
                     <address>
                         <span> 
                             <img src={locationIcon} alt=""/> {escuela.municipio}
