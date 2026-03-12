@@ -6,8 +6,10 @@ import Testimonies from "../components/Testimonies";
 import "../pages/Home.css"
 import Pre_footer from "../components/Pre_footer";
 import Explainer from "../components/explainer";
+import MuestraCatalogo from "../components/MuestraCatalogo";
 import { useEffect } from "react";
 import { useLocation } from "react-router-dom";
+import ListaTarjeta from "../components/ListaTarjeta";
 
 export default function Home(){
     const location = useLocation();
@@ -25,6 +27,7 @@ export default function Home(){
         <NavBar/>
         <Lobby/>
         <TrustBuilding/>
+        <MuestraCatalogo/>
         <Explainer/>
         <Testimonies/>
         <Pre_footer/>
