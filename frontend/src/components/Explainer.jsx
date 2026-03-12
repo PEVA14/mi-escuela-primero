@@ -42,7 +42,7 @@ export default function Explainer() {
                     <span className="inline-flex items-center rounded-full border border-emerald-200 bg-white px-4 py-1.5 text-sm font-semibold text-emerald-700 shadow-sm">
                         Proceso transparente
                     </span>
-                    <h2 className="mt-5 text-3xl font-extrabold tracking-[-0.04em] text-slate-900 md:text-4xl lg:text-5xl">
+                    <h2 id = "movexp" className="mt-5 text-3xl font-extrabold tracking-[-0.04em] text-slate-900 md:text-4xl lg:text-5xl">
                         Cómo funciona
                     </h2>
                     <p className="mx-auto mt-4 max-w-3xl text-base leading-8 text-slate-600 md:text-lg">

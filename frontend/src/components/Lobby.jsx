@@ -34,7 +34,7 @@ export default function Lobby(){
                     </button>
                     <button
                         className="w-full rounded-2xl border border-slate-300 bg-white px-6 py-3.5 text-sm font-semibold text-slate-700 shadow-sm transition hover:border-emerald-300 hover:text-emerald-700 sm:w-auto"
-                        onClick={()=>navigate('/#explainer')}
+                        onClick={()=>navigate('/#movexp')}
                     >
                         Como funciona
                     </button>

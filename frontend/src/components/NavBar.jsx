@@ -11,7 +11,7 @@ export default function NavBar(){
             <div className="navbar__links">
                 <button className="navbar__button" onClick={() => navigate('/')}>Inicio</button>
                 <button className="navbar__button" onClick={() => navigate('/escuelas')}>Explorar Escuelas</button>
-                <button className="navbar__button" onClick={() => navigate('/#explainer')}>Como funciona</button>
+                <button className="navbar__button" onClick={() => navigate('/#movexp')}>Como funciona</button>
                 {/* <button className="navbar__button" onClick={() => navigate('')}>Contacto</button> */}
             </div>
         </nav>
