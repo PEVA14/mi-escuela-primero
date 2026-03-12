@@ -37,43 +37,75 @@ export default function Buscador({escuelas}){
     console.log("Buscador escuelas:", escuelas);
 
     return (
-    <>
-        <form action="" id="filter">
-            <input type="text" name="search" placeholder="Search for a School " value={searchInp} onChange={handleChange}/>
+        <>
+            <form
+                action=""
+                id="filter"
+                className="mb-8 grid grid-cols-1 gap-4 rounded-[24px] border border-slate-200 bg-slate-50 p-4 shadow-sm md:grid-cols-2 xl:grid-cols-4"
+            >
+                <input
+                    className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700 outline-none transition placeholder:text-slate-400 focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100"
+                    type="text"
+                    name="search"
+                    placeholder="Buscar escuela"
+                    value={searchInp}
+                    onChange={handleChange}
+                />
 
-            <select name="level" id="lvel" value={levelInp} onChange={handleChange}>
-                <option value=""> Todas las Escolaridades </option>
-                <option value="preescolar"> Preescolar </option>
-                <option value="primaria"> Primaria </option>
-                <option value="secundaria"> Secundaria </option>
-            </select>
+                <select
+                    className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700 outline-none transition focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100"
+                    name="level"
+                    id="lvel"
+                    value={levelInp}
+                    onChange={handleChange}
+                >
+                    <option value="">Todas las escolaridades</option>
+                    <option value="preescolar">Preescolar</option>
+                    <option value="primaria">Primaria</option>
+                    <option value="secundaria">Secundaria</option>
+                </select>
 
-            <select name="categoria" id="categoria" value={categInp} onChange={handleChange}>
-                <option value=""> Todas las Categorias </option>
-                <option value="material"> Material </option>
-                <option value="infraestructura"> Infraestructura </option>
-                <option value="formacion"> Formación </option>
-                <option value="salud"> Salud </option>
-            </select>
+                <select
+                    className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700 outline-none transition focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100"
+                    name="categoria"
+                    id="categoria"
+                    value={categInp}
+                    onChange={handleChange}
+                >
+                    <option value="">Todas las categorías</option>
+                    <option value="material">Material</option>
+                    <option value="infraestructura">Infraestructura</option>
+                    <option value="formacion">Formación</option>
+                    <option value="salud">Salud</option>
+                </select>
 
-            <select name="municipio" id="municipio" value={munInp} onChange={handleChange}>
-                <option value=""> Todas las Municipios </option>
-                <option value="arandas"> Arandas </option>
-                <option value="san pedro tlaquepaque"> San Pedro Tlaquepaque </option>
-                <option value="san juan de los lagos"> San Juan de los Lagos </option>
-                <option value="zapopan"> Zapopan </option>
-            </select>
-        </form>
+                <select
+                    className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700 outline-none transition focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100"
+                    name="municipio"
+                    id="municipio"
+                    value={munInp}
+                    onChange={handleChange}
+                >
+                    <option value="">Todos los municipios</option>
+                    <option value="arandas">Arandas</option>
+                    <option value="san pedro tlaquepaque">San Pedro Tlaquepaque</option>
+                    <option value="san juan de los lagos">San Juan de los Lagos</option>
+                    <option value="zapopan">Zapopan</option>
+                </select>
+            </form>
 
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
-        {filteredSchools.length > 0 ? (
-            filteredSchools.map((escuela) => (
-                <Tarjeta key={escuela.id_escuela} escuela={escuela} />
-            ))
-        ) : (
-            <h3>No Schools Found</h3>
-        )}
-         </div>
-    </>
+            {filteredSchools.length > 0 ? (
+                <div className="grid grid-cols-1 items-start gap-6 md:grid-cols-2 xl:grid-cols-3">
+                    {filteredSchools.map((escuela) => (
+                        <Tarjeta key={escuela.id_escuela} escuela={escuela} />
+                    ))}
+                </div>
+            ) : (
+                <div className="rounded-[24px] border border-dashed border-slate-300 bg-slate-50 px-6 py-12 text-center">
+                    <h3 className="text-lg font-semibold text-slate-700">No se encontraron escuelas</h3>
+                    <p className="mt-2 text-sm text-slate-500">Prueba ajustando los filtros para ver más resultados.</p>
+                </div>
+            )}
+        </>
     )
 }
