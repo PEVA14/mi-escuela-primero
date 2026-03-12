@@ -254,6 +254,7 @@ app.put('api/escuelas/:id', /*authenticateToken,*/ (req,res)=>{
 
   res.json({ mensaje: "Escuela actualizada", escuela: escuelas[escuelaIndex] });
 });
+
 app.post('/api/escuelas', (req, res) => {
   console.log("--- Petición recibida en POST /api/escuelas ---");
   console.log("Cuerpo de la petición:", req.body); 
@@ -289,6 +290,20 @@ app.post('/api/escuelas', (req, res) => {
 
   } catch (error) {
     res.status(500).json({ mensaje: "Error interno del servidor" });
+  }
+});
+
+app.delete('/api/escuelas/:id', (req, res) => {
+  const id = parseInt(req.params.id);
+  const indice = escuelas.findIndex(e => e.id_escuela === id);
+  if (indice !== -1) {
+    const escuelaEliminada = escuelas.splice(indice, 1);
+    res.status(200).json({ 
+      mensaje: "Escuela eliminada con éxito",
+      id: id 
+    });
+  } else {
+    res.status(404).json({ mensaje: "Error: La escuela no existe en la base de datos." });
   }
 });
 
