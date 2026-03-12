@@ -4,7 +4,7 @@ import privacyPDF from "../assets/AvisodePrivacidadMEP.pdf";
 import logo from "../assets/logoMEP.png"
 import mailIcon from  "../assets/mail_icon.png"
 import phoneIcon from "../assets/phone_icon.png"
-import locationIcon from "../assets/location_icon.png"
+import locationIcon from "../assets/location_icon_white.png"
 import websiteIcon from "../assets/website_icon.png"
 
 export default function Footer(){
