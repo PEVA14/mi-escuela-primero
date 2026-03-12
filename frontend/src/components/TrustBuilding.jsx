@@ -1,6 +1,6 @@
-import donation from "../assets/donation_icon_32px.png";
-import project_completed from "../assets/projects_finish_icon_32px.png";
-import transparenci from "../assets/transparenci_icon_32px.png";
+import donation from "../assets/donation_icon.png";
+import project_completed from "../assets/achivement_icon.png";
+import transparenci from "../assets/login_password_icon.png";
 
 export default function TrustBuilding() {
     return (
