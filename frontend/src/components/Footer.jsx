@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import privacyPDF from "../assets/AvisodePrivacidadMEP.pdf";
 
 import logo from "../assets/logoMEP.png"
 import mailIcon from  "../assets/mail_icon.png"
@@ -33,7 +34,7 @@ export default function Footer(){
                 <h2>Navegacion</h2>
                 <Link to="/">Inicio </Link>
                 <Link to="/escuelas"> Explorar Escuelas </Link>
-                <span> Aviso de privacidad </span> {/*Lo deje como p porque no se como hacer eso del pdf todavia */}
+                <a href={privacyPDF} target="_blank" rel="noopener noreferrer"> Aviso de privacidad </a>
                 <Link to="/admin"> Administrador </Link>
             </section>
 
