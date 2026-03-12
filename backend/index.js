@@ -272,7 +272,7 @@ const escuelas = [
   }
 ]
 
-export const propuestas = [
+const propuestas = [
 
 {
 id_propuesta: 1,
