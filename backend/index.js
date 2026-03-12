@@ -183,7 +183,14 @@ app.get('/api/escuelas/:id', (req,res) => {
   }
 });
 
-app.post('/api/escuelas/admin', (req, res) => {});
+/* This middleware allows the server to read JSON
+from incoming requests (like login requests) */
+app.use(express.json());
+
+const jwt= require("jsonwebtoken");
+const SECRET_KEY = "pachandini";
+
+app.post('/api/login', (req, res) => {});
 
 
 
