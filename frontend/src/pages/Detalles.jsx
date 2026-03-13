@@ -71,7 +71,6 @@ export default function Detalles() {
                 <h2 className="subtEscuela">{escuela?.nivelEducativo}</h2>
                 <img src={calendarIcon} alt="calendar.png"></img>
                 <h2 className="lastUpdate"><small>Actualizado: 11 de marzo de 2026</small></h2>
-                <button onClick={goToEdit}>Editar</button>
             </div>
             <div className="summary">
                 <h2>Resumen General</h2>
