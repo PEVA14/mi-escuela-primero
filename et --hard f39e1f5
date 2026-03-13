@@ -1,0 +1,43 @@
+[33mabf275e[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m HEAD@{0}: pull origin main: Fast-forward
+[33me15ed4e[m HEAD@{1}: checkout: moving from escuela to main
+[33m1bc7aba[m[33m ([m[1;31morigin/escuela[m[33m, [m[1;32mescuela[m[33m)[m HEAD@{2}: checkout: moving from catalogo to escuela
+[33mfd28952[m[33m ([m[1;32mcatalogo[m[33m)[m HEAD@{3}: checkout: moving from prueba to catalogo
+[33m534a9f6[m[33m ([m[1;31morigin/prueba[m[33m, [m[1;32mprueba[m[33m)[m HEAD@{4}: checkout: moving from main to prueba
+[33me15ed4e[m HEAD@{5}: pull: Fast-forward
+[33m409e796[m HEAD@{6}: checkout: moving from admin to main
+[33mf39e1f5[m[33m ([m[1;31morigin/admin[m[33m, [m[1;32madmin[m[33m)[m HEAD@{7}: commit: add the edit page
+[33m09836fb[m HEAD@{8}: commit: edit page
+[33mf21eef7[m HEAD@{9}: pull origin admin: Fast-forward
+[33m275b550[m HEAD@{10}: checkout: moving from prueba to admin
+[33m534a9f6[m[33m ([m[1;31morigin/prueba[m[33m, [m[1;32mprueba[m[33m)[m HEAD@{11}: commit: editar escuela
+[33mbf51c4d[m HEAD@{12}: checkout: moving from admin to prueba
+[33m275b550[m HEAD@{13}: pull origin admin: Fast-forward
+[33m09e51b6[m HEAD@{14}: pull origin admin: Fast-forward
+[33mbf51c4d[m HEAD@{15}: checkout: moving from main to admin
+[33m409e796[m HEAD@{16}: checkout: moving from prueba to main
+[33mbf51c4d[m HEAD@{17}: checkout: moving from admin to prueba
+[33mbf51c4d[m HEAD@{18}: commit: edit school endpoint
+[33m409e796[m HEAD@{19}: pull origin main: Fast-forward
+[33m49d1dbd[m HEAD@{20}: checkout: moving from main to admin
+[33m409e796[m HEAD@{21}: pull: Fast-forward
+[33mf1f1f05[m HEAD@{22}: checkout: moving from admin to main
+[33m49d1dbd[m HEAD@{23}: checkout: moving from main to admin
+[33mf1f1f05[m HEAD@{24}: pull: Fast-forward
+[33md2ab92e[m HEAD@{25}: checkout: moving from admin to main
+[33m49d1dbd[m HEAD@{26}: commit: jsonWebToken implemented
+[33m2431d3c[m HEAD@{27}: pull origin admin: Fast-forward
+[33mfc806eb[m HEAD@{28}: commit: /login on index.js
+[33m79e0987[m HEAD@{29}: checkout: moving from main to admin
+[33md2ab92e[m HEAD@{30}: pull: Fast-forward
+[33md8acb45[m HEAD@{31}: checkout: moving from admin to main
+[33m79e0987[m HEAD@{32}: commit: start of endpoint /admin
+[33md8acb45[m HEAD@{33}: checkout: moving from main to admin
+[33md8acb45[m HEAD@{34}: commit: fix bug for filter categ
+[33me25e387[m HEAD@{35}: commit: add complete filter
+[33m58ed9ee[m HEAD@{36}: reset: moving to origin/main
+[33mcb69c0c[m HEAD@{37}: checkout: moving from catalogo to main
+[33mfd28952[m[33m ([m[1;32mcatalogo[m[33m)[m HEAD@{38}: pull origin catalogo: Fast-forward
+[33m67c43e0[m HEAD@{39}: pull origin catalogo: Fast-forward
+[33mf6899b9[m HEAD@{40}: pull origin catalogo: Fast-forward
+[33m9e721cc[m HEAD@{41}: checkout: moving from main to catalogo
+[33mcb69c0c[m HEAD@{42}: clone: from https://github.com/ananicole-sr/mi-escuela-primero.git
