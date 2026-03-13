@@ -40,9 +40,6 @@ export default function Detalles() {
     function closePopup() {
         setShowPopup(false);
     }
-    function goToEdit(){
-        navigate(`/editar/${id}`)
-    }
 
     function getMeaningfulPart(direccion) {
         if (!direccion) return "";

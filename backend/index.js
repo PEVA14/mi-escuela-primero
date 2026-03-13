@@ -1,165 +1,520 @@
 const escuelas = [
   {
     id_escuela: 1,
-    nombre: "Primaria Federal Constituyentes de 1917",
-    plantel: "Matriz",
-    municipio: "Zapopan",
-    direccion: "Av. de los Laureles 450",
-    ubicacion: "20.7215, -103.3912",
-    cct: "14DPR3412Z",
-    personal_escolar: 24,
-    estudiantes: 520,
+    nombre: "Francisco Rojas González",
+    plantel: "Francisco Rojas González",
+    municipio: "Arandas",
+    direccion: "Desconocido, Llano Grande, CP 47198",
+    ubicacion: "https://maps.app.goo.gl/jyZ4fChtbgVMrBZH8",
+    cct: "14EPR1614C",
+    personal_escolar: 6,
+    estudiantes: 119,
     nivelEducativo: "Primaria",
-    modalidad: "Escolarizada",
+    modalidad: "SEP-Multigrado",
     turno: "Matutino",
-    sostenimiento: "Público",
-    categoria: "Material"
+    sostenimiento: "Estatal",
+    categoria: ["infraestructura","material","formacion"]
   },
+
   {
     id_escuela: 2,
-    nombre: "Secundaria Técnica 114",
-    plantel: "Anexo A",
-    municipio: "Guadalajara",
-    direccion: "Calzada Independencia Norte 1022",
-    ubicacion: "20.6890, -103.3341",
-    cct: "14DST0114B",
-    personal_escolar: 42,
-    estudiantes: 890,
+    nombre: "Los Aguirre",
+    plantel: "Los Aguirre",
+    municipio: "San Juan de los Lagos",
+    direccion: "Los Aguirres de arriba, s/n, 47000",
+    ubicacion: "https://maps.app.goo.gl/XvZzMtZRRCjrUJv27",
+    cct: "14KTV0408X",
+    personal_escolar: 1,
+    estudiantes: 24,
     nivelEducativo: "Secundaria",
-    modalidad: "Técnica",
-    turno: "Vespertino",
-    sostenimiento: "Público",
-    categoria: "Infraestructura"
+    modalidad: "CONAFE",
+    turno: "Matutino",
+    sostenimiento: "Federal",
+    categoria: ["infraestructura","material","formacion","salud"]
   },
+
   {
     id_escuela: 3,
-    nombre: "Colegio Americano de Occidente",
-    plantel: "Campus Vallarta",
-    municipio: "Puerto Vallarta",
-    direccion: "Calle Pez Vela 15, Marina Vallarta",
-    ubicacion: "20.6661, -105.2443",
-    cct: "14PJN0089X",
-    personal_escolar: 18,
-    estudiantes: 120,
-    nivelEducativo: "Preescolar",
-    modalidad: "Privada",
+    nombre: "Miguel Hidalgo y Costilla",
+    plantel: "Miguel Hidalgo y Costilla",
+    municipio: "San Juan de los Lagos",
+    direccion: "Santa Cecilia, 47013 San Juan de los Lagos, Jal.",
+    ubicacion: "https://goo.gl/maps/qLgcz1XDMbQyCdez6",
+    cct: "14DPR1702Y",
+    personal_escolar: 15,
+    estudiantes: 314,
+    nivelEducativo: "Primaria",
+    modalidad: "SEP-General",
     turno: "Matutino",
-    sostenimiento: "Privado",
-    categoria: "Formacion"
+    sostenimiento: "Federal",
+    categoria: ["material","formacion", "salud"]
   },
+
   {
     id_escuela: 4,
-    nombre: "Centro de Atención Múltiple (CAM) No. 5",
-    plantel: "Unidad Especial",
-    municipio: "Tlaquepaque",
-    direccion: "Niños Héroes 88",
-    ubicacion: "20.6401, -103.3150",
-    cct: "14DML0005M",
-    personal_escolar: 12,
-    estudiantes: 45,
-    nivelEducativo: "Especial",
-    modalidad: "Escolarizada",
-    turno: "Matutino",
-    sostenimiento: "Público",
-    categoria: "Salud"
+    nombre: "Antonio de Caso Peralta",
+    plantel: "Antonio de Caso Peralta",
+    municipio: "San Pedro Tlaquepaque",
+    direccion: "Sin número, Nueva Santa María, San Pedro Tlaquepaque",
+    ubicacion: "https://www.google.com/maps?q=20.6061277,-103.3763599",
+    cct: "14DPR3313V",
+    personal_escolar: 16,
+    estudiantes: 289,
+    nivelEducativo: "Primaria",
+    modalidad: "SEP-General",
+    turno: "Vespertino",
+    sostenimiento: "Federal",
+    categoria: ["material","formacion"]
   },
+
   {
     id_escuela: 5,
-    nombre: "Preparatoria Regional de El Salto",
-    plantel: "Modulo Juanacatlán",
-    municipio: "El Salto",
-    direccion: "Carr. a El Castillo Km 2",
-    ubicacion: "20.5189, -103.2455",
-    cct: "14UBH0021L",
-    personal_escolar: 35,
-    estudiantes: 1100,
-    nivelEducativo: "Media Superior",
-    modalidad: "Bivalente",
-    turno: "Continuo",
-    sostenimiento: "Autónomo",
-    categoria: "Infraestructura"
+    nombre: "Lázaro Cárdenas",
+    plantel: "Lázaro Cárdenas",
+    municipio: "San Pedro Tlaquepaque",
+    direccion: "Lázaro Cárdenas #28, Los Santibáñez, 45620 San Pedro Tlaquepaque, Jal.",
+    ubicacion: "https://maps.app.goo.gl/4Uj3m6i4abEhs7L2A",
+    cct: "14EPR1467J",
+    personal_escolar: 12,
+    estudiantes: 350,
+    nivelEducativo: "Primaria",
+    modalidad: "SEP-General",
+    turno: "Matutino",
+    sostenimiento: "Federal",
+    categoria: ["formacion","material"]
   },
+
   {
     id_escuela: 6,
-    nombre: "Escuela Rural Emiliano Zapata",
-    plantel: "Único",
-    municipio: "Tequila",
-    direccion: "Conocido, Domicilio Rural",
-    ubicacion: "20.8841, -103.8377",
-    cct: "14KPR0552J",
-    personal_escolar: 3,
-    estudiantes: 58,
+    nombre: "Urbana 1098",
+    plantel: "Urbana 1097",
+    municipio: "Arandas",
+    direccion: "Miguel Hidalgo #203, Emiliano Zapata, 45638 San Pedro Tlaquepaque, Jal.",
+    ubicacion: "https://goo.gl/maps/9tLJL1qJMeAjXjsx9",
+    cct: "14EPR0145U",
+    personal_escolar: 16,
+    estudiantes: 398,
     nivelEducativo: "Primaria",
-    modalidad: "Multigrado",
+    modalidad: "SEP-General",
     turno: "Matutino",
-    sostenimiento: "Público",
-    categoria: "Material"
+    sostenimiento: "Estatal",
+    categoria: ["material","formacion"]
   },
+
   {
     id_escuela: 7,
-    nombre: "Instituto Tecnológico Superior de Zapopan",
-    plantel: "Campus Central",
+    nombre: "Carlos de Icaza",
+    plantel: "Las Cuevas",
     municipio: "Zapopan",
-    direccion: "Camino a las Cañadas 600",
-    ubicacion: "20.7456, -103.3762",
-    cct: "14EIT0001D",
-    personal_escolar: 150,
-    estudiantes: 4500,
-    nivelEducativo: "Superior",
-    modalidad: "Ingeniería",
-    turno: "Mixto",
-    sostenimiento: "Público",
-    categoria: "Formacion"
+    direccion: "Camino a las Cuevas, Sin número, Resplandor del Rayo, Zapopan",
+    ubicacion: "https://maps.app.goo.gl/KSKzkvKDpLMo5eRi9?g_st=iw",
+    cct: "14DPR4183Z",
+    personal_escolar: 2,
+    estudiantes: 31,
+    nivelEducativo: "Primaria",
+    modalidad: "SEP-Multigrado",
+    turno: "Matutino",
+    sostenimiento: "Federal",
+    categoria: ["infraestructura","material","formacion","salud"]
   },
+
   {
     id_escuela: 8,
-    nombre: "Kinder Mi Pequeño Mundo",
-    plantel: "Zapopan Norte",
+    nombre: "Preescolar Comunitario Cuevas",
+    plantel: "Las Cuevas",
     municipio: "Zapopan",
-    direccion: "Av. Patria 220",
-    ubicacion: "20.7001, -103.4150",
-    cct: "14PJN1122C",
-    personal_escolar: 8,
-    estudiantes: 65,
+    direccion: "Camino a las Cuevas, Sin número, Resplandor del Rayo, Zapopan",
+    ubicacion: "https://maps.app.goo.gl/KSKzkvKDpLMo5eRi9?g_st=iw",
+    cct: "14KJN2189Z",
+    personal_escolar: 1,
+    estudiantes: 8,
     nivelEducativo: "Preescolar",
-    modalidad: "Privada",
+    modalidad: "CONAFE",
     turno: "Matutino",
-    sostenimiento: "Privado",
-    categoria: "Material"
+    sostenimiento: "Federal",
+    categoria: ["na"]
   },
+
   {
     id_escuela: 9,
-    nombre: "Escuela de Artes y Oficios",
-    plantel: "Centro Histórico",
-    municipio: "Guadalajara",
-    direccion: "Calle Morelos 50",
-    ubicacion: "20.6765, -103.3480",
-    cct: "14EDP0012W",
-    personal_escolar: 20,
-    estudiantes: 200,
-    nivelEducativo: "Formación Trabajo",
-    modalidad: "Presencial",
-    turno: "Nocturno",
-    sostenimiento: "Público",
-    categoria: "Formacion"
+    nombre: "Secundaria Comunitaria Cuevas",
+    plantel: "Las Cuevas",
+    municipio: "Zapopan",
+    direccion: "Camino a las Cuevas, Sin número, Resplandor del Rayo, Zapopan",
+    ubicacion: "https://maps.app.goo.gl/KSKzkvKDpLMo5eRi9?g_st=iw",
+    cct: "14KTV0274Y",
+    personal_escolar: 1,
+    estudiantes: 20,
+    nivelEducativo: "Secundaria",
+    modalidad: "CONAFE",
+    turno: "Matutino",
+    sostenimiento: "Federal",
+    categoria: ["na"]
   },
+
   {
     id_escuela: 10,
-    nombre: "Telebachillerato Comunitario No. 42",
-    plantel: "San Juanito",
-    municipio: "San Juanito de Escobedo",
-    direccion: "Hidalgo s/n",
-    ubicacion: "20.7950, -103.9980",
-    cct: "14ETK0042K",
-    personal_escolar: 4,
-    estudiantes: 82,
-    nivelEducativo: "Media Superior",
-    modalidad: "Telebachillerato",
-    turno: "Vespertino",
-    sostenimiento: "Público",
-    categoria: "Infraestructura"
+    nombre: "Justo Sierra",
+    plantel: "Justo Sierra",
+    municipio: "Zapopan",
+    direccion: "Agustín Melgar 1509, prados Santa Lucia, Zapopan, Jalisco",
+    ubicacion: "https://maps.app.goo.gl/LnystBsvg6Y16AuY6",
+    cct: "14DPR0060O",
+    personal_escolar: 21,
+    estudiantes: 558,
+    nivelEducativo: "Primaria",
+    modalidad: "SEP-General",
+    turno: "Matutino",
+    sostenimiento: "Federalizado",
+    categoria: ["infraestructura","material","formacion","salud"]
+  },
+
+  {
+    id_escuela: 11,
+    nombre: "Las Mesitas (P) Guadalupe Victoria",
+    plantel: "Las Mesitas",
+    municipio: "Zapopan",
+    direccion: "Paseo de las Galeanas, s/n, Las Mesitas, 45200",
+    ubicacion: "https://maps.app.goo.gl/aEP6ysbRdDveaXGY8",
+    cct: "14KJN1164J",
+    personal_escolar: 2,
+    estudiantes: 19,
+    nivelEducativo: "Preescolar",
+    modalidad: "CONAFE",
+    turno: "Matutino",
+    sostenimiento: "Federal",
+    categoria: ["infraestructura","material","formacion","salud"]
+  },
+
+  {
+    id_escuela: 12,
+    nombre: "Las Mesitas (S) Guadalupe Victoria",
+    plantel: "Las Mesitas",
+    municipio: "Zapopan",
+    direccion: "Paseo de las Galeanas, s/n, Las Mesitas, 45200",
+    ubicacion: "https://maps.app.goo.gl/aEP6ysbRdDveaXGY8",
+    cct: "14KTVO382F",
+    personal_escolar: 2,
+    estudiantes: 25,
+    nivelEducativo: "Preescolar",
+    modalidad: "CONAFE",
+    turno: "Matutino",
+    sostenimiento: "Federal",
+    categoria: ["infraestructura","material","formacion","salud"]
+  },
+
+  {
+    id_escuela: 13,
+    nombre: "La Reserva (Pre)",
+    plantel: "La Reserva",
+    municipio: "Zapopan",
+    direccion: "Sin nombre conocido, Santa Lucía, 45200",
+    ubicacion: "https://maps.app.goo.gl/fT1CgLiiCS7ZUcU27",
+    cct: "14KPR1665U",
+    personal_escolar: 1,
+    estudiantes: 9,
+    nivelEducativo: "Preescolar",
+    modalidad: "CONAFE",
+    turno: "Matutino",
+    sostenimiento: "Federal",
+    categoria: ["infraestructura","material","formacion","salud"]
+  },
+
+  {
+    id_escuela: 14,
+    nombre: "La Reserva (Pri)",
+    plantel: "La Reserva",
+    municipio: "Zapopan",
+    direccion: "Sin nombre conocido, Santa Lucía, 45200",
+    ubicacion: "https://maps.app.goo.gl/fT1CgLiiCS7ZUcU27",
+    cct: "14KPR1665U",
+    personal_escolar: 1,
+    estudiantes: 8,
+    nivelEducativo: "Primaria",
+    modalidad: "CONAFE",
+    turno: "Matutino",
+    sostenimiento: "Federal",
+    categoria: ["infraestructura","material","formacion","salud"]
+  },
+
+  {
+    id_escuela: 15,
+    nombre: "Manuel M Cerna",
+    plantel: "Manuel M Cerna",
+    municipio: "Zapopan",
+    direccion: "San Antonio, Sin número, Ex Hacienda del Lazo, CP 45205",
+    ubicacion: "https://maps.app.goo.gl/aEP6ysbRdDveaXGY8?g_st=am",
+    cct: "14DPR1588W",
+    personal_escolar: 2,
+    estudiantes: 44,
+    nivelEducativo: "Primaria",
+    modalidad: "SEP-Multigrado",
+    turno: "Matutino",
+    sostenimiento: "Federal",
+    categoria: ["infraestructura","material","formacion","salud"]
+  },
+
+  {
+    id_escuela: 16,
+    nombre: "Margarita Maza de Juárez",
+    plantel: "Margarita Maza de Juárez",
+    municipio: "Zapopan",
+    direccion: "C. Felipe Ángeles, 45205 San Esteban, Jal.",
+    ubicacion: "https://maps.app.goo.gl/zhipcjRnsZm4bkAc8",
+    cct: "14DPR2324U",
+    personal_escolar: 15,
+    estudiantes: 444,
+    nivelEducativo: "Primaria",
+    modalidad: "SEP-General",
+    turno: "Matutino",
+    sostenimiento: "Federal",
+    categoria: ["infraestructura","material"]
   }
-];
+]
+
+const propuestas = [
+
+{
+id_propuesta: 1,
+id_escuela: 1,
+categoria: "infraestructura",
+subcategoria: "Contruccion materiales",
+titulo: "Cubetas de pintura",
+descripcion: "",
+estado: "cubierto"
+},
+
+{
+id_propuesta: 2,
+id_escuela: 1,
+categoria: "material",
+subcategoria: "Pizarrones/Pintarrones",
+titulo: "Pizarrones",
+descripcion: "",
+estado: "cubierto"
+},
+
+{
+id_propuesta: 3,
+id_escuela: 2,
+categoria: "Salud",
+subcategoria: "Salud fisica",
+titulo: "Botiquien",
+descripcion: "",
+estado: "pendiente"
+},
+
+{
+id_propuesta: 4,
+id_escuela: 2,
+categoria: "Formacion",
+subcategoria: "Formacion para estudiantes",
+titulo: "Estudiantes: manejo de emociones",
+descripcion: "ormación para un grupo de estudiantes de secundaria (aprox. 25 alumnos)",
+estado: "cubierto"
+},
+
+{
+id_propuesta: 5,
+id_escuela: 3,
+categoria: "Formacion",
+subcategoria: "Formación para estudiantes",
+titulo: "Estudiantes: desarrollo de valores",
+descripcion: "Instalación de estaciones de lavado de manos",
+estado: "pendiente"
+},
+
+{
+id_propuesta: 6,
+id_escuela: 3,
+categoria: "Salud",
+subcategoria: "Salud material",
+titulo: "Silla de ruedas/andadera",
+descripcion: "Sustitución de pupitres dañados",
+estado: "cubierto"
+},
+
+{
+id_propuesta: 7,
+id_escuela: 4,
+categoria: "Material",
+subcategoria: "Material tecnologico",
+titulo: "Proyectores",
+descripcion: "",
+estado: "pendiente"
+},
+
+{
+id_propuesta: 8,
+id_escuela: 4,
+categoria: "Formacion",
+subcategoria: "Formación para estudiantes",
+titulo: "Estudiantes: Convivencia escolar y valores",
+descripcion: "",
+estado: "cubierto"
+},
+
+{
+id_propuesta: 9,
+id_escuela: 5,
+categoria: "Formacion",
+subcategoria: "Formación para familias",
+titulo: "Prevención de abuso sexual",
+descripcion: "",
+estado: "cubierto"
+},
+
+{
+id_propuesta: 10,
+id_escuela: 5,
+categoria: "Material",
+subcategoria: "Material didáctico",
+titulo: "Material estudiantes: proyecto de vida (alebrijes)",
+descripcion: "",
+estado: "cubierto"
+},
+
+{
+id_propuesta: 11,
+id_escuela: 6,
+categoria: "Formacion",
+subcategoria: "Formación para docentes",
+titulo: "Docentes: proyecto de vida",
+descripcion: "",
+estado: "cubierto"
+},
+
+{
+id_propuesta: 12,
+id_escuela: 6,
+categoria: "Material",
+subcategoria: "Mobiliario",
+titulo: "Comedores",
+descripcion: "",
+estado: "pendiente"
+},
+
+{
+id_propuesta: 13,
+id_escuela: 7,
+categoria: "Material",
+subcategoria: "Material literario",
+titulo: "Libros infantil",
+descripcion: "",
+estado: "cubierto"
+},
+
+{
+id_propuesta: 14,
+id_escuela: 7,
+categoria: "Infraestructura",
+subcategoria: "Construcción materiales",
+titulo: "Montenes de fierro (vigas) de 5 pulgadas calibre 14",
+descripcion: "",
+estado: "cubierto"
+},
+
+{
+id_propuesta: 15,
+id_escuela: 8,
+categoria: "Infraestructura",
+subcategoria: "Construcción materiales",
+titulo: "Cubetas de pintura",
+descripcion: "",
+estado: "cubierto"
+},
+
+{
+id_propuesta: 16,
+id_escuela: 8,
+categoria: "Material",
+subcategoria: "Material tecnológico",
+titulo: "Proyectores",
+descripcion: "",
+estado: "Pendiente"
+},
+
+{
+id_propuesta: 17,
+id_escuela: 9,
+categoria: "Salud",
+subcategoria: "Salud física",
+titulo: "Jornadas de salud física",
+descripcion: "",
+estado: "Cubierto"
+},
+
+{
+id_propuesta: 18,
+id_escuela: 9,
+categoria: "Formación",
+subcategoria: "Formación para estudiantes",
+titulo: "Estudiantes S: Prevención de violencia",
+descripcion: "",
+estado: "Pendiente"
+},
+
+{
+id_propuesta: 19,
+id_escuela: 10,
+categoria: "Infrestructura",
+subcategoria: "Salud física",
+titulo: "Filtros de agua (quizás)",
+descripcion: "",
+estado: "Cubierto"
+},
+
+{
+id_propuesta: 20,
+id_escuela: 10,
+categoria: "Material",
+subcategoria: "Transporte",
+titulo: "Bicicletas",
+descripcion: "",
+estado: "Cubierto"
+},
+
+{
+id_propuesta: 21,
+id_escuela: 11,
+categoria: "Salud",
+subcategoria: "Salud física",
+titulo: "Jornadas de salud física",
+descripcion: "",
+estado: "Cubierto"
+},
+
+{
+id_propuesta: 22,
+id_escuela: 11,
+categoria: "Material",
+subcategoria: "Material de educación física",
+titulo: "Pelotas",
+descripcion: "",
+estado: "Pendientes"
+},
+
+{
+id_propuesta: 23,
+id_escuela: 12,
+categoria: "Material",
+subcategoria: "Material didáctico",
+titulo: "Juegos de mesa",
+descripcion: "",
+estado: "Pendiente"
+},
+
+{
+id_propuesta: 24,
+id_escuela: 12,
+categoria: "Infraestructura",
+subcategoria: "Construcción servicio",
+titulo: "Arreglo de barda con alambrado caído",
+descripcion: "",
+estado: "Pendientes"
+}
+
+]
 
 const express = require('express');
 const cors = require('cors');
@@ -212,126 +567,23 @@ app.post('/api/login', (req, res) => {
   const usuarioEncontrado = usuariosDB.find((u) => {
     return u.usuario === usuario && u.password === contraseña;  });
   if (usuarioEncontrado) {
-    const token = jwt.sign(
-    { usuario: usuarioEncontrado.usuario }, 
-    SECRET_KEY,
-    { expiresIn: "10m" });
     res.status(200).json({ mensaje: "Login OK" });
   } else {
     res.status(401).json({ mensaje: "Error" });
   }
-  
-
-});
-
-
-app.put('/api/escuelas/:id', (req, res) => {
-
-  const idBuscado = parseInt(req.params.id);
-
-  const escuelaIndex = escuelas.findIndex(
-    e => e.id_escuela === idBuscado
+  const token = jwt.sign(
+    { usuario: usuarioEncontrado.usuario }, // payload
+    SECRET_KEY,
+    { expiresIn: "10m" }
   );
-
-  if (escuelaIndex === -1) {
-    return res.status(404).json({ mensaje: "Escuela no encontrada" });
-  }
-
-  const {
-    nombre,
-    plantel,
-    municipio,
-    direccion,
-    ubicacion,
-    cct,
-    personal_escolar,
-    estudiantes,
-    nivelEducativo,
-    modalidad,
-    turno,
-    sostenimiento,
-    categoria
-  } = req.body;
-
-  escuelas[escuelaIndex] = {
-    ...escuelas[escuelaIndex],
-    nombre: nombre || escuelas[escuelaIndex].nombre,
-    plantel: plantel || escuelas[escuelaIndex].plantel,
-    municipio: municipio || escuelas[escuelaIndex].municipio,
-    direccion: direccion || escuelas[escuelaIndex].direccion,
-    ubicacion: ubicacion || escuelas[escuelaIndex].ubicacion,
-    cct: cct || escuelas[escuelaIndex].cct,
-    personal_escolar: personal_escolar || escuelas[escuelaIndex].personal_escolar,
-    estudiantes: estudiantes || escuelas[escuelaIndex].estudiantes,
-    nivelEducativo: nivelEducativo || escuelas[escuelaIndex].nivelEducativo,
-    modalidad: modalidad || escuelas[escuelaIndex].modalidad,
-    turno: turno || escuelas[escuelaIndex].turno,
-    sostenimiento: sostenimiento || escuelas[escuelaIndex].sostenimiento,
-    categoria: categoria || escuelas[escuelaIndex].categoria
-  };
-
-  res.json({
-    mensaje: "Escuela actualizada",
-    escuela: escuelas[escuelaIndex]
-  });
+  res.json({ token });
 
 });
 
 
-
-
-
-app.post('/api/escuelas', (req, res) => {
-  console.log("--- Petición recibida en POST /api/escuelas ---");
-  console.log("Cuerpo de la petición:", req.body); 
-
-  try {
-    const { nombre, plantel, municipio, direccion, ubicacion, cct, 
-      personal_escolar, estudiantes, nivelEducativo, modalidad, 
-      turno, sostenimiento, categoria } = req.body;
-
-    const nuevaEscuela = {
-      id_escuela: escuelas.length > 0 ? escuelas[escuelas.length - 1].id_escuela + 1 : 1, 
-      nombre,
-      plantel: plantel || "No especificado",
-      municipio: municipio || "No especificado",
-      direccion: direccion || "",
-      ubicacion: ubicacion || "",
-      cct: cct || "",
-      personal_escolar: parseInt(personal_escolar) || 0,
-      estudiantes: parseInt(estudiantes) || 0,
-      nivelEducativo: nivelEducativo || "",
-      modalidad: modalidad || "",
-      turno: turno || "",
-      sostenimiento: sostenimiento || "",
-      categoria: categoria || "General" 
-    };
-
-    escuelas.push(nuevaEscuela);
-
-    res.status(201).json({ 
-      mensaje: "Escuela registrada con éxito", 
-      escuela: nuevaEscuela 
-    });
-
-  } catch (error) {
-    res.status(500).json({ mensaje: "Error interno del servidor" });
-  }
-});
-
-app.delete('/api/escuelas/:id', (req, res) => {
-  const id = parseInt(req.params.id);
-  const indice = escuelas.findIndex(e => e.id_escuela === id);
-  if (indice !== -1) {
-    const escuelaEliminada = escuelas.splice(indice, 1);
-    res.status(200).json({ 
-      mensaje: "Escuela eliminada con éxito",
-      id: id 
-    });
-  } else {
-    res.status(404).json({ mensaje: "Error: La escuela no existe en la base de datos." });
-  }
-});
+app.get('/api/home', (req, res) => {
+  
+})
 
 app.listen(PORT, () => {
     console.log(`Listening in Port: ${PORT}`)
