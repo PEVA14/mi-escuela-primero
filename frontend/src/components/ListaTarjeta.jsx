@@ -3,9 +3,9 @@ import { getEscuelas } from "../services/api";
 import Tarjeta from "./Tarjeta";
 import Buscador from "./Buscador";
 
-export default function ListaTarjeta({ mostrarBuscador = true, limite = null}){
-    const [escuelas , setEscuelas] = useState([])
-        useEffect(() => {
+export default function ListaTarjeta({ mostrarBuscador = true, limite = null }) {
+    const [escuelas, setEscuelas] = useState([]);
+    useEffect(() => {
         async function load() {
             try {
                 const res = await getEscuelas();
@@ -13,26 +13,25 @@ export default function ListaTarjeta({ mostrarBuscador = true, limite = null}){
             } catch (err) {
                 console.log(err);
             }
-            }
-            load();
-        }, []);
+        }
+        load();
+    }, []);
 
-        const escuelasAMostrar = limite ? escuelas.slice(0,limite) : escuelas;
+    const escuelasAMostrar = limite ? escuelas.slice(0, limite) : escuelas;
 
-        console.log("ListaTarjeta escuelas:", escuelas);
-        
+    console.log("ListaTarjeta escuelas:", escuelas);
+
     return (
-        <div>
+        <div className="w-full">
             {mostrarBuscador ? (
-                <Buscador escuelas={escuelas}/>  
-            ): (
-                <div className="lista-tarjetas-sample">
-                        {escuelasAMostrar.map((escuela, index) => (
-                            <Tarjeta key={escuela.id ?? escuela.id_escuela ?? escuela.nombre ?? index} escuela={escuela}/>
-                        ))}
+                <Buscador escuelas={escuelas} />
+            ) : (
+                <div className="lista-tarjetas-sample grid grid-cols-1 items-start gap-6 md:grid-cols-2 xl:grid-cols-3">
+                    {escuelasAMostrar.map((escuela, index) => (
+                        <Tarjeta key={escuela.id ?? escuela.id_escuela ?? escuela.nombre ?? index} escuela={escuela} />
+                    ))}
                 </div>
-                )
-            }
+            )}
         </div>
     );
 }
