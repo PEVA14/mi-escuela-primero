@@ -1,8 +1,20 @@
-import quotes from '../assets/quotes.png';
-import pfp_icon from '../assets/pfp_icon.png';
+import { useState } from "react";
+import quotes from "../assets/quotes.png";
+import pfp_icon from "../assets/pfp_icon.png";
+import PopUpDonativos from "./PopUpDonativos";
 
-export default function Testimonies(){
-    return(
+export default function Testimonies() {
+    const [showPopup, setShowPopup] = useState(false);
+
+    function openPopup() {
+        setShowPopup(true);
+    }
+
+    function closePopup() {
+        setShowPopup(false);
+    }
+
+    return (
         <section id="testimonies" className="bg-white px-6 py-16 md:px-10 lg:px-14 lg:py-20">
             <div className="mx-auto w-full max-w-[1280px]">
                 <div className="mx-auto max-w-4xl text-center">
@@ -60,7 +72,19 @@ export default function Testimonies(){
                         </div>
                     </article>
                 </div>
+
+                <div className="mt-10 flex justify-center">
+                    <button
+                        type="button"
+                        className="inline-flex items-center justify-center rounded-2xl bg-emerald-700 px-6 py-3.5 text-sm font-semibold text-white shadow-md transition hover:bg-emerald-800"
+                        onClick={openPopup}
+                    >
+                        Quiero que se comuniquen conmigo
+                    </button>
+                </div>
             </div>
+
+            {showPopup && <PopUpDonativos closePopup={closePopup} escuela={null} />}
         </section>
-    )
+    );
 }

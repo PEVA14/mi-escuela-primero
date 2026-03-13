@@ -5,6 +5,7 @@ import { getEscuelaById } from "../services/api";
 import NavBar from "../components/NavBar";
 import Footer from "../components/Footer";
 import PopUp from "../components/PopUp";
+import PopUpDonativos from "../components/PopUpDonativos";
 import locationIcon from "../assets/location_icon.png";
 import calendarIcon from "../assets/calendar_icon.png";
 import schoolIcon from "../assets/school_icon_32px.png";
@@ -32,6 +33,7 @@ export default function Detalles() {
     }
 
     const [showPopup, setShowPopup] = useState(false);
+    const [showContactPopup, setShowContactPopup] = useState(false);
 
     function popup() {
         setShowPopup(true);
@@ -39,6 +41,14 @@ export default function Detalles() {
 
     function closePopup() {
         setShowPopup(false);
+    }
+
+    function openContactPopup() {
+        setShowContactPopup(true);
+    }
+
+    function closeContactPopup() {
+        setShowContactPopup(false);
     }
 
     function getMeaningfulPart(direccion) {
@@ -333,7 +343,7 @@ export default function Detalles() {
 
                                         <button
                                             className="inline-flex w-full items-center justify-center rounded-2xl border border-slate-200 bg-white px-5 py-3.5 text-center text-sm font-semibold leading-6 text-slate-700 shadow-sm transition hover:border-emerald-300 hover:text-emerald-700"
-                                            onClick={popup}
+                                            onClick={openContactPopup}
                                         >
                                             Quiero que se Comuniquen Conmigo
                                         </button>
@@ -362,6 +372,7 @@ export default function Detalles() {
             </div>
 
             {showPopup && <PopUp closePopup={closePopup} escuela={escuela} />}
+            {showContactPopup && <PopUpDonativos closePopup={closeContactPopup} escuela={escuela} />}
             <Footer />
         </div>
     );

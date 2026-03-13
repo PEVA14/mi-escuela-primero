@@ -5,8 +5,10 @@ import calendarIcon from "../assets/calendar_icon.png"
 export default function Tarjeta( {escuela}) {
     const navigate = useNavigate();
 
-    function manejarClick() {
-        navigate(`/escuelas/${escuela.id_escuela}`);
+    function manejarClick(event) {
+        event.preventDefault();
+        event.stopPropagation();
+        navigate(`/escuelas/${escuela?.id_escuela ?? escuela?.id}`);
     }
 
    return (
