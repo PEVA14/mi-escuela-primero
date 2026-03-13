@@ -212,29 +212,47 @@ app.post('/api/login', (req, res) => {
   const usuarioEncontrado = usuariosDB.find((u) => {
     return u.usuario === usuario && u.password === contraseña;  });
   if (usuarioEncontrado) {
+    const token = jwt.sign(
+    { usuario: usuarioEncontrado.usuario }, 
+    SECRET_KEY,
+    { expiresIn: "10m" });
     res.status(200).json({ mensaje: "Login OK" });
   } else {
     res.status(401).json({ mensaje: "Error" });
   }
-  const token = jwt.sign(
-    { usuario: usuarioEncontrado.usuario }, 
-    SECRET_KEY,
-    { expiresIn: "10m" }
-  );
+  
 
 });
 
 
-app.put('api/escuelas/:id', /*authenticateToken,*/ (req,res)=>{
-  const idBuscado= parseInt(req.params.id);
-  const escuelaEncontrada =escuelas.find(e=>e.id_escuela===idBuscado);
-  if (escuelaEncontrada){
-    res.json(escuelaEncontrada);
-  }else{
-    res.status(404).json({mensaje: "Escuela no encontrada"});
+app.put('/api/escuelas/:id', (req, res) => {
+
+  const idBuscado = parseInt(req.params.id);
+
+  const escuelaIndex = escuelas.findIndex(
+    e => e.id_escuela === idBuscado
+  );
+
+  if (escuelaIndex === -1) {
+    return res.status(404).json({ mensaje: "Escuela no encontrada" });
   }
-  const { nombre, plantel, municipio, direccion, ubicacion, cct, personal_escolar, estudiantes, nivelEducativo, modalidad, turno, sostenimiento, categoria } = req.body;
-  // Actualiza
+
+  const {
+    nombre,
+    plantel,
+    municipio,
+    direccion,
+    ubicacion,
+    cct,
+    personal_escolar,
+    estudiantes,
+    nivelEducativo,
+    modalidad,
+    turno,
+    sostenimiento,
+    categoria
+  } = req.body;
+
   escuelas[escuelaIndex] = {
     ...escuelas[escuelaIndex],
     nombre: nombre || escuelas[escuelaIndex].nombre,
@@ -252,8 +270,16 @@ app.put('api/escuelas/:id', /*authenticateToken,*/ (req,res)=>{
     categoria: categoria || escuelas[escuelaIndex].categoria
   };
 
-  res.json({ mensaje: "Escuela actualizada", escuela: escuelas[escuelaIndex] });
+  res.json({
+    mensaje: "Escuela actualizada",
+    escuela: escuelas[escuelaIndex]
+  });
+
 });
+
+
+
+
 
 app.post('/api/escuelas', (req, res) => {
   console.log("--- Petición recibida en POST /api/escuelas ---");
