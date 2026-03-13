@@ -66,112 +66,192 @@ export default function EditarEscuela() {
 }
 
 
-  if (loading) return <p>Cargando datos de la escuela...</p>;
+  if (loading) return (
+    <div className="min-h-screen bg-slate-50">
+      <NavBar />
+      <main className="px-6 py-10 md:px-10 lg:px-14">
+        <div className="mx-auto max-w-3xl rounded-[28px] border border-slate-200 bg-white p-8 text-center shadow-sm">
+          <p className="text-lg font-medium text-slate-600">Cargando datos de la escuela...</p>
+        </div>
+      </main>
+      <Footer />
+    </div>
+  );
 
   return (
-    <div>
+    <div className="min-h-screen bg-slate-50">
+      <NavBar />
 
-      <NavBar/>
+      <main className="px-6 py-8 md:px-10 lg:px-14 lg:py-10">
+        <div className="mx-auto flex w-full max-w-4xl flex-col gap-8">
+          <div className="rounded-[32px] border border-slate-200 bg-white p-7 shadow-sm md:p-9">
+            <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+              <div>
+                <span className="inline-flex rounded-full border border-emerald-200 bg-emerald-50 px-4 py-1.5 text-sm font-semibold text-emerald-700 shadow-sm">
+                  Panel de edición
+                </span>
+                <h1 className="mt-4 text-3xl font-extrabold tracking-[-0.04em] text-slate-900 md:text-4xl">
+                  Editar Escuela
+                </h1>
+                <p className="mt-2 text-base leading-7 text-slate-600 md:text-lg">
+                  Actualiza la información de la escuela y guarda los cambios cuando termines.
+                </p>
+              </div>
 
-      <div className="editContainer">
+              <button
+                type="button"
+                onClick={() => navigate(`/escuelas/${id}`)}
+                className="inline-flex items-center justify-center rounded-2xl border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-slate-700 shadow-sm transition hover:border-emerald-300 hover:text-emerald-700"
+              >
+                Volver a detalles
+              </button>
+            </div>
+          </div>
 
-        <h1>Editar Escuela</h1>
+          <div className="rounded-[32px] border border-slate-200 bg-white p-6 shadow-sm md:p-8">
+            <form onSubmit={handleSubmit} className="grid grid-cols-1 gap-6 md:grid-cols-2">
+              <div className="grid gap-2 md:col-span-2">
+                <label className="text-sm font-semibold text-slate-700">Nombre</label>
+                <input
+                  className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700 outline-none transition placeholder:text-slate-400 focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100"
+                  name="nombre"
+                  value={escuela.nombre}
+                  onChange={handleChange}
+                />
+              </div>
 
-        <form onSubmit={handleSubmit}>
+              <div className="grid gap-2">
+                <label className="text-sm font-semibold text-slate-700">Plantel</label>
+                <input
+                  className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700 outline-none transition placeholder:text-slate-400 focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100"
+                  name="plantel"
+                  value={escuela.plantel}
+                  onChange={handleChange}
+                />
+              </div>
 
-          <label>Nombre</label>
-          <input
-            name="nombre"
-            value={escuela.nombre}
-            onChange={handleChange}
-          />
+              <div className="grid gap-2">
+                <label className="text-sm font-semibold text-slate-700">Municipio</label>
+                <input
+                  className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700 outline-none transition placeholder:text-slate-400 focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100"
+                  name="municipio"
+                  value={escuela.municipio}
+                  onChange={handleChange}
+                />
+              </div>
 
-          <label>Plantel</label>
-          <input
-            name="plantel"
-            value={escuela.plantel}
-            onChange={handleChange}
-          />
+              <div className="grid gap-2 md:col-span-2">
+                <label className="text-sm font-semibold text-slate-700">Dirección</label>
+                <input
+                  className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700 outline-none transition placeholder:text-slate-400 focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100"
+                  name="direccion"
+                  value={escuela.direccion}
+                  onChange={handleChange}
+                />
+              </div>
 
-          <label>Municipio</label>
-          <input
-            name="municipio"
-            value={escuela.municipio}
-            onChange={handleChange}
-          />
+              <div className="grid gap-2">
+                <label className="text-sm font-semibold text-slate-700">CCT</label>
+                <input
+                  className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700 outline-none transition placeholder:text-slate-400 focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100"
+                  name="cct"
+                  value={escuela.cct}
+                  onChange={handleChange}
+                />
+              </div>
 
-          <label>Dirección</label>
-          <input
-            name="direccion"
-            value={escuela.direccion}
-            onChange={handleChange}
-          />
+              <div className="grid gap-2">
+                <label className="text-sm font-semibold text-slate-700">Estudiantes</label>
+                <input
+                  className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700 outline-none transition placeholder:text-slate-400 focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100"
+                  name="estudiantes"
+                  value={escuela.estudiantes}
+                  onChange={handleChange}
+                />
+              </div>
 
-          <label>CCT</label>
-          <input
-            name="cct"
-            value={escuela.cct}
-            onChange={handleChange}
-          />
+              <div className="grid gap-2">
+                <label className="text-sm font-semibold text-slate-700">Personal Escolar</label>
+                <input
+                  className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700 outline-none transition placeholder:text-slate-400 focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100"
+                  name="personal_escolar"
+                  value={escuela.personal_escolar}
+                  onChange={handleChange}
+                />
+              </div>
 
-          <label>Estudiantes</label>
-          <input
-            name="estudiantes"
-            value={escuela.estudiantes}
-            onChange={handleChange}
-          />
+              <div className="grid gap-2">
+                <label className="text-sm font-semibold text-slate-700">Nivel Educativo</label>
+                <input
+                  className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700 outline-none transition placeholder:text-slate-400 focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100"
+                  name="nivelEducativo"
+                  value={escuela.nivelEducativo}
+                  onChange={handleChange}
+                />
+              </div>
 
-          <label>Personal Escolar</label>
-          <input
-            name="personal_escolar"
-            value={escuela.personal_escolar}
-            onChange={handleChange}
-          />
+              <div className="grid gap-2">
+                <label className="text-sm font-semibold text-slate-700">Modalidad</label>
+                <input
+                  className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700 outline-none transition placeholder:text-slate-400 focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100"
+                  name="modalidad"
+                  value={escuela.modalidad}
+                  onChange={handleChange}
+                />
+              </div>
 
-          <label>Nivel Educativo</label>
-          <input
-            name="nivelEducativo"
-            value={escuela.nivelEducativo}
-            onChange={handleChange}
-          />
+              <div className="grid gap-2">
+                <label className="text-sm font-semibold text-slate-700">Turno</label>
+                <input
+                  className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700 outline-none transition placeholder:text-slate-400 focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100"
+                  name="turno"
+                  value={escuela.turno}
+                  onChange={handleChange}
+                />
+              </div>
 
-          <label>Modalidad</label>
-          <input
-            name="modalidad"
-            value={escuela.modalidad}
-            onChange={handleChange}
-          />
+              <div className="grid gap-2">
+                <label className="text-sm font-semibold text-slate-700">Sostenimiento</label>
+                <input
+                  className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700 outline-none transition placeholder:text-slate-400 focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100"
+                  name="sostenimiento"
+                  value={escuela.sostenimiento}
+                  onChange={handleChange}
+                />
+              </div>
 
-          <label>Turno</label>
-          <input
-            name="turno"
-            value={escuela.turno}
-            onChange={handleChange}
-          />
+              <div className="grid gap-2 md:col-span-2">
+                <label className="text-sm font-semibold text-slate-700">Categoría</label>
+                <input
+                  className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700 outline-none transition placeholder:text-slate-400 focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100"
+                  name="categoria"
+                  value={escuela.categoria}
+                  onChange={handleChange}
+                />
+              </div>
 
-          <label>Sostenimiento</label>
-          <input
-            name="sostenimiento"
-            value={escuela.sostenimiento}
-            onChange={handleChange}
-          />
+              <div className="mt-2 flex flex-col gap-3 md:col-span-2 md:flex-row md:justify-end">
+                <button
+                  type="button"
+                  onClick={handleDelete}
+                  className="inline-flex items-center justify-center rounded-2xl border border-red-200 bg-red-50 px-6 py-3.5 text-sm font-semibold text-red-700 shadow-sm transition hover:border-red-300 hover:bg-red-100"
+                >
+                  Eliminar escuela
+                </button>
 
-          <button type="submit">
-            Guardar cambios
-          </button>
-        
-          <button type="button"
-            onClick={handleDelete}
-          >
-            Eliminar escuela
-          </button>
+                <button
+                  type="submit"
+                  className="inline-flex items-center justify-center rounded-2xl bg-emerald-700 px-6 py-3.5 text-sm font-semibold text-white shadow-md transition hover:bg-emerald-800"
+                >
+                  Guardar cambios
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </main>
 
-        </form>
-
-      </div>
-
-      <Footer/>
-
+      <Footer />
     </div>
   );
 }

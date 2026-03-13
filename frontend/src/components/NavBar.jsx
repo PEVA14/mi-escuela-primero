@@ -29,17 +29,17 @@ export default function NavBar(){
                     </button>
                     <button
                         className="rounded-2xl px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-100 hover:text-emerald-700"
-                        onClick={() => navigate('/escuelas')}
-                        type="button"
-                    >
-                        Explorar Escuelas
-                    </button>
-                    <button
-                        className="rounded-2xl bg-emerald-700 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-800"
                         onClick={() => navigate('/#movexp')}
                         type="button"
                     >
                         Como funciona
+                    </button>
+                    <button
+                        className="rounded-2xl bg-emerald-700 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-800"
+                        onClick={() => navigate('/escuelas')}
+                        type="button"
+                    >
+                        Explorar Escuelas
                     </button>
                     {/* <button className="navbar__button" onClick={() => navigate('')}>Contacto</button> */}
                 </div>
