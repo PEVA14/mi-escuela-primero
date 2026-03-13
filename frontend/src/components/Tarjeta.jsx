@@ -5,8 +5,10 @@ import calendarIcon from "../assets/calendar_icon.png"
 export default function Tarjeta( {escuela}) {
     const navigate = useNavigate();
 
-    function manejarClick() {
-        navigate(`/escuelas/${escuela.id_escuela}`);
+    function manejarClick(event) {
+        event.preventDefault();
+        event.stopPropagation();
+        navigate(`/escuelas/${escuela?.id_escuela ?? escuela?.id}`);
     }
 
    return (
@@ -22,8 +24,9 @@ export default function Tarjeta( {escuela}) {
                     </div>
                     <div className="flex h-full items-center justify-center px-6 text-center">
                         <div>
-                            <p className="text-xs font-medium uppercase tracking-[0.3em] text-emerald-700/80">Mi Escuela Primero</p>
-                            <p className="mt-3 text-sm text-slate-500">Espacio reservado para imagen</p>
+                            {/* <p className="text-xs font-medium uppercase tracking-[0.3em] text-emerald-700/80">Mi Escuela Primero</p>
+                            <p className="mt-3 text-sm text-slate-500">Espacio reservado para imagen</p> */}
+                            <img src="https://upload.wikimedia.org/wikipedia/commons/8/8d/Murales_de_la_Escuela_M%C3%A9xico_de_Chill%C3%A1n%2C_fachada_O%27Higgins.JPG" alt=""/>
                         </div>
                     </div>
                 </div>
