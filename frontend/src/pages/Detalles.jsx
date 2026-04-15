@@ -9,6 +9,7 @@ import PopUpDonativos from "../components/PopUpDonativos";
 import locationIcon from "../assets/location_icon.png";
 import calendarIcon from "../assets/calendar_icon.png";
 import schoolIcon from "../assets/school_icon_32px.png";
+const token = localStorage.getItem("token");
 
 export default function Detalles() {
     const [escuela, setEscuela] = useState(null);

@@ -1,23 +1,28 @@
-import { useNavigate } from "react-router-dom";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { login } from "../services/api";
 
 export default function LoginForm() {
-    const [usuario, setUsuario] = useState("");
-    const [contraseña, setContraseña] = useState("");
 
-    const navigate = useNavigate();
-    let authToken = null;
+  const [usuario, setUsuario] = useState("");
+  const [contraseña, setContraseña] = useState("");
+  const navigate = useNavigate();
 
-    async function handleSubmit(e){
-        e.preventDefault()
-        try {
-            const res = await login({usuario: usuario, contraseña: contraseña });
-            authToken = res.data.token;
-            /*authToken = res.token; guardo el token que se gener*, así no ya que por axios el formato es data y adentro viene token*/
-            localStorage.setItem("token",authToken);
-            console.log(res.data);
-            navigate("/escuelas"); 
+  async function handleSubmit(e) {
+    e.preventDefault();
+
+    try {
+
+      const res = await login({
+        usuario,
+        contraseña
+      });
+
+      localStorage.setItem("token", res.data.token);
+
+      alert("Login exitoso");
+
+      navigate("/escuelas");
 
         } catch {
             alert("The credentials are incorrect ")

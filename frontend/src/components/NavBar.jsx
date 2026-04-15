@@ -4,6 +4,11 @@ import logo from "../assets/logoMEP.png";
 export default function NavBar(){
     const navigate = useNavigate();
 
+function logout() {
+  localStorage.removeItem("token");
+  window.location.href = "/";
+}
+
     return(
         <nav className="sticky top-0 z-40 border-b border-slate-200/80 bg-white/90 px-5 py-3 backdrop-blur-md md:px-8 lg:px-12">
             <div className="mx-auto flex w-full max-w-[1360px] flex-col gap-4 md:flex-row md:items-center md:justify-between">

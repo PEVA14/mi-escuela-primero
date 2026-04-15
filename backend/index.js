@@ -320,24 +320,32 @@ app.get('/api/escuelas/:id', (req,res) => {
 
 const usuariosDB = [{usuario: "Lepe", password:"Hola"}, {usuario:"Nicole", password:"cool"}];
 app.post('/api/login', (req, res) => {
-  const { usuario, contraseña} = req.body;
-  const usuarioEncontrado = usuariosDB.find((u) => {
-    return u.usuario === usuario && u.password === contraseña;  });
-  if (usuarioEncontrado) {
-    const token = jwt.sign(
-    { usuario: usuarioEncontrado.usuario }, 
-    SECRET_KEY,
-    { expiresIn: "10m" });
-    res.status(200).json({ mensaje: "Login OK" });
-  } else {
-    res.status(401).json({ mensaje: "Error" });
-  }
-  
+  const { usuario, contraseña } = req.body;
 
+  const usuarioEncontrado = usuariosDB.find((u) => {
+    return u.usuario === usuario && u.password === contraseña;
+  });
+
+  if (usuarioEncontrado) {
+
+    const token = jwt.sign(
+      { usuario: usuarioEncontrado.usuario },
+      SECRET_KEY,
+      { expiresIn: "10m" }
+    );
+
+    res.status(200).json({
+      mensaje: "Login OK",
+      token: token
+    });
+
+  } else {
+    res.status(401).json({ mensaje: "Error en credenciales" });
+  }
 });
 
 
-app.put('/api/escuelas/:id', (req, res) => {
+app.put('/api/escuelas/:id', authenticateToken, (req, res) => {
 
   const idBuscado = parseInt(req.params.id);
 
@@ -431,7 +439,7 @@ app.post('/api/escuelas', (req, res) => {
   }
 });
 
-app.delete('/api/escuelas/:id', (req, res) => {
+app.delete('/api/escuelas/:id', authenticateToken, (req, res) => {
   const id = parseInt(req.params.id);
   const indice = escuelas.findIndex(e => e.id_escuela === id);
   if (indice !== -1) {
