@@ -4,6 +4,12 @@ import Tarjeta from "./Tarjeta";
 export default function Buscador({escuelas}){
     const [searchInp, setSearchInp] = useState("");
     const [levelInp, setLevInp] = useState("");
+
+    // Derived from the actual data — no hardcoding needed.
+    // When the DB has new levels they appear here automatically.
+    const niveles = [...new Set(
+        escuelas.map(e => e.nivelEducativo).filter(Boolean)
+    )].sort();
     const [categInp, setCategInp] = useState("");
     const [munInp, setMunInp] = useState("");
 
@@ -60,9 +66,9 @@ export default function Buscador({escuelas}){
                     onChange={handleChange}
                 >
                     <option value="">Todas las escolaridades</option>
-                    <option value="preescolar">Preescolar</option>
-                    <option value="primaria">Primaria</option>
-                    <option value="secundaria">Secundaria</option>
+                    {niveles.map(nivel => (
+                        <option key={nivel} value={nivel.toLowerCase()}>{nivel}</option>
+                    ))}
                 </select>
 
                 <select
