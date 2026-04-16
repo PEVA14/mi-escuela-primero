@@ -95,6 +95,7 @@ async function initDatabase(config){
                 nombre VARCHAR(150) NOT NULL,
                 plantel VARCHAR(100) NOT NULL,
                 direccion VARCHAR(255),
+                ubicacion VARCHAR(255),
                 cct VARCHAR(20),
                 personal_escolar INT,
                 estudiantes INT,
