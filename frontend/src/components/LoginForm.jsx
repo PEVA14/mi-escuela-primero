@@ -20,12 +20,10 @@ export default function LoginForm() {
 
       localStorage.setItem("token", res.data.token);
 
-      alert("Login exitoso");
-
-      navigate("/escuelas");
+      navigate("/admin");
 
         } catch {
-            alert("The credentials are incorrect ")
+            alert("Credenciales incorrectas")
         }
     }
     
@@ -76,6 +74,14 @@ return (
                         type="submit"
                     >
                         Iniciar sesión
+                    </button>
+                    <button
+                        type="button"
+                        onClick={() => navigate("/")}
+                        className="inline-flex w-full items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white px-6 py-3.5 text-sm font-semibold text-slate-700 shadow-sm transition hover:border-emerald-300 hover:text-emerald-700"
+                    >
+                        <span className="text-base">←</span>
+                        <span>Regresar a home</span>
                     </button>
                 </form>
             </div>

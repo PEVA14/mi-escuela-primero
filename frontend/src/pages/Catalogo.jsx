@@ -25,23 +25,13 @@ export default function Catalogo() {
                     </div>
 
                     <section className="mt-8 rounded-[28px] border border-slate-200 bg-white p-4 shadow-sm md:mt-10 md:p-6 lg:p-8">
-                        <div className="relative mb-6 flex flex-col items-center gap-4 text-center">
-                            <div>
-                                <h2 className="text-2xl font-bold tracking-tight text-slate-900 md:text-3xl">
-                                    Escuelas disponibles
-                                </h2>
-                                <p className="mx-auto mt-2 max-w-3xl text-sm leading-relaxed text-slate-500 md:text-base">
-                                    Filtra, compara y entra a los detalles de cada escuela para conocer mejor sus necesidades.
-                                </p>
-                            </div>
-
-                            <button
-                                type="button"
-                                onClick={() => window.location.assign('/escuelas/new')}
-                                className="inline-flex items-center justify-center rounded-2xl bg-emerald-700 px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-800 md:absolute md:right-0 md:top-1/2 md:-translate-y-1/2"
-                            >
-                                Agregar Escuelas
-                            </button>
+                        <div className="mb-6 text-center">
+                            <h2 className="text-2xl font-bold tracking-tight text-slate-900 md:text-3xl">
+                                Escuelas disponibles
+                            </h2>
+                            <p className="mx-auto mt-2 max-w-3xl text-sm leading-relaxed text-slate-500 md:text-base">
+                                Filtra, compara y entra a los detalles de cada escuela para conocer mejor sus necesidades.
+                            </p>
                         </div>
 
                         <ListaTarjeta />

@@ -8,11 +8,12 @@ import Home from "./pages/Home.jsx";
 import Login from "./pages/Login.jsx";
 import AgregarEscuela from "./pages/AgregarEscuela.jsx";
 import EditEscuela from "./pages/EditEscuela.jsx";
+import Admin from "./pages/Admin.jsx";
 
 function App() {
   return (
     <>
-    <BrowserRouter> 
+    <BrowserRouter>
       <Routes>
        <Route path="/escuelas" element={<Catalogo/>} />
        <Route path="/escuelas/:id" element={<Detalles/>} />
@@ -20,6 +21,7 @@ function App() {
        <Route path="/login" element={<Login/>} />
        <Route path="/escuelas/new" element={<AgregarEscuela/>} />
        <Route path="/editar/:id" element={<EditEscuela />} />
+       <Route path="/admin" element={<Admin />} />
       </Routes>
     </BrowserRouter>
     </>)
