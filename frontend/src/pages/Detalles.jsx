@@ -32,9 +32,6 @@ export default function Detalles() {
     function redirect() {
         navigate("/escuelas");
     }
-    function goToEdit() {
-        navigate(`/editar/${id}`);
-    }
 
     const [showPopup, setShowPopup] = useState(false);
     const [showContactPopup, setShowContactPopup] = useState(false);
@@ -84,20 +81,13 @@ export default function Detalles() {
 
             <main className="px-6 py-8 md:px-10 lg:px-14 lg:py-10">
                 <div className="mx-auto flex w-full max-w-[1360px] flex-col gap-10">
-                    <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                    <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
                         <button
                             onClick={redirect}
                             className="inline-flex w-fit items-center gap-3 rounded-2xl border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-slate-700 shadow-sm transition hover:border-emerald-200 hover:text-emerald-700"
                         >
                             <span className="text-lg">←</span>
                             <span>Volver al Catálogo</span>
-                        </button>
-
-                        <button
-                            onClick={goToEdit}
-                            className="inline-flex w-fit items-center justify-center rounded-2xl border border-amber-200 bg-amber-400 px-5 py-3 text-sm font-semibold text-amber-950 shadow-sm transition hover:bg-amber-500"
-                        >
-                            Editar Escuela
                         </button>
                     </div>
 

@@ -38,4 +38,39 @@ export function deleteEscuela(id) {
   return api.delete(`/escuelas/${id}`, getAuthHeaders());
 }
 
+// --- Necesidades ---
+export function getNecesidadesByEscuela(id_escuela) {
+  return api.get(`/necesidades/escuela/${id_escuela}`);
+}
+
+export function crearNecesidad(datos) {
+  return api.post("/necesidades", datos, getAuthHeaders());
+}
+
+export function updateNecesidad(id, datos) {
+  return api.put(`/necesidades/${id}`, datos, getAuthHeaders());
+}
+
+export function deleteNecesidad(id) {
+  return api.delete(`/necesidades/${id}`, getAuthHeaders());
+}
+
+// --- Respuestas de donadores ---
+export function getRespuestas() {
+  return api.get("/respuestas", getAuthHeaders());
+}
+
+export function crearRespuesta(datos) {
+  return api.post("/respuestas", datos);
+}
+
+// --- Importar Excel (envía JSON parseado desde frontend) ---
+export function importarEscuelas(datos) {
+  return api.post("/importar/escuelas", { escuelas: datos }, getAuthHeaders());
+}
+
+export function importarNecesidades(datos) {
+  return api.post("/importar/necesidades", { necesidades: datos }, getAuthHeaders());
+}
+
 export default api;

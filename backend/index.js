@@ -273,6 +273,25 @@ const escuelas = [
 ];
 
 
+// ===== NECESIDADES (datos de ejemplo) =====
+const necesidades = [
+  { id_necesidad: 1, id_escuela: 1, titulo: "Pintura y renovación de aulas", descripcion: "Material de pintura para las 4 aulas de la escuela", categoria: "infraestructura", prioridad: "Alta", monto_requerido: 8000, monto_recaudado: 2500, estado: "En progreso" },
+  { id_necesidad: 2, id_escuela: 1, titulo: "Útiles escolares para alumnos", descripcion: "Cuadernos, lápices y colores para 40 alumnos de bajos recursos", categoria: "material", prioridad: "Alta", monto_requerido: 5000, monto_recaudado: 0, estado: "Pendiente" },
+  { id_necesidad: 3, id_escuela: 2, titulo: "Reparación de techo del salón principal", descripcion: "El techo presenta filtraciones que afectan las clases en temporada de lluvias", categoria: "infraestructura", prioridad: "Alta", monto_requerido: 15000, monto_recaudado: 3000, estado: "En progreso" },
+  { id_necesidad: 4, id_escuela: 3, titulo: "Material didáctico de matemáticas", descripcion: "Juegos y materiales manipulables para enseñanza de matemáticas", categoria: "material", prioridad: "Media", monto_requerido: 4500, monto_recaudado: 4500, estado: "Completada" },
+  { id_necesidad: 5, id_escuela: 3, titulo: "Capacitación docente en lectoescritura", descripcion: "Taller de lectoescritura para los 15 maestros del plantel", categoria: "formacion", prioridad: "Media", monto_requerido: 12000, monto_recaudado: 0, estado: "Pendiente" },
+  { id_necesidad: 6, id_escuela: 7, titulo: "Construcción de sanitarios dignos", descripcion: "Los baños actuales no están en condiciones mínimas de higiene", categoria: "infraestructura", prioridad: "Alta", monto_requerido: 35000, monto_recaudado: 10000, estado: "En progreso" },
+  { id_necesidad: 7, id_escuela: 10, titulo: "Atención psicológica estudiantil", descripcion: "Sesiones de apoyo emocional para estudiantes en situación de vulnerabilidad", categoria: "salud", prioridad: "Alta", monto_requerido: 18000, monto_recaudado: 6000, estado: "En progreso" },
+];
+
+// ===== RESPUESTAS DE DONADORES (datos de ejemplo) =====
+const respuestas = [
+  { id: 1, nombre: "Carlos Martínez", correo: "carlos@empresaabc.com", telefono: "3312345678", empresa: "Empresa ABC", id_escuela: 1, nombre_escuela: "Francisco Rojas González", tipo_apoyo: "material", mensaje: "Estamos interesados en donar útiles escolares para los alumnos.", fecha: "2025-03-15" },
+  { id: 2, nombre: "Sofía Herrera", correo: "sofia.herrera@gmail.com", telefono: "3387654321", empresa: "", id_escuela: 3, nombre_escuela: "Miguel Hidalgo y Costilla", tipo_apoyo: "formacion", mensaje: "Soy maestra jubilada y puedo apoyar con talleres de lectura.", fecha: "2025-03-20" },
+  { id: 3, nombre: "Grupo Industrial Norte", correo: "contacto@gin.mx", telefono: "3301234567", empresa: "Grupo Industrial Norte", id_escuela: null, nombre_escuela: null, tipo_apoyo: "infraestructura", mensaje: "Queremos apoyar con materiales de construcción para escuelas de Zapopan.", fecha: "2025-04-02" },
+  { id: 4, nombre: "Ana Laura Vega", correo: "alavega@hotmail.com", telefono: "", empresa: "Fundación Educar", id_escuela: 7, nombre_escuela: "Carlos de Icaza", tipo_apoyo: "salud", mensaje: "Podemos enviar un psicólogo una vez por semana durante el ciclo escolar.", fecha: "2025-04-10" },
+];
+
 const express = require('express');
 const cors = require('cors');
 const jwt= require("jsonwebtoken");
@@ -331,7 +350,7 @@ app.post('/api/login', (req, res) => {
     const token = jwt.sign(
       { usuario: usuarioEncontrado.usuario },
       SECRET_KEY,
-      { expiresIn: "10m" }
+      { expiresIn: "8h" }
     );
 
     res.status(200).json({
@@ -452,6 +471,162 @@ app.delete('/api/escuelas/:id', authenticateToken, (req, res) => {
     res.status(404).json({ mensaje: "Error: La escuela no existe en la base de datos." });
   }
 });
+
+// ===== ENDPOINTS NECESIDADES =====
+
+app.get('/api/necesidades', (req, res) => {
+  res.json(necesidades);
+});
+
+app.get('/api/necesidades/escuela/:id_escuela', (req, res) => {
+  const id = parseInt(req.params.id_escuela);
+  res.json(necesidades.filter(n => n.id_escuela === id));
+});
+
+app.post('/api/necesidades', authenticateToken, (req, res) => {
+  const { id_escuela, titulo, descripcion, categoria, prioridad, monto_requerido, monto_recaudado, estado } = req.body;
+  if (!titulo || !id_escuela) {
+    return res.status(400).json({ mensaje: "titulo e id_escuela son requeridos" });
+  }
+  const maxId = necesidades.length > 0 ? Math.max(...necesidades.map(n => n.id_necesidad)) : 0;
+  const nueva = {
+    id_necesidad: maxId + 1,
+    id_escuela: parseInt(id_escuela),
+    titulo,
+    descripcion: descripcion || "",
+    categoria: categoria || "material",
+    prioridad: prioridad || "Media",
+    monto_requerido: parseFloat(monto_requerido) || 0,
+    monto_recaudado: parseFloat(monto_recaudado) || 0,
+    estado: estado || "Pendiente",
+  };
+  necesidades.push(nueva);
+  res.status(201).json({ mensaje: "Necesidad creada", necesidad: nueva });
+});
+
+app.put('/api/necesidades/:id', authenticateToken, (req, res) => {
+  const id = parseInt(req.params.id);
+  const idx = necesidades.findIndex(n => n.id_necesidad === id);
+  if (idx === -1) return res.status(404).json({ mensaje: "Necesidad no encontrada" });
+  necesidades[idx] = { ...necesidades[idx], ...req.body, id_necesidad: id };
+  res.json({ mensaje: "Necesidad actualizada", necesidad: necesidades[idx] });
+});
+
+app.delete('/api/necesidades/:id', authenticateToken, (req, res) => {
+  const id = parseInt(req.params.id);
+  const idx = necesidades.findIndex(n => n.id_necesidad === id);
+  if (idx === -1) return res.status(404).json({ mensaje: "Necesidad no encontrada" });
+  necesidades.splice(idx, 1);
+  res.json({ mensaje: "Necesidad eliminada" });
+});
+
+
+// ===== ENDPOINTS RESPUESTAS =====
+
+app.get('/api/respuestas', authenticateToken, (req, res) => {
+  res.json(respuestas);
+});
+
+app.post('/api/respuestas', (req, res) => {
+  const { nombre, correo, telefono, empresa, id_escuela, nombre_escuela, tipo_apoyo, mensaje } = req.body;
+  if (!nombre || !correo) {
+    return res.status(400).json({ mensaje: "nombre y correo son requeridos" });
+  }
+  const maxId = respuestas.length > 0 ? Math.max(...respuestas.map(r => r.id)) : 0;
+  const nueva = {
+    id: maxId + 1,
+    nombre,
+    correo,
+    telefono: telefono || "",
+    empresa: empresa || "",
+    id_escuela: id_escuela ? parseInt(id_escuela) : null,
+    nombre_escuela: nombre_escuela || null,
+    tipo_apoyo: tipo_apoyo || "otro",
+    mensaje: mensaje || "",
+    fecha: new Date().toISOString().split("T")[0],
+  };
+  respuestas.push(nueva);
+  res.status(201).json({ mensaje: "Respuesta registrada", respuesta: nueva });
+});
+
+
+// ===== IMPORTAR EXCEL =====
+
+app.post('/api/importar/escuelas', authenticateToken, (req, res) => {
+  const { escuelas: nuevas } = req.body;
+  if (!Array.isArray(nuevas) || !nuevas.length) {
+    return res.status(400).json({ mensaje: "No se recibieron datos válidos" });
+  }
+  const insertadas = [];
+  const errores = [];
+  nuevas.forEach((e, i) => {
+    if (!e.nombre || !e.municipio || !e.cct) {
+      errores.push(`Fila ${i + 2}: faltan campos obligatorios (nombre, municipio, cct)`);
+      return;
+    }
+    const maxId = escuelas.length > 0 ? Math.max(...escuelas.map(e => e.id_escuela)) : 0;
+    const nueva = {
+      id_escuela: maxId + insertadas.length + 1,
+      nombre: String(e.nombre),
+      plantel: String(e.plantel || e.nombre),
+      municipio: String(e.municipio),
+      direccion: String(e.direccion || ""),
+      ubicacion: String(e.ubicacion || ""),
+      cct: String(e.cct),
+      personal_escolar: parseInt(e.personal_escolar) || 0,
+      estudiantes: parseInt(e.estudiantes) || 0,
+      nivelEducativo: String(e.nivelEducativo || "Primaria"),
+      modalidad: String(e.modalidad || "SEP-General"),
+      turno: String(e.turno || "Matutino"),
+      sostenimiento: String(e.sostenimiento || "Federal"),
+      categoria: e.categoria
+        ? String(e.categoria).split(",").map(c => c.trim()).filter(Boolean)
+        : [],
+    };
+    escuelas.push(nueva);
+    insertadas.push(nueva);
+  });
+  res.json({
+    mensaje: `${insertadas.length} escuela(s) importada(s)`,
+    insertadas: insertadas.length,
+    errores,
+  });
+});
+
+app.post('/api/importar/necesidades', authenticateToken, (req, res) => {
+  const { necesidades: nuevas } = req.body;
+  if (!Array.isArray(nuevas) || !nuevas.length) {
+    return res.status(400).json({ mensaje: "No se recibieron datos válidos" });
+  }
+  const insertadas = [];
+  const errores = [];
+  nuevas.forEach((n, i) => {
+    if (!n.titulo || !n.id_escuela) {
+      errores.push(`Fila ${i + 2}: faltan campos obligatorios (titulo, id_escuela)`);
+      return;
+    }
+    const maxId = necesidades.length > 0 ? Math.max(...necesidades.map(n => n.id_necesidad)) : 0;
+    const nueva = {
+      id_necesidad: maxId + insertadas.length + 1,
+      id_escuela: parseInt(n.id_escuela),
+      titulo: String(n.titulo),
+      descripcion: String(n.descripcion || ""),
+      categoria: String(n.categoria || "material"),
+      prioridad: String(n.prioridad || "Media"),
+      monto_requerido: parseFloat(n.monto_requerido) || 0,
+      monto_recaudado: parseFloat(n.monto_recaudado) || 0,
+      estado: String(n.estado || "Pendiente"),
+    };
+    necesidades.push(nueva);
+    insertadas.push(nueva);
+  });
+  res.json({
+    mensaje: `${insertadas.length} necesidad(es) importada(s)`,
+    insertadas: insertadas.length,
+    errores,
+  });
+});
+
 
 app.listen(PORT, () => {
     console.log(`Listening in Port: ${PORT}`)
