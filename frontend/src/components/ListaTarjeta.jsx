@@ -19,8 +19,6 @@ export default function ListaTarjeta({ mostrarBuscador = true, limite = null }) 
 
     const escuelasAMostrar = limite ? escuelas.slice(0, limite) : escuelas;
 
-    console.log("ListaTarjeta escuelas:", escuelas);
-
     return (
         <div className="w-full">
             {mostrarBuscador ? (

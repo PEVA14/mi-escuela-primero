@@ -17,7 +17,7 @@ async function initDatabase(config){
         await connection.query(`
             CREATE TABLE IF NOT EXISTS Municipio(
                 id_municipio INT AUTO_INCREMENT PRIMARY KEY,
-                nombre_municipio VARCHAR(100) NOT NULL
+                nombre_municipio VARCHAR(100) NOT NULL UNIQUE
             ); 
         `);
         //admin table
@@ -32,7 +32,7 @@ async function initDatabase(config){
         await connection.query(`
             CREATE TABLE IF NOT EXISTS Categoria (
                 id_categoria INT AUTO_INCREMENT PRIMARY KEY,
-                nombre_categoria VARCHAR(100) NOT NULL
+                nombre_categoria VARCHAR(100) NOT NULL UNIQUE
             );
         `);
         await connection.query(`
@@ -48,42 +48,42 @@ async function initDatabase(config){
         await connection.query(`
             CREATE TABLE IF NOT EXISTS Modalidad (
                 id_modalidad INT AUTO_INCREMENT PRIMARY KEY,
-                nombre_modalidad VARCHAR(100) NOT NULL
+                nombre_modalidad VARCHAR(100) NOT NULL UNIQUE
             );
             `);
 
         await connection.query(`
             CREATE TABLE IF NOT EXISTS Turno (
                 id_turno INT AUTO_INCREMENT PRIMARY KEY,
-                nombre_turno VARCHAR(50) NOT NULL
+                nombre_turno VARCHAR(50) NOT NULL UNIQUE
             );
         `);
 
         await connection.query(`
             CREATE TABLE IF NOT EXISTS Sostenimiento (
                 id_sostenimiento INT AUTO_INCREMENT PRIMARY KEY,
-                nombre_sostenimiento VARCHAR(50) NOT NULL
+                nombre_sostenimiento VARCHAR(50) NOT NULL UNIQUE
             );
         `);
 
         await connection.query(`
             CREATE TABLE IF NOT EXISTS NivelEducativo (
                 id_nivelEducativo INT AUTO_INCREMENT PRIMARY KEY,
-                nombre_nivelEducativo VARCHAR(100) NOT NULL
+                nombre_nivelEducativo VARCHAR(100) NOT NULL UNIQUE
             );
         `);
 
         await connection.query(`
             CREATE TABLE IF NOT EXISTS EstadoPropuesta (
                 id_estadoPropuesta INT AUTO_INCREMENT PRIMARY KEY,
-                nombre_estado VARCHAR(50) NOT NULL
+                nombre_estado VARCHAR(50) NOT NULL UNIQUE
             );
         `);
 
         await connection.query(`
             CREATE TABLE IF NOT EXISTS Unidad (
                 id_unidad INT AUTO_INCREMENT PRIMARY KEY,
-                nombre_unidad VARCHAR(50) NOT NULL
+                nombre_unidad VARCHAR(50) NOT NULL UNIQUE
             );
         `);
 
@@ -93,7 +93,7 @@ async function initDatabase(config){
             CREATE TABLE IF NOT EXISTS Escuela (
                 id_escuela INT AUTO_INCREMENT PRIMARY KEY,
                 nombre VARCHAR(150) NOT NULL,
-                plantel VARCHAR(100) NOT NULL,
+                plantel VARCHAR(100),
                 direccion VARCHAR(255),
                 ubicacion VARCHAR(255),
                 cct VARCHAR(20),
@@ -129,6 +129,7 @@ async function initDatabase(config){
         await connection.query(`
             CREATE TABLE IF NOT EXISTS Propuesta (
                 id_propuesta INT AUTO_INCREMENT PRIMARY KEY,
+                propuesta VARCHAR(255) NOT NULL,
                 cantidad INT,
                 detalles TEXT,
                 id_escuela INT,
@@ -150,13 +151,15 @@ async function initDatabase(config){
             CREATE TABLE IF NOT EXISTS RespuestaFormulario (
                 id_respuesta INT AUTO_INCREMENT PRIMARY KEY,
                 nombre_donate VARCHAR(150),
+                correo VARCHAR(150),
                 telefono VARCHAR(20),
                 instancia_donante VARCHAR(150),
                 nombre_instancia VARCHAR(150),
-                municipio_donante VARCHAR(100),
-                estado_donante VARCHAR(100),
-                tipo_donacion VARCHAR(100),
+                municipio_donante VARCHAR(150),
+                tipo_donacion VARCHAR(255),
                 cantidad VARCHAR(50),
+                detalles TEXT,
+                mensaje TEXT,
                 id_escuela INT NULL,
                 id_propuesta INT NULL,
                 fecha_envio DATETIME DEFAULT CURRENT_TIMESTAMP,

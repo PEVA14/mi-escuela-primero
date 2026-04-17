@@ -1,6 +1,8 @@
 import { useState, useEffect, useRef } from "react";
 import * as XLSX from "xlsx";
 import {
+  importarNecesidades,
+  getNecesidades,
   getEscuelas,
   deleteEscuela,
   getNecesidadesByEscuela,
@@ -32,8 +34,8 @@ const ESTADO_CLS = {
   Completada: "bg-emerald-100 text-emerald-700",
 };
 
-// Mapeo de columnas del Excel del usuario → campos internos
-const COL_MAP = {
+// Mapeo de columnas del Excel → campos internos (hoja "Datos de las escuelas")
+const COL_MAP_ESCUELAS = {
   "Escuela":          "nombre",
   "Plantel":          "plantel",
   "Municipio":        "municipio",
@@ -48,20 +50,49 @@ const COL_MAP = {
   "Sostenimiento":    "sostenimiento",
   "Dirección":        "direccion",
   "Ubicación":        "ubicacion",
-  "Categoría":        "categoria",
-  // También acepta los nombres internos directamente
-  nombre: "nombre", plantel: "plantel", municipio: "municipio",
-  personal_escolar: "personal_escolar", estudiantes: "estudiantes",
-  nivelEducativo: "nivelEducativo", cct: "cct", modalidad: "modalidad",
-  turno: "turno", sostenimiento: "sostenimiento", direccion: "direccion",
-  ubicacion: "ubicacion", categoria: "categoria",
 };
 
-function normalizarFila(fila) {
+// Mapeo de columnas del Excel → campos internos (hoja "Necesidades")
+const COL_MAP_NECESIDADES = {
+  "Municipio":     "municipio",
+  "Escuela":       "nombre_escuela",
+  "Categoría":     "categoria",
+  "Subcategoría":  "subcategoria",
+  "Propuesta":     "titulo",
+  "Cantidad":      "monto_requerido",
+  "Unidad":        "unidad",
+  "Estado":        "estado_raw",
+  "Detalles":      "descripcion",
+};
+
+// "Cubierto" → "Completada", etc.
+const ESTADO_MAP = {
+  "cubierto":          "Completada",
+  "aun no cubierto":   "Pendiente",
+  "en proceso":        "En progreso",
+  "en progreso":       "En progreso",
+  "pendiente":         "Pendiente",
+  "completada":        "Completada",
+};
+
+function normalizarFilaEscuela(fila) {
   const out = {};
   for (const [col, val] of Object.entries(fila)) {
-    const key = COL_MAP[col.trim()];
+    const key = COL_MAP_ESCUELAS[col.trim()];
     if (key) out[key] = val;
+  }
+  return out;
+}
+
+function normalizarFilaNecesidad(fila) {
+  const out = {};
+  for (const [col, val] of Object.entries(fila)) {
+    const key = COL_MAP_NECESIDADES[col.trim()];
+    if (key) out[key] = val;
+  }
+  if (out.estado_raw) {
+    out.estado = ESTADO_MAP[String(out.estado_raw).toLowerCase().trim()] || "Pendiente";
+    delete out.estado_raw;
   }
   return out;
 }
@@ -159,15 +190,41 @@ export default function GestionEscuelas({ showToast }) {
     try {
       const buf = await file.arrayBuffer();
       const wb = XLSX.read(buf);
-      const sheetName = wb.SheetNames.includes("Escuelas") ? "Escuelas" : wb.SheetNames[0];
-      const raw = XLSX.utils.sheet_to_json(wb.Sheets[sheetName]);
-      if (!raw.length) throw new Error("El archivo no contiene datos");
-      const datos = raw.map(normalizarFila);
-      const required = ["nombre", "municipio", "cct"];
-      const missing = required.filter((r) => !datos[0][r]);
-      if (missing.length) throw new Error(`Faltan columnas requeridas: ${missing.join(", ")}`);
-      const res = await importarEscuelas(datos);
-      showToast(`${res.data.insertadas} escuela(s) importada(s) correctamente`);
+
+      const messages = [];
+
+      // ── Hoja "Datos de las escuelas" (header en fila 5 → range: 4) ──
+      const sheetEscuelas = wb.Sheets["Datos de las escuelas"];
+      if (sheetEscuelas) {
+        const raw = XLSX.utils.sheet_to_json(sheetEscuelas, { range: 4 });
+        const datosEscuelas = raw.map(normalizarFilaEscuela).filter(r => r.nombre && r.municipio && r.cct);
+        if (datosEscuelas.length) {
+          const res = await importarEscuelas(datosEscuelas);
+          if (res.data.insertadas) messages.push(`${res.data.insertadas} escuela(s) nueva(s)`);
+          if (res.data.actualizadas) messages.push(`${res.data.actualizadas} escuela(s) actualizada(s)`);
+          if (res.data.errores?.length) messages.push(`${res.data.errores.length} error(es) en escuelas`);
+        }
+      }
+
+      // ── Hoja "Necesidades" (header en fila 4 → range: 3) ──
+      // The backend handles plantel-sharing: if the matched school has a plantel,
+      // the need is applied to every school that shares it in the same municipio.
+      const sheetNecesidades = wb.Sheets["Necesidades"];
+      if (sheetNecesidades) {
+        const raw = XLSX.utils.sheet_to_json(sheetNecesidades, { range: 3 });
+        const datos = raw.map(normalizarFilaNecesidad).filter(r => r.titulo && r.nombre_escuela);
+        if (datos.length) {
+          const res = await importarNecesidades(datos);
+          messages.push(`${res.data.insertadas} necesidad(es) importada(s)`);
+          if (res.data.errores?.length) {
+            messages.push(`${res.data.errores.length} sin vincular`);
+            console.warn("Errores importando necesidades:", res.data.errores);
+          }
+        }
+      }
+
+      if (!messages.length) throw new Error("No se encontraron hojas reconocidas o datos válidos");
+      showToast(messages.join(" · "));
       cargarEscuelas();
     } catch (err) {
       setImportError(err.response?.data?.mensaje || err.message || "Error al importar el archivo");
@@ -177,31 +234,125 @@ export default function GestionEscuelas({ showToast }) {
     }
   }
 
-  function handleExportar() {
+  async function handleExportar() {
     if (!escuelas.length) {
       showToast("No hay datos para exportar", "error");
       return;
     }
-    const wb = XLSX.utils.book_new();
-    const escuelasData = escuelas.map((e) => ({
-      ID: e.id_escuela,
-      Nombre: e.nombre,
-      Plantel: e.plantel,
-      Municipio: e.municipio,
-      "Nivel Educativo": e.nivelEducativo,
-      Modalidad: e.modalidad,
-      Turno: e.turno,
-      Sostenimiento: e.sostenimiento,
-      Estudiantes: e.estudiantes,
-      "Personal Escolar": e.personal_escolar,
-      CCT: e.cct,
-      Dirección: e.direccion,
-      Categorías: Array.isArray(e.categoria) ? e.categoria.join(", ") : e.categoria,
-      "URL Maps": e.ubicacion,
-    }));
-    XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(escuelasData), "Escuelas");
-    XLSX.writeFile(wb, "escuelas_mi_escuela_primero.xlsx");
-    showToast("Archivo exportado correctamente");
+    try {
+      const wb = XLSX.utils.book_new();
+
+      // ── Hoja "Datos de las escuelas" (encabezado en fila 5, igual que el original) ──
+      const escuelasRows = [
+        ["Mi Escuela Primero — Datos de las escuelas"],
+        [],
+        [],
+        [],
+        ["#", "Municipio", "Plantel", "Escuela", "Personal escolar", "Estudiantes",
+         "Nivel ed.", "CCT", "Modalidad", "Turno", "Sostenimiento", "Dirección", "Ubicación"],
+        ...escuelas.map((e, i) => [
+          i + 1,
+          e.municipio,
+          e.plantel,
+          e.nombre,
+          e.personal_escolar,
+          e.estudiantes,
+          e.nivelEducativo,
+          e.cct,
+          e.modalidad,
+          e.turno,
+          e.sostenimiento,
+          e.direccion,
+          e.ubicacion,
+        ]),
+      ];
+      const wsEscuelas = XLSX.utils.aoa_to_sheet(escuelasRows);
+      XLSX.utils.book_append_sheet(wb, wsEscuelas, "Datos de las escuelas");
+
+      // ── Hoja "Necesidades" (encabezado en fila 4, igual que el original) ──
+      // Collapse needs shared by every sibling of a plantel into a single
+      // plantel-keyed row so re-import via the plantel-expansion code
+      // reproduces the same DB state without duplicating rows.
+      const resNec = await getNecesidades();
+      const necesidades = resNec.data || [];
+
+      const escInfoById = new Map(
+        escuelas.map((e) => [e.id_escuela, { plantel: e.plantel || "", municipio: e.municipio || "" }])
+      );
+      const siblingCount = new Map(); // "municipio|plantel" → # schools in that plantel
+      for (const e of escuelas) {
+        if (!e.plantel) continue;
+        const k = `${e.municipio}|${e.plantel}`;
+        siblingCount.set(k, (siblingCount.get(k) || 0) + 1);
+      }
+
+      const keyOf = (info, n) => JSON.stringify([
+        info.municipio, info.plantel, n.titulo || "", n.categoria || "",
+        n.subcategoria || "", n.monto_requerido ?? "", n.unidad || "",
+        n.estado || "", n.descripcion || "",
+      ]);
+
+      const groups = new Map();
+      for (const n of necesidades) {
+        const info = escInfoById.get(n.id_escuela);
+        if (!info) continue;
+        const k = keyOf(info, n);
+        if (!groups.has(k)) groups.set(k, { info, sample: n, schoolIds: new Set(), items: [] });
+        const g = groups.get(k);
+        g.schoolIds.add(n.id_escuela);
+        g.items.push(n);
+      }
+
+      const necesidadDataRows = [];
+      for (const g of groups.values()) {
+        const sibKey = `${g.info.municipio}|${g.info.plantel}`;
+        const total = g.info.plantel ? (siblingCount.get(sibKey) || 1) : 1;
+        const shareAcrossAllSiblings = g.info.plantel && total > 1 && g.schoolIds.size === total;
+        if (shareAcrossAllSiblings) {
+          necesidadDataRows.push([
+            g.info.municipio,
+            g.info.plantel,
+            g.sample.categoria,
+            g.sample.subcategoria,
+            g.sample.titulo,
+            g.sample.monto_requerido,
+            g.sample.unidad,
+            g.sample.estado,
+            g.sample.descripcion || "",
+          ]);
+        } else {
+          for (const item of g.items) {
+            necesidadDataRows.push([
+              item.municipio,
+              item.nombre_escuela,
+              item.categoria,
+              item.subcategoria,
+              item.titulo,
+              item.monto_requerido,
+              item.unidad,
+              item.estado,
+              item.descripcion || "",
+            ]);
+          }
+        }
+      }
+
+      const necesidadesRows = [
+        ["Mi Escuela Primero — Necesidades"],
+        [],
+        [],
+        ["Municipio", "Escuela", "Categoría", "Subcategoría", "Propuesta",
+         "Cantidad", "Unidad", "Estado", "Detalles"],
+        ...necesidadDataRows,
+      ];
+      const wsNecesidades = XLSX.utils.aoa_to_sheet(necesidadesRows);
+      XLSX.utils.book_append_sheet(wb, wsNecesidades, "Necesidades");
+
+      XLSX.writeFile(wb, "mi_escuela_primero.xlsx");
+      showToast("Archivo exportado correctamente");
+    } catch {
+      showToast("Error al exportar", "error");
+    }
   }
 
   const totalEstudiantes = escuelas.reduce((s, e) => s + (parseInt(e.estudiantes) || 0), 0);
@@ -246,20 +397,24 @@ export default function GestionEscuelas({ showToast }) {
       )}
 
       {/* Format hint */}
-      <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-xs text-amber-800">
-        <strong>Formato Excel para importar</strong> — columnas requeridas:{" "}
-        <code className="rounded bg-amber-100 px-1">Escuela</code>,{" "}
-        <code className="rounded bg-amber-100 px-1">Municipio</code>,{" "}
-        <code className="rounded bg-amber-100 px-1">CCT</code>. Columnas opcionales reconocidas:{" "}
-        <code className="rounded bg-amber-100 px-1">Plantel</code>,{" "}
-        <code className="rounded bg-amber-100 px-1">Personal esco</code>,{" "}
-        <code className="rounded bg-amber-100 px-1">Estudiantes</code>,{" "}
-        <code className="rounded bg-amber-100 px-1">Nivel ed.</code>,{" "}
-        <code className="rounded bg-amber-100 px-1">Modalidad</code>,{" "}
-        <code className="rounded bg-amber-100 px-1">Turno</code>,{" "}
-        <code className="rounded bg-amber-100 px-1">Sostenimiento</code>,{" "}
-        <code className="rounded bg-amber-100 px-1">Dirección</code>,{" "}
-        <code className="rounded bg-amber-100 px-1">Ubicación</code>.
+      <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-xs text-amber-800 space-y-1">
+        <p><strong>Formato Excel para importar</strong> — se leen dos hojas automáticamente:</p>
+        <p>
+          <strong>Hoja "Datos de las escuelas"</strong> (encabezado en fila 5) — requeridas:{" "}
+          <code className="rounded bg-amber-100 px-1">Escuela</code>,{" "}
+          <code className="rounded bg-amber-100 px-1">Municipio</code>,{" "}
+          <code className="rounded bg-amber-100 px-1">CCT</code>.
+        </p>
+        <p>
+          <strong>Hoja "Necesidades"</strong> (encabezado en fila 4) — requeridas:{" "}
+          <code className="rounded bg-amber-100 px-1">Escuela</code>,{" "}
+          <code className="rounded bg-amber-100 px-1">Propuesta</code>. Opcionales:{" "}
+          <code className="rounded bg-amber-100 px-1">Categoría</code>,{" "}
+          <code className="rounded bg-amber-100 px-1">Subcategoría</code>,{" "}
+          <code className="rounded bg-amber-100 px-1">Cantidad</code>,{" "}
+          <code className="rounded bg-amber-100 px-1">Estado</code>,{" "}
+          <code className="rounded bg-amber-100 px-1">Detalles</code>.
+        </p>
       </div>
 
       {loadingEscuelas ? (

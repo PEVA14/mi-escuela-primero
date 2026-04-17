@@ -4,6 +4,18 @@ import Tarjeta from "./Tarjeta";
 export default function Buscador({escuelas}){
     const [searchInp, setSearchInp] = useState("");
     const [levelInp, setLevInp] = useState("");
+
+    // Derived from the actual data — no hardcoding needed.
+    // When the DB has new levels they appear here automatically.
+    const niveles = [...new Set(
+        escuelas.map(e => e.nivelEducativo).filter(Boolean)
+    )].sort();
+    const categorias = [...new Set(
+        escuelas.flatMap(e => Array.isArray(e.categoria) ? e.categoria : []).filter(Boolean)
+    )].sort();
+    const municipios = [...new Set(
+        escuelas.map(e => e.municipio).filter(Boolean)
+    )].sort();
     const [categInp, setCategInp] = useState("");
     const [munInp, setMunInp] = useState("");
 
@@ -34,8 +46,6 @@ export default function Buscador({escuelas}){
 
     });
 
-    console.log("Buscador escuelas:", escuelas);
-
     return (
         <>
             <form
@@ -60,9 +70,9 @@ export default function Buscador({escuelas}){
                     onChange={handleChange}
                 >
                     <option value="">Todas las escolaridades</option>
-                    <option value="preescolar">Preescolar</option>
-                    <option value="primaria">Primaria</option>
-                    <option value="secundaria">Secundaria</option>
+                    {niveles.map(nivel => (
+                        <option key={nivel} value={nivel.toLowerCase()}>{nivel}</option>
+                    ))}
                 </select>
 
                 <select
@@ -73,10 +83,9 @@ export default function Buscador({escuelas}){
                     onChange={handleChange}
                 >
                     <option value="">Todas las categorías</option>
-                    <option value="material">Material</option>
-                    <option value="infraestructura">Infraestructura</option>
-                    <option value="formacion">Formación</option>
-                    <option value="salud">Salud</option>
+                    {categorias.map(cat => (
+                        <option key={cat} value={cat.toLowerCase()}>{cat.charAt(0).toUpperCase() + cat.slice(1)}</option>
+                    ))}
                 </select>
 
                 <select
@@ -87,10 +96,9 @@ export default function Buscador({escuelas}){
                     onChange={handleChange}
                 >
                     <option value="">Todos los municipios</option>
-                    <option value="arandas">Arandas</option>
-                    <option value="san pedro tlaquepaque">San Pedro Tlaquepaque</option>
-                    <option value="san juan de los lagos">San Juan de los Lagos</option>
-                    <option value="zapopan">Zapopan</option>
+                    {municipios.map(mun => (
+                        <option key={mun} value={mun.toLowerCase()}>{mun}</option>
+                    ))}
                 </select>
             </form>
 

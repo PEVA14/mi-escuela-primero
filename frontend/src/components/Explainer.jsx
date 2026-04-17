@@ -2,6 +2,8 @@ import lupa from "../assets/search-3820_64.png";
 import heart from "../assets/heart-492_64.png";
 import sendIcon from "../assets/send-4008_64.png";
 import check from "../assets/check-mark-3279_64.png";
+import calendarIcon from "../assets/calendar_icon.png";
+import schoolIcon from "../assets/school_icon_32px.png";
 
 const steps = [
     {
@@ -32,6 +34,20 @@ const steps = [
         description:
             "Nuestro equipo te contactará para coordinar los detalles de tu apoyo y asegurar que llegue directamente a quien lo necesita.",
     },
+    {
+        number: "5",
+        icon: calendarIcon,
+        title: "Seguimiento",
+        description:
+            "Recibe actualizaciones periódicas sobre el avance del proyecto que apoyaste. Mantenemos una comunicación abierta para que siempre sepas cómo va tu contribución.",
+    },
+    {
+        number: "6",
+        icon: schoolIcon,
+        title: "Donación Llega a la Escuela",
+        description:
+            "Los recursos se entregan directamente a la escuela beneficiada. Verificamos que el apoyo se aplique correctamente y compartimos evidencia del impacto generado.",
+    },
 ];
 
 export default function Explainer() {
@@ -46,11 +62,11 @@ export default function Explainer() {
                         Cómo funciona
                     </h2>
                     <p className="mx-auto mt-4 max-w-3xl text-base leading-8 text-slate-600 md:text-lg">
-                        Conectamos necesidades reales con aliados comprometidos en 4 pasos simples. El proceso es transparente, eficiente y fácil de seguir.
+                        Conectamos necesidades reales con aliados comprometidos en 6 pasos simples. El proceso es transparente, eficiente y fácil de seguir.
                     </p>
                 </div>
 
-                <div className="mt-12 grid grid-cols-1 gap-6 xl:grid-cols-4 md:grid-cols-2">
+                <div className="mt-12 grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
                     {steps.map((step, index) => (
                         <div key={step.number} className="relative">
                             {index < steps.length - 1 && (
