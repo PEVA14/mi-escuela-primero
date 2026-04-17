@@ -1,5 +1,6 @@
 import { useState } from "react";
 import privacyPDF from "../assets/AvisodePrivacidadMEP.pdf";
+import { crearRespuesta } from "../services/api";
 
 const instanceOptions = [
     { value: "empresa", label: "Empresa" },
@@ -45,13 +46,34 @@ export default function PopUpDonativos({ closePopup, escuela }) {
     const [otherInstance, setOtherInstance] = useState("");
     const [acceptedPrivacy, setAcceptedPrivacy] = useState(false);
     const [submitted, setSubmitted] = useState(false);
+    const [error, setError] = useState(null);
+
+    const [nombre, setNombre] = useState("");
+    const [correo, setCorreo] = useState("");
+    const [telefono, setTelefono] = useState("");
+    const [municipioEstado, setMunicipioEstado] = useState("");
+    const [nombreInstancia, setNombreInstancia] = useState("");
 
     const requiresInstanceName = instanceType && instanceType !== "sin_instancia";
 
-    function handleSubmit(event) {
+    async function handleSubmit(event) {
         event.preventDefault();
         if (!acceptedPrivacy) return;
-        setSubmitted(true);
+        setError(null);
+        try {
+            await crearRespuesta({
+                nombre,
+                correo,
+                telefono,
+                empresa: nombreInstancia,
+                instancia_donante: instanceType === "otro" ? otherInstance : instanceType,
+                municipio_donante: municipioEstado,
+                id_escuela: escuela?.id_escuela ?? null,
+            });
+            setSubmitted(true);
+        } catch (err) {
+            setError("Ocurrió un error al enviar tu información. Por favor intenta de nuevo.");
+        }
     }
 
     return (
@@ -100,6 +122,8 @@ export default function PopUpDonativos({ closePopup, escuela }) {
                             label="Nombre completo"
                             type="text"
                             placeholder="Tu nombre completo"
+                            value={nombre}
+                            onChange={(e) => setNombre(e.target.value)}
                             required
                         />
 
@@ -133,6 +157,8 @@ export default function PopUpDonativos({ closePopup, escuela }) {
                                 label="Nombre de la instancia de la que nos contactas"
                                 type="text"
                                 placeholder="Nombre de la empresa, organización o institución"
+                                value={nombreInstancia}
+                                onChange={(e) => setNombreInstancia(e.target.value)}
                                 required
                             />
                         )}
@@ -141,6 +167,8 @@ export default function PopUpDonativos({ closePopup, escuela }) {
                             label="Correo electrónico"
                             type="email"
                             placeholder="mi.correo@empresa.com"
+                            value={correo}
+                            onChange={(e) => setCorreo(e.target.value)}
                             required
                         />
 
@@ -148,6 +176,8 @@ export default function PopUpDonativos({ closePopup, escuela }) {
                             label="Celular de contacto"
                             type="tel"
                             placeholder="Tu número de contacto"
+                            value={telefono}
+                            onChange={(e) => setTelefono(e.target.value)}
                             required
                         />
 
@@ -155,6 +185,8 @@ export default function PopUpDonativos({ closePopup, escuela }) {
                             label="Municipio y estado"
                             type="text"
                             placeholder="Ej. Zapopan, Jalisco"
+                            value={municipioEstado}
+                            onChange={(e) => setMunicipioEstado(e.target.value)}
                             required
                         />
 
@@ -179,6 +211,12 @@ export default function PopUpDonativos({ closePopup, escuela }) {
                                 .
                             </span>
                         </label>
+
+                        {error && (
+                            <p className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+                                {error}
+                            </p>
+                        )}
 
                         <div className="flex justify-end pt-1">
                             <button

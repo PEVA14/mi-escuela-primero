@@ -5,14 +5,6 @@ const NIVELES = ["Preescolar", "Primaria", "Secundaria", "Bachillerato", "Otro"]
 const MODALIDADES = ["SEP-General", "SEP-Multigrado", "CONAFE", "Indígena", "Telesecundaria", "Otra"];
 const TURNOS = ["Matutino", "Vespertino", "Nocturno", "Mixto"];
 const SOSTENIMIENTOS = ["Estatal", "Federal", "Federalizado", "Privado", "Autónomo"];
-const CATEGORIAS = [
-  { value: "infraestructura", label: "Infraestructura" },
-  { value: "material", label: "Material" },
-  { value: "formacion", label: "Formación" },
-  { value: "salud", label: "Salud" },
-  { value: "na", label: "N/A" },
-];
-
 const EMPTY = {
   nombre: "",
   plantel: "",
@@ -26,7 +18,7 @@ const EMPTY = {
   modalidad: "SEP-General",
   turno: "Matutino",
   sostenimiento: "Federal",
-  categoria: [],
+  fotos: [],
 };
 
 const inputCls =
@@ -41,16 +33,9 @@ export default function ModalEscuela({ open, escuela, onClose, onSuccess }) {
 
   useEffect(() => {
     if (open) {
-      if (escuela) {
-        const cat = Array.isArray(escuela.categoria)
-          ? escuela.categoria
-          : escuela.categoria
-          ? String(escuela.categoria).split(",").map((c) => c.trim()).filter(Boolean)
-          : [];
-        setForm({ ...escuela, categoria: cat });
-      } else {
-        setForm({ ...EMPTY, categoria: [] });
-      }
+      const initial = escuela ? { ...EMPTY, ...escuela } : { ...EMPTY };
+      initial.fotos = Array.isArray(initial.fotos) ? [...initial.fotos] : [];
+      setForm(initial);
       setError(null);
     }
   }, [open, escuela]);
@@ -59,18 +44,30 @@ export default function ModalEscuela({ open, escuela, onClose, onSuccess }) {
     setForm({ ...form, [e.target.name]: e.target.value });
   }
 
-  function toggleCategoria(val) {
-    const current = Array.isArray(form.categoria) ? form.categoria : [];
-    setForm({
-      ...form,
-      categoria: current.includes(val) ? current.filter((c) => c !== val) : [...current, val],
-    });
+  function handleFotoChange(i, value) {
+    const next = [...form.fotos];
+    next[i] = value;
+    setForm({ ...form, fotos: next });
   }
+
+  function handleFotoAdd() {
+    setForm({ ...form, fotos: [...form.fotos, ""] });
+  }
+
+  function handleFotoRemove(i) {
+    setForm({ ...form, fotos: form.fotos.filter((_, idx) => idx !== i) });
+  }
+
+  const missingRequired = [
+    !form.nombre.trim() && "Nombre",
+    !form.municipio.trim() && "Municipio",
+    !form.cct.trim() && "CCT",
+  ].filter(Boolean);
 
   async function handleSubmit(e) {
     e.preventDefault();
-    if (!form.nombre.trim()) {
-      setError("El nombre es obligatorio");
+    if (missingRequired.length) {
+      setError(`Campos obligatorios: ${missingRequired.join(", ")}`);
       return;
     }
     setSaving(true);
@@ -80,6 +77,7 @@ export default function ModalEscuela({ open, escuela, onClose, onSuccess }) {
         ...form,
         personal_escolar: parseInt(form.personal_escolar) || 0,
         estudiantes: parseInt(form.estudiantes) || 0,
+        fotos: form.fotos.map(f => f.trim()).filter(Boolean),
       };
       if (isEditing) {
         await updateEscuela(escuela.id_escuela, datos);
@@ -95,8 +93,6 @@ export default function ModalEscuela({ open, escuela, onClose, onSuccess }) {
   }
 
   if (!open) return null;
-
-  const catActual = Array.isArray(form.categoria) ? form.categoria : [];
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
@@ -119,6 +115,8 @@ export default function ModalEscuela({ open, escuela, onClose, onSuccess }) {
               value={form.nombre}
               onChange={handleChange}
               placeholder="Nombre oficial de la escuela"
+              required
+              aria-required="true"
             />
           </div>
 
@@ -134,13 +132,15 @@ export default function ModalEscuela({ open, escuela, onClose, onSuccess }) {
           </div>
 
           <div className="grid gap-1.5">
-            <label className={labelCls}>Municipio</label>
+            <label className={labelCls}>Municipio *</label>
             <input
               className={inputCls}
               name="municipio"
               value={form.municipio}
               onChange={handleChange}
               placeholder="Municipio"
+              required
+              aria-required="true"
             />
           </div>
 
@@ -167,13 +167,15 @@ export default function ModalEscuela({ open, escuela, onClose, onSuccess }) {
           </div>
 
           <div className="grid gap-1.5">
-            <label className={labelCls}>CCT</label>
+            <label className={labelCls}>CCT *</label>
             <input
               className={inputCls}
               name="cct"
               value={form.cct}
               onChange={handleChange}
               placeholder="Ej. 14DPR1234X"
+              required
+              aria-required="true"
             />
           </div>
 
@@ -232,23 +234,42 @@ export default function ModalEscuela({ open, escuela, onClose, onSuccess }) {
           </div>
 
           <div className="col-span-2 grid gap-2">
-            <label className={labelCls}>Categorías de necesidad</label>
-            <div className="flex flex-wrap gap-2">
-              {CATEGORIAS.map((opt) => (
-                <button
-                  key={opt.value}
-                  type="button"
-                  onClick={() => toggleCategoria(opt.value)}
-                  className={`rounded-xl border px-3 py-1.5 text-sm font-semibold transition ${
-                    catActual.includes(opt.value)
-                      ? "border-emerald-700 bg-emerald-700 text-white"
-                      : "border-slate-200 bg-white text-slate-600 hover:border-emerald-300"
-                  }`}
-                >
-                  {opt.label}
-                </button>
-              ))}
+            <div className="flex items-center justify-between">
+              <label className={labelCls}>Fotos (links)</label>
+              <button
+                type="button"
+                onClick={handleFotoAdd}
+                className="rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700 transition hover:bg-emerald-100"
+              >
+                + Agregar foto
+              </button>
             </div>
+            {form.fotos.length === 0 ? (
+              <p className="rounded-xl border border-dashed border-slate-200 bg-slate-50 px-4 py-3 text-xs text-slate-500">
+                Sin fotos. Haz clic en "Agregar foto" para pegar un link.
+              </p>
+            ) : (
+              <div className="grid gap-2">
+                {form.fotos.map((url, i) => (
+                  <div key={i} className="flex gap-2">
+                    <input
+                      className={inputCls}
+                      value={url}
+                      onChange={(e) => handleFotoChange(i, e.target.value)}
+                      placeholder="https://..."
+                    />
+                    <button
+                      type="button"
+                      onClick={() => handleFotoRemove(i)}
+                      aria-label="Quitar foto"
+                      className="shrink-0 rounded-xl border border-red-200 bg-red-50 px-3 text-sm font-bold text-red-600 transition hover:bg-red-100"
+                    >
+                      ×
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
 
           {error && (
@@ -267,8 +288,9 @@ export default function ModalEscuela({ open, escuela, onClose, onSuccess }) {
             </button>
             <button
               type="submit"
-              disabled={saving}
-              className="rounded-xl bg-emerald-700 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-800 disabled:opacity-60"
+              disabled={saving || missingRequired.length > 0}
+              title={missingRequired.length ? `Campos obligatorios: ${missingRequired.join(", ")}` : ""}
+              className="rounded-xl bg-emerald-700 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-800 disabled:cursor-not-allowed disabled:opacity-60"
             >
               {saving ? "Guardando..." : isEditing ? "Guardar cambios" : "Crear escuela"}
             </button>

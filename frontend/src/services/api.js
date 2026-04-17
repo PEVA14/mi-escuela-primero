@@ -39,6 +39,10 @@ export function deleteEscuela(id) {
 }
 
 // --- Necesidades ---
+export function getNecesidades() {
+  return api.get("/necesidades");
+}
+
 export function getNecesidadesByEscuela(id_escuela) {
   return api.get(`/necesidades/escuela/${id_escuela}`);
 }

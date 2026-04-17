@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { crearRespuesta } from "../services/api";
 
 const donationTypes = [
     { value: "formacion_familias", label: "Formación para familias", group: "formacion" },
@@ -81,6 +82,22 @@ export default function PopUp({ closePopup, escuela }) {
     const [audiences, setAudiences] = useState([]);
     const [logistics, setLogistics] = useState("");
     const [submitted, setSubmitted] = useState(false);
+    const [error, setError] = useState(null);
+
+    // Contact fields
+    const [nombre, setNombre] = useState("");
+    const [correo, setCorreo] = useState("");
+    const [telefono, setTelefono] = useState("");
+    const [empresa, setEmpresa] = useState("");
+
+    // Conditional fields
+    const [tema, setTema] = useState("");
+    const [horas, setHoras] = useState("");
+    const [articulo, setArticulo] = useState("");
+    const [cantidadArticulos, setCantidadArticulos] = useState("");
+    const [direccionRecogida, setDireccionRecogida] = useState("");
+    const [descripcionApoyo, setDescripcionApoyo] = useState("");
+    const [mensajeAdicional, setMensajeAdicional] = useState("");
 
     const selectedType = useMemo(
         () => donationTypes.find((type) => type.value === donationType),
@@ -95,9 +112,55 @@ export default function PopUp({ closePopup, escuela }) {
         );
     }
 
-    function handleSubmit(event) {
+    async function handleSubmit(event) {
         event.preventDefault();
-        setSubmitted(true);
+        setError(null);
+
+        const tipoLabel = donationType === "otro"
+            ? otherDonationType
+            : selectedType?.label || donationType;
+
+        // Build detalles from the conditional fields specific to each donation group
+        let detalles = "";
+        if (donationGroup === "formacion") {
+            detalles = [
+                tema          && `Tema: ${tema}`,
+                audiences.length && `Público: ${audiences.join(", ")}`,
+                horas         && `Horas/sesiones: ${horas}`,
+            ].filter(Boolean).join(" | ");
+        } else if (donationGroup === "psicologica") {
+            detalles = [
+                audiences.length && `Público: ${audiences.join(", ")}`,
+                horas         && `Horas/sesiones: ${horas}`,
+            ].filter(Boolean).join(" | ");
+        } else if (donationGroup === "material") {
+            const logisticaLabel = logisticsOptions.find(o => o.value === logistics)?.label || logistics;
+            detalles = [
+                articulo          && `Artículo: ${articulo}`,
+                cantidadArticulos && `Cantidad: ${cantidadArticulos}`,
+                logisticaLabel    && `Logística: ${logisticaLabel}`,
+                direccionRecogida && `Dirección recogida: ${direccionRecogida}`,
+            ].filter(Boolean).join(" | ");
+        } else if (donationGroup === "apoyo") {
+            detalles = descripcionApoyo;
+        }
+
+        try {
+            await crearRespuesta({
+                nombre,
+                correo,
+                telefono,
+                empresa,
+                tipo_apoyo: tipoLabel,
+                cantidad: cantidadArticulos || horas || "",
+                detalles,
+                mensaje: mensajeAdicional,
+                id_escuela: escuela?.id_escuela ?? null,
+            });
+            setSubmitted(true);
+        } catch (err) {
+            setError("Ocurrió un error al enviar tu información. Por favor intenta de nuevo.");
+        }
     }
 
     return (
@@ -145,12 +208,21 @@ export default function PopUp({ closePopup, escuela }) {
                     </div>
                 ) : (
                     <form className="mt-6 grid max-h-[58vh] grid-cols-1 gap-4 overflow-y-auto pr-1" onSubmit={handleSubmit}>
-                        <InputField label="Nombre Completo" type="text" placeholder="Tu nombre" required />
+                        <InputField
+                            label="Nombre Completo"
+                            type="text"
+                            placeholder="Tu nombre"
+                            value={nombre}
+                            onChange={(e) => setNombre(e.target.value)}
+                            required
+                        />
 
                         <InputField
                             label="Correo Electrónico"
                             type="email"
                             placeholder="mi.correo@empresa.com"
+                            value={correo}
+                            onChange={(e) => setCorreo(e.target.value)}
                             required
                         />
 
@@ -158,6 +230,8 @@ export default function PopUp({ closePopup, escuela }) {
                             label="Celular"
                             type="tel"
                             placeholder="Tu número de contacto"
+                            value={telefono}
+                            onChange={(e) => setTelefono(e.target.value)}
                             required
                         />
 
@@ -165,6 +239,8 @@ export default function PopUp({ closePopup, escuela }) {
                             label="Empresa u Organización (opcional)"
                             type="text"
                             placeholder="Nombre de tu empresa u organización"
+                            value={empresa}
+                            onChange={(e) => setEmpresa(e.target.value)}
                         />
 
                         <SelectField
@@ -197,6 +273,7 @@ export default function PopUp({ closePopup, escuela }) {
                             type="text"
                             placeholder={escuela?.nombre || "Escribe la escuela o escuelas"}
                             defaultValue={escuela?.nombre || ""}
+                            readOnly={!!escuela?.nombre}
                             required
                         />
 
@@ -206,6 +283,8 @@ export default function PopUp({ closePopup, escuela }) {
                                     label="Tema de formación que desean impartir"
                                     type="text"
                                     placeholder="Ej. habilidades socioemocionales, lectura, tecnología..."
+                                    value={tema}
+                                    onChange={(e) => setTema(e.target.value)}
                                     required
                                 />
 
@@ -232,13 +311,9 @@ export default function PopUp({ closePopup, escuela }) {
                                     label="Número de horas y/o sesiones"
                                     type="text"
                                     placeholder="Ej. 8 sesiones de 2 horas"
+                                    value={horas}
+                                    onChange={(e) => setHoras(e.target.value)}
                                     required
-                                />
-
-                                <InputField
-                                    label="Documento adjunto de su propuesta (si aplica)"
-                                    type="file"
-                                    accept=".pdf,.doc,.docx,.png,.jpg,.jpeg"
                                 />
                             </>
                         )}
@@ -268,13 +343,9 @@ export default function PopUp({ closePopup, escuela }) {
                                     label="Número de horas y/o sesiones"
                                     type="text"
                                     placeholder="Ej. 10 sesiones semanales"
+                                    value={horas}
+                                    onChange={(e) => setHoras(e.target.value)}
                                     required
-                                />
-
-                                <InputField
-                                    label="Documento adjunto de su propuesta (si aplica)"
-                                    type="file"
-                                    accept=".pdf,.doc,.docx,.png,.jpg,.jpeg"
                                 />
                             </>
                         )}
@@ -285,6 +356,8 @@ export default function PopUp({ closePopup, escuela }) {
                                     label="Artículo a donar"
                                     type="text"
                                     placeholder="Ej. pupitres, laptops, libros, pintura..."
+                                    value={articulo}
+                                    onChange={(e) => setArticulo(e.target.value)}
                                     required
                                 />
 
@@ -293,6 +366,8 @@ export default function PopUp({ closePopup, escuela }) {
                                     type="number"
                                     min="1"
                                     placeholder="Cantidad"
+                                    value={cantidadArticulos}
+                                    onChange={(e) => setCantidadArticulos(e.target.value)}
                                     required
                                 />
 
@@ -314,39 +389,31 @@ export default function PopUp({ closePopup, escuela }) {
                                     <TextareaField
                                         label="Dirección para recoger el donativo"
                                         placeholder="Comparte la dirección completa y referencias"
+                                        value={direccionRecogida}
+                                        onChange={(e) => setDireccionRecogida(e.target.value)}
                                         required
                                         className="min-h-[88px]"
                                     />
                                 )}
-
-                                <InputField
-                                    label="Documento/imagen adjunto de artículos a donar (si aplica)"
-                                    type="file"
-                                    accept=".pdf,.doc,.docx,.png,.jpg,.jpeg"
-                                />
                             </>
                         )}
 
                         {donationGroup === "apoyo" && (
-                            <>
-                                <TextareaField
-                                    label="Descripción del tipo de apoyo"
-                                    placeholder="Describe cómo te gustaría apoyar a la escuela"
-                                    required
-                                    className="min-h-[88px]"
-                                />
-
-                                <InputField
-                                    label="Documento/imagen adjunto (si aplica)"
-                                    type="file"
-                                    accept=".pdf,.doc,.docx,.png,.jpg,.jpeg"
-                                />
-                            </>
+                            <TextareaField
+                                label="Descripción del tipo de apoyo"
+                                placeholder="Describe cómo te gustaría apoyar a la escuela"
+                                value={descripcionApoyo}
+                                onChange={(e) => setDescripcionApoyo(e.target.value)}
+                                required
+                                className="min-h-[88px]"
+                            />
                         )}
 
                         <TextareaField
                             label="Mensaje Adicional (opcional)"
                             placeholder="Cuéntanos más sobre tu interés en apoyar..."
+                            value={mensajeAdicional}
+                            onChange={(e) => setMensajeAdicional(e.target.value)}
                         />
 
                         <div className="rounded-2xl border border-emerald-100 bg-emerald-50/70 px-4 py-3 text-sm leading-6 text-slate-600">
@@ -354,6 +421,12 @@ export default function PopUp({ closePopup, escuela }) {
                                 <span className="font-semibold text-slate-900">Protección de datos:</span> Tus datos se manejarán conforme a nuestro Aviso de Privacidad y únicamente se utilizarán para coordinar el apoyo con las escuelas.
                             </p>
                         </div>
+
+                        {error && (
+                            <p className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+                                {error}
+                            </p>
+                        )}
 
                         <div className="flex justify-end pt-1">
                             <button

@@ -36,10 +36,12 @@ export default function ModalNecesidad({ open, necesidad, id_escuela, onClose, o
     setForm({ ...form, [e.target.name]: e.target.value });
   }
 
+  const missingRequired = [!form.titulo.trim() && "Título"].filter(Boolean);
+
   async function handleSubmit(e) {
     e.preventDefault();
-    if (!form.titulo.trim()) {
-      setError("El título es obligatorio");
+    if (missingRequired.length) {
+      setError(`Campos obligatorios: ${missingRequired.join(", ")}`);
       return;
     }
     setSaving(true);
@@ -87,6 +89,8 @@ export default function ModalNecesidad({ open, necesidad, id_escuela, onClose, o
               value={form.titulo}
               onChange={handleChange}
               placeholder="Ej. Pintura para salones"
+              required
+              aria-required="true"
             />
           </div>
 
@@ -177,8 +181,9 @@ export default function ModalNecesidad({ open, necesidad, id_escuela, onClose, o
             </button>
             <button
               type="submit"
-              disabled={saving}
-              className="rounded-xl bg-emerald-700 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-800 disabled:opacity-60"
+              disabled={saving || missingRequired.length > 0}
+              title={missingRequired.length ? `Campos obligatorios: ${missingRequired.join(", ")}` : ""}
+              className="rounded-xl bg-emerald-700 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-800 disabled:cursor-not-allowed disabled:opacity-60"
             >
               {saving ? "Guardando..." : isEditing ? "Guardar cambios" : "Crear necesidad"}
             </button>
