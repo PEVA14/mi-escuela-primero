@@ -1,7 +1,7 @@
 export default function ConfirmDialog({ open, message, onConfirm, onCancel, confirmLabel = "Eliminar", danger = true }) {
   if (!open) return null;
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
+    <div className="fixed inset-0 z-[2000] flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
       <div className="w-full max-w-sm rounded-[24px] bg-white p-6 shadow-xl">
         <h3 className="text-lg font-bold text-slate-900">Confirmar acción</h3>
         <p className="mt-2 text-sm leading-6 text-slate-600">{message}</p>

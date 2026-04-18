@@ -95,7 +95,7 @@ export default function PopUpFAQ({ closePopup }) {
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-slate-900/55 px-4 py-6 backdrop-blur-sm md:py-10"
+      className="fixed inset-0 z-[2000] flex items-start justify-center overflow-y-auto bg-slate-900/55 px-4 py-6 backdrop-blur-sm md:py-10"
       onClick={handleCloseAll}
     >
       <div

@@ -95,7 +95,7 @@ export default function ModalEscuela({ open, escuela, onClose, onSuccess }) {
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
+    <div className="fixed inset-0 z-[2000] flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
       <div className="flex max-h-[90vh] w-full max-w-2xl flex-col overflow-hidden rounded-[28px] bg-white shadow-xl">
         <div className="flex-shrink-0 bg-emerald-700 px-6 py-4">
           <h2 className="text-lg font-bold text-white">

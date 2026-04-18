@@ -69,7 +69,7 @@ export default function ModalNecesidad({ open, necesidad, id_escuela, onClose, o
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
+    <div className="fixed inset-0 z-[2000] flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
       <div className="w-full max-w-lg overflow-hidden rounded-[28px] bg-white shadow-xl">
         <div className="bg-emerald-700 px-6 py-4">
           <h2 className="text-lg font-bold text-white">

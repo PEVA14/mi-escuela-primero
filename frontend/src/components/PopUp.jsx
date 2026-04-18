@@ -164,7 +164,7 @@ export default function PopUp({ closePopup, escuela }) {
     }
 
     return (
-        <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-slate-900/55 px-4 py-6 backdrop-blur-sm md:py-10">
+        <div className="fixed inset-0 z-[2000] flex items-start justify-center overflow-y-auto bg-slate-900/55 px-4 py-6 backdrop-blur-sm md:py-10">
             <div className="relative my-4 w-full max-w-xl max-h-[82vh] overflow-hidden rounded-[28px] border border-slate-200 bg-white p-5 shadow-[0_24px_60px_rgba(15,23,42,0.22)] md:my-6 md:p-6">
                 <button
                     className="absolute right-4 top-4 flex h-11 w-11 items-center justify-center rounded-full border border-slate-200 bg-white text-base font-bold text-slate-500 shadow-sm transition hover:border-emerald-200 hover:text-emerald-700"

@@ -148,16 +148,163 @@ export default function Detalles() {
                         </aside>
                     </section>
 
+                    {/* Carrusel de fotos */}
+                    <section className="rounded-[32px] border border-slate-200 bg-white p-6 shadow-sm md:p-8">
+                        <h2 className="text-center text-3xl font-extrabold tracking-[-0.04em] text-slate-900 md:text-4xl">
+                            Conoce Nuestras Instalaciones
+                        </h2>
+
+                        <div className="mt-8 overflow-hidden rounded-[28px] border border-slate-200 bg-[linear-gradient(135deg,#ecfdf5_0%,#f8fafc_55%,#ffffff_100%)]">
+                            {escuela?.fotos?.length > 0 ? (
+                                <div className="relative h-[340px] w-full overflow-hidden bg-slate-100 md:h-[480px]">
+                                    <img
+                                        key={escuela.fotos[fotoIndex % escuela.fotos.length]}
+                                        src={escuela.fotos[fotoIndex % escuela.fotos.length]}
+                                        alt={`${escuela.nombre} — foto ${(fotoIndex % escuela.fotos.length) + 1}`}
+                                        className="absolute inset-0 h-full w-full object-cover"
+                                    />
+
+                                    {escuela.fotos.length > 1 && (
+                                        <>
+                                            <button
+                                                type="button"
+                                                onClick={() =>
+                                                    setFotoIndex((i) =>
+                                                        (i - 1 + escuela.fotos.length) % escuela.fotos.length
+                                                    )
+                                                }
+                                                aria-label="Foto anterior"
+                                                className="absolute left-4 top-1/2 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-white/85 text-xl font-bold text-slate-800 shadow-md backdrop-blur transition hover:bg-white"
+                                            >
+                                                ‹
+                                            </button>
+                                            <button
+                                                type="button"
+                                                onClick={() =>
+                                                    setFotoIndex((i) => (i + 1) % escuela.fotos.length)
+                                                }
+                                                aria-label="Siguiente foto"
+                                                className="absolute right-4 top-1/2 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-white/85 text-xl font-bold text-slate-800 shadow-md backdrop-blur transition hover:bg-white"
+                                            >
+                                                ›
+                                            </button>
+
+                                            <div className="absolute bottom-4 left-1/2 flex -translate-x-1/2 gap-2 rounded-full bg-black/35 px-3 py-1.5 backdrop-blur">
+                                                {escuela.fotos.map((_, i) => (
+                                                    <button
+                                                        key={i}
+                                                        type="button"
+                                                        onClick={() => setFotoIndex(i)}
+                                                        aria-label={`Ir a foto ${i + 1}`}
+                                                        className={`h-2 rounded-full transition-all ${
+                                                            i === fotoIndex % escuela.fotos.length
+                                                                ? "w-6 bg-white"
+                                                                : "w-2 bg-white/60 hover:bg-white/90"
+                                                        }`}
+                                                    />
+                                                ))}
+                                            </div>
+
+                                            <div className="absolute right-4 top-4 rounded-full bg-black/45 px-3 py-1 text-xs font-semibold text-white backdrop-blur">
+                                                {(fotoIndex % escuela.fotos.length) + 1} / {escuela.fotos.length}
+                                            </div>
+                                        </>
+                                    )}
+                                </div>
+                            ) : (
+                                <div className="flex h-[340px] items-center justify-center px-6 text-center md:h-[420px]">
+                                    <div>
+                                        <p className="text-sm font-semibold uppercase tracking-[0.3em] text-emerald-700/80">
+                                            Mi Escuela Primero
+                                        </p>
+                                        <p className="mt-4 text-xl text-slate-500 md:text-2xl">
+                                            Espacio reservado para imágenes de la escuela
+                                        </p>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    </section>
+
                     <section className="grid gap-8 xl:grid-cols-[minmax(0,1fr)_420px]">
                         {/* Columna Necesidades */}
                         <div className="rounded-[32px] border border-slate-200 bg-white p-8">
-                            <h2 className="text-3xl font-extrabold text-slate-900 mb-6">Necesidades</h2>
-                            {necesidades.map((n, i) => (
-                                <div key={i} className="mb-4 p-4 bg-slate-50 rounded-xl border border-slate-100">
-                                    <h3 className="font-bold text-lg">{n.titulo}</h3>
-                                    <p className="text-slate-600">{n.descripcion}</p>
+                            <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
+                                <h2 className="text-3xl font-extrabold text-slate-900">
+                                    Necesidades
+                                    <span className="ml-3 rounded-full border border-slate-200 bg-slate-50 px-3 py-1 align-middle text-sm font-semibold text-slate-700">
+                                        {totalNeeds}
+                                    </span>
+                                </h2>
+                                <button
+                                    onClick={() => setShowPopup(true)}
+                                    className="inline-flex items-center justify-center rounded-2xl bg-emerald-700 px-5 py-3 text-sm font-semibold text-white shadow-md transition hover:bg-emerald-800"
+                                >
+                                    Apoyar esta Escuela
+                                </button>
+                            </div>
+
+                            {totalNeeds === 0 ? (
+                                <p className="rounded-2xl border border-dashed border-slate-200 bg-slate-50 px-5 py-6 text-center text-slate-500">
+                                    Esta escuela aún no tiene necesidades registradas.
+                                </p>
+                            ) : (
+                                <div className="space-y-4">
+                                    {necesidades.map((n) => (
+                                        <article
+                                            key={n.id_necesidad}
+                                            className="rounded-2xl border border-slate-100 bg-slate-50 p-5"
+                                        >
+                                            <div className="flex flex-wrap items-start justify-between gap-3">
+                                                <h3 className="text-lg font-bold text-slate-900">{n.titulo}</h3>
+                                                {n.estado && (
+                                                    <span
+                                                        className={`rounded-full border px-3 py-1 text-xs font-semibold ${
+                                                            ESTADO_CLS[n.estado] ?? "border-slate-200 bg-white text-slate-700"
+                                                        }`}
+                                                    >
+                                                        {n.estado}
+                                                    </span>
+                                                )}
+                                            </div>
+
+                                            {(n.categoria || n.subcategoria) && (
+                                                <div className="mt-2 flex flex-wrap gap-2 text-xs font-semibold">
+                                                    {n.categoria && (
+                                                        <span className="rounded-full bg-emerald-100 px-3 py-1 text-emerald-800">
+                                                            {n.categoria}
+                                                        </span>
+                                                    )}
+                                                    {n.subcategoria && (
+                                                        <span className="rounded-full bg-slate-200 px-3 py-1 text-slate-700">
+                                                            {n.subcategoria}
+                                                        </span>
+                                                    )}
+                                                </div>
+                                            )}
+
+                                            {n.descripcion && (
+                                                <p className="mt-3 text-sm leading-6 text-slate-600">{n.descripcion}</p>
+                                            )}
+
+                                            <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
+                                                {n.monto_requerido > 0 && (
+                                                    <span className="text-sm text-slate-700">
+                                                        <strong className="text-slate-900">{n.monto_requerido}</strong>
+                                                        {n.unidad ? ` ${n.unidad}` : ""}
+                                                    </span>
+                                                )}
+                                                <button
+                                                    onClick={() => setShowPopup(true)}
+                                                    className="ml-auto inline-flex items-center justify-center rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm font-semibold text-emerald-700 transition hover:bg-emerald-100"
+                                                >
+                                                    Apoyar esta necesidad
+                                                </button>
+                                            </div>
+                                        </article>
+                                    ))}
                                 </div>
-                            ))}
+                            )}
                         </div>
 
                         {/* Columna del Mapa Interactiva */}
