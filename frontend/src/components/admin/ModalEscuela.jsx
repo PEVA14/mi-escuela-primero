@@ -1,12 +1,36 @@
 import { useState, useEffect, useRef, useCallback } from "react";
-import { agregarEscuela, updateEscuela, uploadFotos, deleteFoto } from "../../services/api";
+import {
+  agregarEscuela,
+  updateEscuela,
+  uploadFotos,
+  deleteFoto,
+} from "../../services/api";
 import { validateFormBeforeSubmit } from "../../utils/formValidation";
 import camara from "../../assets/camera_icon.png";
 
-const NIVELES       = ["Preescolar", "Primaria", "Secundaria", "Bachillerato", "Otro"];
-const MODALIDADES   = ["SEP-General", "SEP-Multigrado", "CONAFE", "Indígena", "Telesecundaria", "Otra"];
-const TURNOS        = ["Matutino", "Vespertino", "Nocturno", "Mixto"];
-const SOSTENIMIENTOS = ["Estatal", "Federal", "Federalizado", "Privado", "Autónomo"];
+const NIVELES = [
+  "Preescolar",
+  "Primaria",
+  "Secundaria",
+  "Bachillerato",
+  "Otro",
+];
+const MODALIDADES = [
+  "SEP-General",
+  "SEP-Multigrado",
+  "CONAFE",
+  "Indígena",
+  "Telesecundaria",
+  "Otra",
+];
+const TURNOS = ["Matutino", "Vespertino", "Nocturno", "Mixto"];
+const SOSTENIMIENTOS = [
+  "Estatal",
+  "Federal",
+  "Federalizado",
+  "Privado",
+  "Autónomo",
+];
 
 const EMPTY = {
   nombre: "",
@@ -28,16 +52,16 @@ const inputCls =
 const labelCls = "text-xs font-bold uppercase tracking-wide text-slate-600";
 
 export default function ModalEscuela({ open, escuela, onClose, onSuccess }) {
-  const [form, setForm]               = useState(EMPTY);
-  const [existingFotos, setExisting]  = useState([]);
-  const [newFiles, setNewFiles]       = useState([]);
+  const [form, setForm] = useState(EMPTY);
+  const [existingFotos, setExisting] = useState([]);
+  const [newFiles, setNewFiles] = useState([]);
   const [previewUrls, setPreviewUrls] = useState([]);
-  const [toDelete, setToDelete]       = useState([]);
-  const [saving, setSaving]           = useState(false);
-  const [error, setError]             = useState(null);
+  const [toDelete, setToDelete] = useState([]);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState(null);
   const [invalidFields, setInvalidFields] = useState([]);
 
-  const fileInputRef   = useRef(null);
+  const fileInputRef = useRef(null);
   const photoSectionRef = useRef(null);
   const isEditing = !!escuela;
 
@@ -73,7 +97,10 @@ export default function ModalEscuela({ open, escuela, onClose, onSuccess }) {
     setNewFiles((prev) => [...prev, ...picked]);
     e.target.value = "";
     setTimeout(() => {
-      photoSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+      photoSectionRef.current?.scrollIntoView({
+        behavior: "smooth",
+        block: "nearest",
+      });
     }, 80);
   }, []);
 
@@ -103,7 +130,7 @@ export default function ModalEscuela({ open, escuela, onClose, onSuccess }) {
       const datos = {
         ...form,
         personal_escolar: parseInt(form.personal_escolar) || 0,
-        estudiantes:       parseInt(form.estudiantes)      || 0,
+        estudiantes: parseInt(form.estudiantes) || 0,
       };
 
       let schoolId;
@@ -126,7 +153,9 @@ export default function ModalEscuela({ open, escuela, onClose, onSuccess }) {
       onSuccess();
     } catch (err) {
       const serverMsg = err?.response?.data?.mensaje;
-      setError(serverMsg || "Error al guardar. Revisa tu conexión e intenta de nuevo.");
+      setError(
+        serverMsg || "Error al guardar. Revisa tu conexión e intenta de nuevo.",
+      );
     } finally {
       setSaving(false);
     }
@@ -139,7 +168,6 @@ export default function ModalEscuela({ open, escuela, onClose, onSuccess }) {
   return (
     <div className="fixed inset-0 z-[2000] flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
       <div className="flex max-h-[90vh] w-full max-w-2xl flex-col overflow-hidden rounded-[28px] bg-white shadow-xl">
-
         {/* Header */}
         <div className="flex-shrink-0 bg-emerald-700 px-6 py-4">
           <h2 className="text-lg font-bold text-white">
@@ -152,8 +180,10 @@ export default function ModalEscuela({ open, escuela, onClose, onSuccess }) {
           </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="grid grid-cols-2 gap-4 overflow-y-auto p-6">
-
+        <form
+          onSubmit={handleSubmit}
+          className="grid grid-cols-2 gap-4 overflow-y-auto p-6"
+        >
           <div ref={photoSectionRef} className="col-span-2 grid gap-3">
             <div className="flex items-center justify-between">
               <label className={labelCls}>
@@ -187,7 +217,11 @@ export default function ModalEscuela({ open, escuela, onClose, onSuccess }) {
                 onClick={() => fileInputRef.current?.click()}
                 className="rounded-xl border-2 border-dashed border-slate-200 bg-slate-50 px-4 py-6 text-center text-xs text-slate-400 transition hover:border-emerald-300 hover:bg-emerald-50 hover:text-emerald-600"
               >
-                <img className="h-12 w-12 object-contain mx-auto mb-2" src={camara} alt="subir fotos" />
+                <img
+                  className="h-12 w-12 object-contain mx-auto mb-2"
+                  src={camara}
+                  alt="subir fotos"
+                />
                 Haz clic aquí o en "Subir imágenes" para agregar fotos
               </button>
             ) : (
@@ -244,84 +278,165 @@ export default function ModalEscuela({ open, escuela, onClose, onSuccess }) {
 
           <div className="col-span-2 grid gap-1.5">
             <label className={labelCls}>Nombre *</label>
-            <input className={fieldCls("nombre")} name="nombre" value={form.nombre}
-              onChange={handleChange} placeholder="Nombre oficial de la escuela"
-              required aria-required="true" />
-            {invalidFields.includes("nombre") && <p className="text-xs font-medium text-red-600">{warningText}</p>}
+            <input
+              className={fieldCls("nombre")}
+              name="nombre"
+              value={form.nombre}
+              onChange={handleChange}
+              placeholder="Nombre oficial de la escuela"
+              required
+              aria-required="true"
+            />
+            {invalidFields.includes("nombre") && (
+              <p className="text-xs font-medium text-red-600">{warningText}</p>
+            )}
           </div>
 
           <div className="grid gap-1.5">
             <label className={labelCls}>Plantel</label>
-            <input className={inputCls} name="plantel" value={form.plantel}
-              onChange={handleChange} placeholder="Nombre del plantel" />
+            <input
+              className={inputCls}
+              name="plantel"
+              value={form.plantel}
+              onChange={handleChange}
+              placeholder="Nombre del plantel"
+            />
           </div>
 
           <div className="grid gap-1.5">
             <label className={labelCls}>Municipio *</label>
-            <input className={fieldCls("municipio")} name="municipio" value={form.municipio}
-              onChange={handleChange} placeholder="Municipio"
-              required aria-required="true" />
-            {invalidFields.includes("municipio") && <p className="text-xs font-medium text-red-600">{warningText}</p>}
+            <input
+              className={fieldCls("municipio")}
+              name="municipio"
+              value={form.municipio}
+              onChange={handleChange}
+              placeholder="Municipio"
+              required
+              aria-required="true"
+            />
+            {invalidFields.includes("municipio") && (
+              <p className="text-xs font-medium text-red-600">{warningText}</p>
+            )}
           </div>
 
           <div className="col-span-2 grid gap-1.5">
             <label className={labelCls}>Dirección</label>
-            <input className={inputCls} name="direccion" value={form.direccion}
-              onChange={handleChange} placeholder="Dirección completa" />
+            <input
+              className={inputCls}
+              name="direccion"
+              value={form.direccion}
+              onChange={handleChange}
+              placeholder="Dirección completa"
+            />
           </div>
 
           <div className="col-span-2 grid gap-1.5">
             <label className={labelCls}>URL Google Maps</label>
-            <input className={inputCls} name="ubicacion" value={form.ubicacion}
-              onChange={handleChange} placeholder="https://maps.app.goo.gl/..." />
+            <input
+              className={inputCls}
+              name="ubicacion"
+              value={form.ubicacion}
+              onChange={handleChange}
+              placeholder="https://maps.app.goo.gl/..."
+            />
           </div>
 
           <div className="grid gap-1.5">
             <label className={labelCls}>CCT *</label>
-            <input className={fieldCls("cct")} name="cct" value={form.cct}
-              onChange={handleChange} placeholder="Ej. 14DPR1234X"
-              required aria-required="true" />
-            {invalidFields.includes("cct") && <p className="text-xs font-medium text-red-600">{warningText}</p>}
+            <input
+              className={fieldCls("cct")}
+              name="cct"
+              value={form.cct}
+              onChange={handleChange}
+              placeholder="Ej. 14DPR1234X"
+              required
+              aria-required="true"
+            />
+            {invalidFields.includes("cct") && (
+              <p className="text-xs font-medium text-red-600">{warningText}</p>
+            )}
           </div>
 
           <div className="grid gap-1.5">
             <label className={labelCls}>Nivel Educativo</label>
-            <select className={inputCls} name="nivelEducativo" value={form.nivelEducativo} onChange={handleChange}>
-              {NIVELES.map((n) => <option key={n}>{n}</option>)}
+            <select
+              className={inputCls}
+              name="nivelEducativo"
+              value={form.nivelEducativo}
+              onChange={handleChange}
+            >
+              {NIVELES.map((n) => (
+                <option key={n}>{n}</option>
+              ))}
             </select>
           </div>
 
           <div className="grid gap-1.5">
             <label className={labelCls}>Modalidad</label>
-            <select className={inputCls} name="modalidad" value={form.modalidad} onChange={handleChange}>
-              {MODALIDADES.map((m) => <option key={m}>{m}</option>)}
+            <select
+              className={inputCls}
+              name="modalidad"
+              value={form.modalidad}
+              onChange={handleChange}
+            >
+              {MODALIDADES.map((m) => (
+                <option key={m}>{m}</option>
+              ))}
             </select>
           </div>
 
           <div className="grid gap-1.5">
             <label className={labelCls}>Turno</label>
-            <select className={inputCls} name="turno" value={form.turno} onChange={handleChange}>
-              {TURNOS.map((t) => <option key={t}>{t}</option>)}
+            <select
+              className={inputCls}
+              name="turno"
+              value={form.turno}
+              onChange={handleChange}
+            >
+              {TURNOS.map((t) => (
+                <option key={t}>{t}</option>
+              ))}
             </select>
           </div>
 
           <div className="grid gap-1.5">
             <label className={labelCls}>Sostenimiento</label>
-            <select className={inputCls} name="sostenimiento" value={form.sostenimiento} onChange={handleChange}>
-              {SOSTENIMIENTOS.map((s) => <option key={s}>{s}</option>)}
+            <select
+              className={inputCls}
+              name="sostenimiento"
+              value={form.sostenimiento}
+              onChange={handleChange}
+            >
+              {SOSTENIMIENTOS.map((s) => (
+                <option key={s}>{s}</option>
+              ))}
             </select>
           </div>
 
           <div className="grid gap-1.5">
             <label className={labelCls}>Estudiantes</label>
-            <input className={inputCls} name="estudiantes" type="number" min="0"
-              value={form.estudiantes} onChange={handleChange} placeholder="0" />
+            <input
+              className={inputCls}
+              name="estudiantes"
+              type="number"
+              min="0"
+              value={form.estudiantes}
+              onChange={handleChange}
+              placeholder="0"
+            />
           </div>
 
           <div className="grid gap-1.5">
             <label className={labelCls}>Personal Escolar</label>
-            <input className={inputCls} name="personal_escolar" type="number" min="0"
-              value={form.personal_escolar} onChange={handleChange} placeholder="0" />
+            <input
+              className={inputCls}
+              name="personal_escolar"
+              type="number"
+              min="0"
+              value={form.personal_escolar}
+              onChange={handleChange}
+              placeholder="0"
+            />
           </div>
 
           {error && (
@@ -331,8 +446,11 @@ export default function ModalEscuela({ open, escuela, onClose, onSuccess }) {
           )}
 
           <div className="col-span-2 flex justify-end gap-3 border-t border-slate-100 pt-2">
-            <button type="button" onClick={onClose}
-              className="rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50">
+            <button
+              type="button"
+              onClick={onClose}
+              className="rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+            >
               Cancelar
             </button>
             <button
@@ -340,7 +458,11 @@ export default function ModalEscuela({ open, escuela, onClose, onSuccess }) {
               disabled={saving}
               className="rounded-xl bg-emerald-700 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-800 disabled:cursor-not-allowed disabled:opacity-60"
             >
-              {saving ? "Guardando..." : isEditing ? "Guardar cambios" : "Crear escuela"}
+              {saving
+                ? "Guardando..."
+                : isEditing
+                  ? "Guardar cambios"
+                  : "Crear escuela"}
             </button>
           </div>
         </form>

@@ -6,11 +6,8 @@ import Footer from "../components/Footer";
 import { validateFormBeforeSubmit } from "../utils/formValidation";
 
 export default function EditarEscuela() {
-
   const { id } = useParams();
   const navigate = useNavigate();
-
-  const token = localStorage.getItem("token");
 
   const [escuela, setEscuela] = useState({
     nombre: "",
@@ -24,7 +21,7 @@ export default function EditarEscuela() {
     modalidad: "",
     turno: "",
     sostenimiento: "",
-    categoria: ""
+    categoria: "",
   });
 
   const [loading, setLoading] = useState(true);
@@ -39,41 +36,29 @@ export default function EditarEscuela() {
 
   // proteger ruta (solo admin)
   useEffect(() => {
-
     const token = localStorage.getItem("token");
     if (!token) {
       alert("Debes iniciar sesión como administrador");
       navigate("/login");
     }
-
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-
 
   // cargar datos
   useEffect(() => {
-
     async function cargarDatos() {
-
       try {
-
         const res = await getEscuelaById(id);
 
         setEscuela(res.data);
-
       } catch (e) {
-
         console.error("Error al obtener la escuela", e);
-
       } finally {
-
         setLoading(false);
-
       }
     }
 
     cargarDatos();
-
   }, [id]);
 
   function handleChange(e) {
@@ -81,9 +66,8 @@ export default function EditarEscuela() {
 
     setEscuela({
       ...escuela,
-      [e.target.name]: e.target.value
+      [e.target.name]: e.target.value,
     });
-
   }
 
   async function handleSubmit(e) {
@@ -92,48 +76,47 @@ export default function EditarEscuela() {
     e.preventDefault();
 
     try {
-
       await updateEscuela(id, escuela);
 
       alert("Escuela actualizada correctamente");
 
       navigate(`/escuelas/${id}`);
-
-    } catch (err) {
-
+    } catch {
       alert("Error al actualizar");
-
     }
   }
 
   async function handleDelete() {
-
-    const confirmar = window.confirm("¿Seguro que quieres eliminar esta escuela?");
+    const confirmar = window.confirm(
+      "¿Seguro que quieres eliminar esta escuela?",
+    );
 
     if (!confirmar) return;
 
-  try {
-    await deleteEscuela(id);
-    alert("Escuela eliminada correctamente");
-    navigate("/escuelas");
-  } catch (error) {
-    console.error(error);
-    alert("Error al eliminar la escuela");
+    try {
+      await deleteEscuela(id);
+      alert("Escuela eliminada correctamente");
+      navigate("/escuelas");
+    } catch (error) {
+      console.error(error);
+      alert("Error al eliminar la escuela");
+    }
   }
-}
 
-
-  if (loading) return (
-    <div className="min-h-screen bg-slate-50">
-      <NavBar />
-      <main className="px-6 py-10 md:px-10 lg:px-14">
-        <div className="mx-auto max-w-3xl rounded-[28px] border border-slate-200 bg-white p-8 text-center shadow-sm">
-          <p className="text-lg font-medium text-slate-600">Cargando datos de la escuela...</p>
-        </div>
-      </main>
-      <Footer />
-    </div>
-  );
+  if (loading)
+    return (
+      <div className="min-h-screen bg-slate-50">
+        <NavBar />
+        <main className="px-6 py-10 md:px-10 lg:px-14">
+          <div className="mx-auto max-w-3xl rounded-[28px] border border-slate-200 bg-white p-8 text-center shadow-sm">
+            <p className="text-lg font-medium text-slate-600">
+              Cargando datos de la escuela...
+            </p>
+          </div>
+        </main>
+        <Footer />
+      </div>
+    );
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -151,7 +134,8 @@ export default function EditarEscuela() {
                   Editar Escuela
                 </h1>
                 <p className="mt-2 text-base leading-7 text-slate-600 md:text-lg">
-                  Actualiza la información de la escuela y guarda los cambios cuando termines.
+                  Actualiza la información de la escuela y guarda los cambios
+                  cuando termines.
                 </p>
               </div>
 
@@ -166,9 +150,14 @@ export default function EditarEscuela() {
           </div>
 
           <div className="rounded-[32px] border border-slate-200 bg-white p-6 shadow-sm md:p-8">
-            <form onSubmit={handleSubmit} className="grid grid-cols-1 gap-6 md:grid-cols-2">
+            <form
+              onSubmit={handleSubmit}
+              className="grid grid-cols-1 gap-6 md:grid-cols-2"
+            >
               <div className="grid gap-2 md:col-span-2">
-                <label className="text-sm font-semibold text-slate-700">Nombre</label>
+                <label className="text-sm font-semibold text-slate-700">
+                  Nombre
+                </label>
                 <input
                   className={inputCls("nombre")}
                   name="nombre"
@@ -176,11 +165,17 @@ export default function EditarEscuela() {
                   onChange={handleChange}
                   required
                 />
-                {invalidFields.includes("nombre") && <p className="text-xs font-medium text-red-600">{warningText}</p>}
+                {invalidFields.includes("nombre") && (
+                  <p className="text-xs font-medium text-red-600">
+                    {warningText}
+                  </p>
+                )}
               </div>
 
               <div className="grid gap-2">
-                <label className="text-sm font-semibold text-slate-700">Plantel</label>
+                <label className="text-sm font-semibold text-slate-700">
+                  Plantel
+                </label>
                 <input
                   className={inputCls("plantel")}
                   name="plantel"
@@ -188,11 +183,17 @@ export default function EditarEscuela() {
                   onChange={handleChange}
                   required
                 />
-                {invalidFields.includes("plantel") && <p className="text-xs font-medium text-red-600">{warningText}</p>}
+                {invalidFields.includes("plantel") && (
+                  <p className="text-xs font-medium text-red-600">
+                    {warningText}
+                  </p>
+                )}
               </div>
 
               <div className="grid gap-2">
-                <label className="text-sm font-semibold text-slate-700">Municipio</label>
+                <label className="text-sm font-semibold text-slate-700">
+                  Municipio
+                </label>
                 <input
                   className={inputCls("municipio")}
                   name="municipio"
@@ -200,11 +201,17 @@ export default function EditarEscuela() {
                   onChange={handleChange}
                   required
                 />
-                {invalidFields.includes("municipio") && <p className="text-xs font-medium text-red-600">{warningText}</p>}
+                {invalidFields.includes("municipio") && (
+                  <p className="text-xs font-medium text-red-600">
+                    {warningText}
+                  </p>
+                )}
               </div>
 
               <div className="grid gap-2 md:col-span-2">
-                <label className="text-sm font-semibold text-slate-700">Dirección</label>
+                <label className="text-sm font-semibold text-slate-700">
+                  Dirección
+                </label>
                 <input
                   className={inputCls("direccion")}
                   name="direccion"
@@ -212,11 +219,17 @@ export default function EditarEscuela() {
                   onChange={handleChange}
                   required
                 />
-                {invalidFields.includes("direccion") && <p className="text-xs font-medium text-red-600">{warningText}</p>}
+                {invalidFields.includes("direccion") && (
+                  <p className="text-xs font-medium text-red-600">
+                    {warningText}
+                  </p>
+                )}
               </div>
 
               <div className="grid gap-2">
-                <label className="text-sm font-semibold text-slate-700">CCT</label>
+                <label className="text-sm font-semibold text-slate-700">
+                  CCT
+                </label>
                 <input
                   className={inputCls("cct")}
                   name="cct"
@@ -224,33 +237,51 @@ export default function EditarEscuela() {
                   onChange={handleChange}
                   required
                 />
-                {invalidFields.includes("cct") && <p className="text-xs font-medium text-red-600">{warningText}</p>}
+                {invalidFields.includes("cct") && (
+                  <p className="text-xs font-medium text-red-600">
+                    {warningText}
+                  </p>
+                )}
               </div>
 
               <div className="grid gap-2">
-                <label className="text-sm font-semibold text-slate-700">Estudiantes</label>
+                <label className="text-sm font-semibold text-slate-700">
+                  Estudiantes
+                </label>
                 <input
                   className={inputCls("nivelEducativo")}
                   name="estudiantes"
                   value={escuela.estudiantes}
                   onChange={handleChange}
                 />
-                {invalidFields.includes("nivelEducativo") && <p className="text-xs font-medium text-red-600">{warningText}</p>}
+                {invalidFields.includes("nivelEducativo") && (
+                  <p className="text-xs font-medium text-red-600">
+                    {warningText}
+                  </p>
+                )}
               </div>
 
               <div className="grid gap-2">
-                <label className="text-sm font-semibold text-slate-700">Personal Escolar</label>
+                <label className="text-sm font-semibold text-slate-700">
+                  Personal Escolar
+                </label>
                 <input
                   className={inputCls("categoria")}
                   name="personal_escolar"
                   value={escuela.personal_escolar}
                   onChange={handleChange}
                 />
-                {invalidFields.includes("categoria") && <p className="text-xs font-medium text-red-600">{warningText}</p>}
+                {invalidFields.includes("categoria") && (
+                  <p className="text-xs font-medium text-red-600">
+                    {warningText}
+                  </p>
+                )}
               </div>
 
               <div className="grid gap-2">
-                <label className="text-sm font-semibold text-slate-700">Nivel Educativo</label>
+                <label className="text-sm font-semibold text-slate-700">
+                  Nivel Educativo
+                </label>
                 <input
                   className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700 outline-none transition placeholder:text-slate-400 focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100"
                   name="nivelEducativo"
@@ -261,7 +292,9 @@ export default function EditarEscuela() {
               </div>
 
               <div className="grid gap-2">
-                <label className="text-sm font-semibold text-slate-700">Modalidad</label>
+                <label className="text-sm font-semibold text-slate-700">
+                  Modalidad
+                </label>
                 <input
                   className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700 outline-none transition placeholder:text-slate-400 focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100"
                   name="modalidad"
@@ -271,7 +304,9 @@ export default function EditarEscuela() {
               </div>
 
               <div className="grid gap-2">
-                <label className="text-sm font-semibold text-slate-700">Turno</label>
+                <label className="text-sm font-semibold text-slate-700">
+                  Turno
+                </label>
                 <input
                   className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700 outline-none transition placeholder:text-slate-400 focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100"
                   name="turno"
@@ -281,7 +316,9 @@ export default function EditarEscuela() {
               </div>
 
               <div className="grid gap-2">
-                <label className="text-sm font-semibold text-slate-700">Sostenimiento</label>
+                <label className="text-sm font-semibold text-slate-700">
+                  Sostenimiento
+                </label>
                 <input
                   className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700 outline-none transition placeholder:text-slate-400 focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100"
                   name="sostenimiento"
@@ -291,7 +328,9 @@ export default function EditarEscuela() {
               </div>
 
               <div className="grid gap-2 md:col-span-2">
-                <label className="text-sm font-semibold text-slate-700">Categoría</label>
+                <label className="text-sm font-semibold text-slate-700">
+                  Categoría
+                </label>
                 <input
                   className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700 outline-none transition placeholder:text-slate-400 focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100"
                   name="categoria"

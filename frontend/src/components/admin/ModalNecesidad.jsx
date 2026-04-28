@@ -2,7 +2,13 @@ import { useState, useEffect } from "react";
 import { crearNecesidad, updateNecesidad } from "../../services/api";
 import { validateFormBeforeSubmit } from "../../utils/formValidation";
 
-const CATEGORIAS = ["infraestructura", "material", "formacion", "salud", "otro"];
+const CATEGORIAS = [
+  "infraestructura",
+  "material",
+  "formacion",
+  "salud",
+  "otro",
+];
 const PRIORIDADES = ["Alta", "Media", "Baja"];
 const ESTADOS = ["Pendiente", "En progreso", "Completada"];
 
@@ -20,7 +26,13 @@ const inputCls =
   "w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-700 outline-none transition placeholder:text-slate-400 focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100";
 const labelCls = "text-xs font-bold uppercase tracking-wide text-slate-600";
 
-export default function ModalNecesidad({ open, necesidad, id_escuela, onClose, onSuccess }) {
+export default function ModalNecesidad({
+  open,
+  necesidad,
+  id_escuela,
+  onClose,
+  onSuccess,
+}) {
   const [form, setForm] = useState(EMPTY);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState(null);
@@ -67,7 +79,9 @@ export default function ModalNecesidad({ open, necesidad, id_escuela, onClose, o
       }
       onSuccess();
     } catch {
-      setError("Error al guardar la necesidad. Verifica que tu sesión esté activa.");
+      setError(
+        "Error al guardar la necesidad. Verifica que tu sesión esté activa.",
+      );
     } finally {
       setSaving(false);
     }
@@ -83,11 +97,17 @@ export default function ModalNecesidad({ open, necesidad, id_escuela, onClose, o
             {isEditing ? "Editar Necesidad" : "Nueva Necesidad"}
           </h2>
           <p className="text-sm text-emerald-200">
-            {isEditing ? "Modifica los datos de esta necesidad" : "Registra una nueva necesidad para esta escuela"}
+            {isEditing
+              ? "Modifica los datos de esta necesidad"
+              : "Registra una nueva necesidad para esta escuela"}
           </p>
         </div>
 
-        <form onSubmit={handleSubmit} noValidate className="grid grid-cols-2 gap-4 p-6">
+        <form
+          onSubmit={handleSubmit}
+          noValidate
+          className="grid grid-cols-2 gap-4 p-6"
+        >
           <div className="col-span-2 grid gap-1.5">
             <label className={labelCls}>Título *</label>
             <input
@@ -99,7 +119,9 @@ export default function ModalNecesidad({ open, necesidad, id_escuela, onClose, o
               required
               aria-required="true"
             />
-            {invalidFields.includes("titulo") && <p className="text-xs font-medium text-red-600">{warningText}</p>}
+            {invalidFields.includes("titulo") && (
+              <p className="text-xs font-medium text-red-600">{warningText}</p>
+            )}
           </div>
 
           <div className="col-span-2 grid gap-1.5">
@@ -116,7 +138,12 @@ export default function ModalNecesidad({ open, necesidad, id_escuela, onClose, o
 
           <div className="grid gap-1.5">
             <label className={labelCls}>Categoría</label>
-            <select className={inputCls} name="categoria" value={form.categoria} onChange={handleChange}>
+            <select
+              className={inputCls}
+              name="categoria"
+              value={form.categoria}
+              onChange={handleChange}
+            >
               {CATEGORIAS.map((c) => (
                 <option key={c} value={c}>
                   {c.charAt(0).toUpperCase() + c.slice(1)}
@@ -127,7 +154,12 @@ export default function ModalNecesidad({ open, necesidad, id_escuela, onClose, o
 
           <div className="grid gap-1.5">
             <label className={labelCls}>Prioridad</label>
-            <select className={inputCls} name="prioridad" value={form.prioridad} onChange={handleChange}>
+            <select
+              className={inputCls}
+              name="prioridad"
+              value={form.prioridad}
+              onChange={handleChange}
+            >
               {PRIORIDADES.map((p) => (
                 <option key={p} value={p}>
                   {p}
@@ -164,7 +196,12 @@ export default function ModalNecesidad({ open, necesidad, id_escuela, onClose, o
 
           <div className="col-span-2 grid gap-1.5">
             <label className={labelCls}>Estado</label>
-            <select className={inputCls} name="estado" value={form.estado} onChange={handleChange}>
+            <select
+              className={inputCls}
+              name="estado"
+              value={form.estado}
+              onChange={handleChange}
+            >
               {ESTADOS.map((s) => (
                 <option key={s} value={s}>
                   {s}
@@ -192,7 +229,11 @@ export default function ModalNecesidad({ open, necesidad, id_escuela, onClose, o
               disabled={saving}
               className="rounded-xl bg-emerald-700 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-800 disabled:cursor-not-allowed disabled:opacity-60"
             >
-              {saving ? "Guardando..." : isEditing ? "Guardar cambios" : "Crear necesidad"}
+              {saving
+                ? "Guardando..."
+                : isEditing
+                  ? "Guardar cambios"
+                  : "Crear necesidad"}
             </button>
           </div>
         </form>

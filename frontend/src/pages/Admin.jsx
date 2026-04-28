@@ -18,6 +18,7 @@ export default function Admin() {
     if (!token) {
       navigate("/login");
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   function showToast(message, type = "success") {
@@ -30,8 +31,12 @@ export default function Admin() {
       {/* Header */}
       <header className="z-10 flex items-center justify-between bg-emerald-700 px-6 py-4 shadow-md">
         <div>
-          <h1 className="text-xl font-bold text-white">Panel de Administración</h1>
-          <p className="text-sm text-emerald-200">Gestiona las escuelas y sus necesidades del catálogo</p>
+          <h1 className="text-xl font-bold text-white">
+            Panel de Administración
+          </h1>
+          <p className="text-sm text-emerald-200">
+            Gestiona las escuelas y sus necesidades del catálogo
+          </p>
         </div>
         <button
           onClick={() => navigate("/")}
@@ -44,7 +49,9 @@ export default function Admin() {
       <div className="flex flex-1 overflow-hidden">
         {/* Sidebar — desktop */}
         <aside className="hidden w-56 flex-col border-r border-slate-200 bg-white py-6 px-3 shadow-sm md:flex">
-          <p className="mb-3 px-3 text-xs font-bold uppercase tracking-wider text-slate-400">Menú</p>
+          <p className="mb-3 px-3 text-xs font-bold uppercase tracking-wider text-slate-400">
+            Menú
+          </p>
           {NAV_ITEMS.map((item) => (
             <button
               key={item.key}
