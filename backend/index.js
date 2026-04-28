@@ -23,7 +23,9 @@ const app        = express();
 const PORT       = process.env.PORT       || 3000;
 const SECRET_KEY = process.env.JWT_SECRET || 'pachandini';
 
-app.use(cors());
+app.use(cors({
+  origin: "https://hospitable-cat-production-3175.up.railway.app"
+}));
 app.use(express.json({ limit: '10mb' }));
 
 
