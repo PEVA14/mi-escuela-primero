@@ -4,21 +4,10 @@ const cors    = require('cors');
 const jwt     = require('jsonwebtoken');
 const multer  = require('multer');
 
+const bcrypt       = require('bcryptjs');
 const initDatabase = require('./db/init');
 const queries      = require('./db/queries');
 
-/*
- * Multer — handles multipart/form-data file uploads.
- *
- * memoryStorage() means uploaded files are never written to disk.
- * Instead, multer reads the raw bytes from the incoming HTTP request and
- * exposes them as a Buffer on req.file.buffer (or req.files[i].buffer for
- * multiple files).  That Buffer is what we insert into the MEDIUMBLOB column.
- *
- * limits.fileSize caps each image at 10 MB so a huge file can't crash the DB.
- * fileFilter rejects anything whose MIME type is not an image, so admins
- * can't accidentally upload a PDF or executable.
- */
 const upload = multer({
   storage: multer.memoryStorage(),
   limits: { fileSize: 10 * 1024 * 1024 },
@@ -50,17 +39,26 @@ function authenticateToken(req, res, next) {
 }
 
 
-const usuariosDB = [
-  { usuario: 'Lepe',   password: 'Hola' },
-  { usuario: 'Nicole', password: 'cool' },
-];
-
-app.post('/api/login', (req, res) => {
-  const { usuario, contraseña } = req.body;
-  const found = usuariosDB.find(u => u.usuario === usuario && u.password === contraseña);
-  if (!found) return res.status(401).json({ mensaje: 'Error en credenciales' });
-  const token = jwt.sign({ usuario: found.usuario }, SECRET_KEY, { expiresIn: '8h' });
-  res.json({ mensaje: 'Login OK', token });
+app.post('/api/login', async (req, res) => {
+  try {
+    const { correo, contraseña } = req.body;
+    if (!correo || !contraseña) {
+      return res.status(400).json({ mensaje: 'Correo y contraseña son obligatorios' });
+    }
+    const admin = await queries.getAdminByCorreo(correo.trim().toLowerCase());
+    if (!admin) {
+      return res.status(401).json({ mensaje: 'Credenciales incorrectas' });
+    }
+    const match = await bcrypt.compare(contraseña, admin.password_hash);
+    if (!match) {
+      return res.status(401).json({ mensaje: 'Credenciales incorrectas' });
+    }
+    const token = jwt.sign({ id_admin: admin.id_admin, correo: admin.correo }, SECRET_KEY, { expiresIn: '8h' });
+    res.json({ mensaje: 'Login OK', token });
+  } catch (err) {
+    console.error('POST /api/login:', err.message);
+    res.status(500).json({ mensaje: 'Error interno al iniciar sesión' });
+  }
 });
 
 
@@ -132,35 +130,11 @@ app.delete('/api/escuelas/:id', authenticateToken, async (req, res) => {
   }
 });
 
-// ─────────────────────────────────────────────────────────────────────────────
-// PHOTO ENDPOINTS
-// ─────────────────────────────────────────────────────────────────────────────
-
-/*
- * GET /api/fotos/:id  (public — no auth required)
- *
- * This is the URL that every <img src> in the frontend points to.
- * The browser requests it like any other image file.
- *
- * What happens here:
- *   1. We fetch the single FotosEscuelas row for this id_foto.
- *   2. We set Content-Type to whatever MIME the admin uploaded
- *      (e.g. "image/jpeg") so the browser knows how to render it.
- *   3. We send the raw Buffer as the response body.
- *
- * Cache-Control: 1 year — images never change once uploaded, so the browser
- * can cache them aggressively and avoid re-downloading on every page visit.
- */
 app.get('/api/fotos/:id', async (req, res) => {
   try {
     const foto = await queries.getFotoById(parseInt(req.params.id));
     if (!foto) return res.status(404).json({ mensaje: 'Foto no encontrada' });
 
-    /*
-     * Guard against rows that were migrated from the old link-based schema
-     * and never received binary data.  Without this check, res.send(null)
-     * would send an empty body and the browser would render a broken image.
-     */
     if (!foto.foto_data || !foto.foto_mime) {
       return res.status(404).json({ mensaje: 'Foto sin datos válidos' });
     }
@@ -174,16 +148,6 @@ app.get('/api/fotos/:id', async (req, res) => {
   }
 });
 
-/*
- * POST /api/escuelas/:id/fotos  (protected — JWT required)
- *
- * Receives up to 10 image files as multipart/form-data under the field "fotos".
- * multer's upload.array('fotos', 10) middleware intercepts the request before
- * our handler runs and populates req.files with the parsed file objects.
- *
- * For each file we call saveFoto() which inserts one row into FotosEscuelas.
- * We respond with the new IDs so the frontend can immediately reference them.
- */
 app.post('/api/escuelas/:id/fotos', authenticateToken, upload.array('fotos', 10), async (req, res) => {
   try {
     const id_escuela = parseInt(req.params.id);
@@ -203,12 +167,6 @@ app.post('/api/escuelas/:id/fotos', authenticateToken, upload.array('fotos', 10)
   }
 });
 
-/*
- * DELETE /api/fotos/:id  (protected — JWT required)
- *
- * Removes a single photo row from FotosEscuelas.
- * The frontend calls this when the admin clicks the × on an existing thumbnail.
- */
 app.delete('/api/fotos/:id', authenticateToken, async (req, res) => {
   try {
     await queries.deleteFotoById(parseInt(req.params.id));
@@ -218,12 +176,7 @@ app.delete('/api/fotos/:id', authenticateToken, async (req, res) => {
   }
 });
 
-// ─────────────────────────────────────────────────────────────────────────────
-// NECESIDADES  (stored as Propuesta in the DB)
-// Route /escuela/:id must come before /:id to avoid Express matching "escuela"
-// as the :id parameter.
-// ─────────────────────────────────────────────────────────────────────────────
-
+// /escuela/:id must come before /:id to avoid Express matching "escuela" as the :id param.
 app.get('/api/necesidades', async (req, res) => {
   const necesidades = await queries.getAllPropuestas();
   res.json(necesidades);
@@ -256,6 +209,36 @@ app.get('/api/respuestas', authenticateToken, async (req, res) => {
 });
 
 app.post('/api/respuestas', async (req, res) => {
+  const body = req.body ?? {};
+  const isBlank = (value) => typeof value !== 'string' || value.trim() === '';
+  const formType = body.form_type;
+  const hasDonationDetails = !isBlank(body.tipo_apoyo || body.tipo_donacion);
+  const hasContactDetails = !isBlank(body.instancia_donante) || !isBlank(body.municipio_donante) || !isBlank(body.empresa);
+
+  if (isBlank(body.nombre) || isBlank(body.correo) || isBlank(body.telefono)) {
+    return res.status(400).json({
+      mensaje: 'Nombre, correo y teléfono son obligatorios',
+    });
+  }
+
+  if (formType === 'donacion' || hasDonationDetails) {
+    if (isBlank(body.tipo_apoyo || body.tipo_donacion)) {
+      return res.status(400).json({
+        mensaje: 'El tipo de donativo o apoyo es obligatorio',
+      });
+    }
+  } else if (formType === 'contacto' || hasContactDetails) {
+    if (isBlank(body.instancia_donante) || isBlank(body.municipio_donante) || isBlank(body.empresa)) {
+      return res.status(400).json({
+        mensaje: 'Instancia, nombre de la instancia y municipio son obligatorios',
+      });
+    }
+  } else {
+    return res.status(400).json({
+      mensaje: 'No se recibieron datos válidos del formulario',
+    });
+  }
+
   const id = await queries.createRespuesta(req.body);
   res.status(201).json({ mensaje: 'Respuesta registrada', id });
 });

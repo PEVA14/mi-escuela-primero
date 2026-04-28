@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { agregarEscuela, updateEscuela, uploadFotos, deleteFoto } from "../../services/api";
+import { validateFormBeforeSubmit } from "../../utils/formValidation";
 
 const NIVELES       = ["Preescolar", "Primaria", "Secundaria", "Bachillerato", "Otro"];
 const MODALIDADES   = ["SEP-General", "SEP-Multigrado", "CONAFE", "Indígena", "Telesecundaria", "Otra"];
@@ -29,27 +30,16 @@ export default function ModalEscuela({ open, escuela, onClose, onSuccess }) {
   const [form, setForm]               = useState(EMPTY);
   const [existingFotos, setExisting]  = useState([]);
   const [newFiles, setNewFiles]       = useState([]);
-  /*
-   * previewUrls — one stable blob URL per file in newFiles.
-   * Created once per file in a useEffect, revoked on cleanup.
-   * Keeping them in state means they survive re-renders without
-   * being regenerated (which breaks the img src in React Strict Mode).
-   */
   const [previewUrls, setPreviewUrls] = useState([]);
   const [toDelete, setToDelete]       = useState([]);
   const [saving, setSaving]           = useState(false);
   const [error, setError]             = useState(null);
+  const [invalidFields, setInvalidFields] = useState([]);
 
   const fileInputRef   = useRef(null);
-  /*
-   * photoSectionRef — used to scroll the photo strip into view
-   * automatically after the user picks new files, so they can
-   * immediately see their selection without having to scroll down.
-   */
   const photoSectionRef = useRef(null);
   const isEditing = !!escuela;
 
-  // Reset all state every time the modal opens.
   useEffect(() => {
     if (open) {
       const { fotos: _, ...rest } = escuela ?? {};
@@ -59,16 +49,10 @@ export default function ModalEscuela({ open, escuela, onClose, onSuccess }) {
       setPreviewUrls([]);
       setToDelete([]);
       setError(null);
+      setInvalidFields([]);
     }
   }, [open, escuela]);
 
-  /*
-   * Keep previewUrls in sync with newFiles.
-   * Each time newFiles changes we create one blob URL per File,
-   * store them in state, and schedule revocation on cleanup.
-   * This means every File gets exactly one URL that stays valid
-   * for the lifetime of that file in the queue.
-   */
   useEffect(() => {
     const urls = newFiles.map((f) => URL.createObjectURL(f));
     setPreviewUrls(urls);
@@ -78,6 +62,7 @@ export default function ModalEscuela({ open, escuela, onClose, onSuccess }) {
   }, [newFiles]);
 
   function handleChange(e) {
+    setInvalidFields((prev) => prev.filter((item) => item !== e.target.name));
     setForm({ ...form, [e.target.name]: e.target.value });
   }
 
@@ -86,7 +71,6 @@ export default function ModalEscuela({ open, escuela, onClose, onSuccess }) {
     if (!picked.length) return;
     setNewFiles((prev) => [...prev, ...picked]);
     e.target.value = "";
-    // Scroll the photo strip into view so the user can see the preview.
     setTimeout(() => {
       photoSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
     }, 80);
@@ -101,18 +85,17 @@ export default function ModalEscuela({ open, escuela, onClose, onSuccess }) {
     setExisting((prev) => prev.filter((f) => f.id_foto !== id_foto));
   }
 
-  const missingRequired = [
-    !form.nombre.trim()    && "Nombre",
-    !form.municipio.trim() && "Municipio",
-    !form.cct.trim()       && "CCT",
-  ].filter(Boolean);
+  const warningText = "Por favor llena este espacio";
+  const fieldCls = (fieldName) =>
+    `${inputCls.split(" border-slate-200").join("")} ${
+      invalidFields.includes(fieldName)
+        ? "border-red-400 focus:border-red-400 focus:ring-red-100"
+        : "border-slate-200 focus:border-emerald-400 focus:ring-emerald-100"
+    }`;
 
   async function handleSubmit(e) {
     e.preventDefault();
-    if (missingRequired.length) {
-      setError(`Campos obligatorios: ${missingRequired.join(", ")}`);
-      return;
-    }
+    if (!validateFormBeforeSubmit(e, null, setInvalidFields)) return;
     setSaving(true);
     setError(null);
     try {
@@ -168,9 +151,8 @@ export default function ModalEscuela({ open, escuela, onClose, onSuccess }) {
           </p>
         </div>
 
-        <form onSubmit={handleSubmit} noValidate className="grid grid-cols-2 gap-4 overflow-y-auto p-6">
+        <form onSubmit={handleSubmit} className="grid grid-cols-2 gap-4 overflow-y-auto p-6">
 
-          {/* ── Photo upload section — placed first so it's immediately visible ── */}
           <div ref={photoSectionRef} className="col-span-2 grid gap-3">
             <div className="flex items-center justify-between">
               <label className={labelCls}>
@@ -181,7 +163,6 @@ export default function ModalEscuela({ open, escuela, onClose, onSuccess }) {
                   </span>
                 )}
               </label>
-              {/* Hidden native file input */}
               <input
                 ref={fileInputRef}
                 type="file"
@@ -210,7 +191,6 @@ export default function ModalEscuela({ open, escuela, onClose, onSuccess }) {
               </button>
             ) : (
               <div className="grid grid-cols-3 gap-3 sm:grid-cols-4">
-                {/* Existing photos from the DB */}
                 {existingFotos.map((foto) => (
                   <div
                     key={foto.id_foto}
@@ -232,7 +212,6 @@ export default function ModalEscuela({ open, escuela, onClose, onSuccess }) {
                   </div>
                 ))}
 
-                {/* Newly picked files — stable previewUrls from useEffect */}
                 {previewUrls.map((url, i) => (
                   <div
                     key={i}
@@ -260,15 +239,14 @@ export default function ModalEscuela({ open, escuela, onClose, onSuccess }) {
             )}
           </div>
 
-          {/* Divider */}
           <div className="col-span-2 border-t border-slate-100" />
 
-          {/* ── Text fields ── */}
           <div className="col-span-2 grid gap-1.5">
             <label className={labelCls}>Nombre *</label>
-            <input className={inputCls} name="nombre" value={form.nombre}
+            <input className={fieldCls("nombre")} name="nombre" value={form.nombre}
               onChange={handleChange} placeholder="Nombre oficial de la escuela"
               required aria-required="true" />
+            {invalidFields.includes("nombre") && <p className="text-xs font-medium text-red-600">{warningText}</p>}
           </div>
 
           <div className="grid gap-1.5">
@@ -279,9 +257,10 @@ export default function ModalEscuela({ open, escuela, onClose, onSuccess }) {
 
           <div className="grid gap-1.5">
             <label className={labelCls}>Municipio *</label>
-            <input className={inputCls} name="municipio" value={form.municipio}
+            <input className={fieldCls("municipio")} name="municipio" value={form.municipio}
               onChange={handleChange} placeholder="Municipio"
               required aria-required="true" />
+            {invalidFields.includes("municipio") && <p className="text-xs font-medium text-red-600">{warningText}</p>}
           </div>
 
           <div className="col-span-2 grid gap-1.5">
@@ -298,9 +277,10 @@ export default function ModalEscuela({ open, escuela, onClose, onSuccess }) {
 
           <div className="grid gap-1.5">
             <label className={labelCls}>CCT *</label>
-            <input className={inputCls} name="cct" value={form.cct}
+            <input className={fieldCls("cct")} name="cct" value={form.cct}
               onChange={handleChange} placeholder="Ej. 14DPR1234X"
               required aria-required="true" />
+            {invalidFields.includes("cct") && <p className="text-xs font-medium text-red-600">{warningText}</p>}
           </div>
 
           <div className="grid gap-1.5">
@@ -356,8 +336,7 @@ export default function ModalEscuela({ open, escuela, onClose, onSuccess }) {
             </button>
             <button
               type="submit"
-              disabled={saving || missingRequired.length > 0}
-              title={missingRequired.length ? `Campos obligatorios: ${missingRequired.join(", ")}` : ""}
+              disabled={saving}
               className="rounded-xl bg-emerald-700 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-800 disabled:cursor-not-allowed disabled:opacity-60"
             >
               {saving ? "Guardando..." : isEditing ? "Guardar cambios" : "Crear escuela"}

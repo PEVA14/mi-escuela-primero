@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { crearNecesidad, updateNecesidad } from "../../services/api";
+import { validateFormBeforeSubmit } from "../../utils/formValidation";
 
 const CATEGORIAS = ["infraestructura", "material", "formacion", "salud", "otro"];
 const PRIORIDADES = ["Alta", "Media", "Baja"];
@@ -23,27 +24,33 @@ export default function ModalNecesidad({ open, necesidad, id_escuela, onClose, o
   const [form, setForm] = useState(EMPTY);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState(null);
+  const [invalidFields, setInvalidFields] = useState([]);
   const isEditing = !!necesidad;
 
   useEffect(() => {
     if (open) {
       setForm(necesidad ? { ...necesidad } : { ...EMPTY });
       setError(null);
+      setInvalidFields([]);
     }
   }, [open, necesidad]);
 
   function handleChange(e) {
+    setInvalidFields((prev) => prev.filter((item) => item !== e.target.name));
     setForm({ ...form, [e.target.name]: e.target.value });
   }
 
-  const missingRequired = [!form.titulo.trim() && "Título"].filter(Boolean);
+  const warningText = "Por favor llena este espacio";
+  const fieldCls = (fieldName) =>
+    `${inputCls.split(" border-slate-200").join("")} ${
+      invalidFields.includes(fieldName)
+        ? "border-red-400 focus:border-red-400 focus:ring-red-100"
+        : "border-slate-200 focus:border-emerald-400 focus:ring-emerald-100"
+    }`;
 
   async function handleSubmit(e) {
     e.preventDefault();
-    if (missingRequired.length) {
-      setError(`Campos obligatorios: ${missingRequired.join(", ")}`);
-      return;
-    }
+    if (!validateFormBeforeSubmit(e, null, setInvalidFields)) return;
     setSaving(true);
     setError(null);
     try {
@@ -80,11 +87,11 @@ export default function ModalNecesidad({ open, necesidad, id_escuela, onClose, o
           </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="grid grid-cols-2 gap-4 p-6">
+        <form onSubmit={handleSubmit} noValidate className="grid grid-cols-2 gap-4 p-6">
           <div className="col-span-2 grid gap-1.5">
             <label className={labelCls}>Título *</label>
             <input
-              className={inputCls}
+              className={fieldCls("titulo")}
               name="titulo"
               value={form.titulo}
               onChange={handleChange}
@@ -92,6 +99,7 @@ export default function ModalNecesidad({ open, necesidad, id_escuela, onClose, o
               required
               aria-required="true"
             />
+            {invalidFields.includes("titulo") && <p className="text-xs font-medium text-red-600">{warningText}</p>}
           </div>
 
           <div className="col-span-2 grid gap-1.5">
@@ -181,8 +189,7 @@ export default function ModalNecesidad({ open, necesidad, id_escuela, onClose, o
             </button>
             <button
               type="submit"
-              disabled={saving || missingRequired.length > 0}
-              title={missingRequired.length ? `Campos obligatorios: ${missingRequired.join(", ")}` : ""}
+              disabled={saving}
               className="rounded-xl bg-emerald-700 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-800 disabled:cursor-not-allowed disabled:opacity-60"
             >
               {saving ? "Guardando..." : isEditing ? "Guardar cambios" : "Crear necesidad"}

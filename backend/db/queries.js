@@ -73,54 +73,17 @@ function formatEscuela(row) {
     modalidad:        row.modalidad        || '',
     turno:            row.turno            || '',
     sostenimiento:    row.sostenimiento    || '',
-    // Derived from the school's Propuestas via a subquery
     categoria: row.categoria
       ? row.categoria.split(',').map(c => c.trim()).filter(Boolean)
       : [],
-    // Filled in by the caller via a second query (see attachFotos).
     fotos: [],
   };
 }
 
-/*
- * BASE_URL is the public address of this backend server.
- * It is used to build the photo URLs that the frontend puts in <img src>.
- * In production set the BASE_URL environment variable to your Railway URL.
- * e.g.  BASE_URL=https://mi-escuela.railway.app
- */
 const BASE_URL = process.env.BASE_URL || 'http://localhost:3000';
 
-/*
- * attachFotos
- * ───────────────────────────────────────────────────────────────────────────
- * Called after every school query to populate the `fotos` array on each
- * school object before it is sent to the frontend.
- *
- * IMPORTANT: we do NOT select foto_data here.  Loading every image's binary
- * bytes for every school in a listing would be enormous (imagine 50 schools
- * × 5 photos × 2 MB = 500 MB transferred for a single page load).
- *
- * Instead we only fetch id_foto and id_escuela, then build a URL that points
- * to GET /api/fotos/:id.  When the browser renders <img src="…/api/fotos/7">
- * it makes a separate, cacheable HTTP request for that one image.
- *
- * Each element of the fotos array is  { id_foto, url }  so the frontend
- * has the ID available when it needs to delete a specific photo.
- */
 async function attachFotos(escuelas) {
   if (!escuelas.length) return escuelas;
-  /*
-   * Safety net: if the FotosEscuelas table is missing expected columns
-   * (e.g. the database was created before the migration ran), we don't
-   * want that to block every single school query and save.  We catch the
-   * error here, log it, and return schools with empty fotos arrays so the
-   * rest of the application keeps working.
-   *
-   * WHERE foto_data IS NOT NULL filters out stale rows that were inserted
-   * by the old link-based system and never had binary data.  Those rows
-   * would cause GET /api/fotos/:id to return a broken response (empty body)
-   * which makes <img> tags show as broken images in the browser.
-   */
   try {
     const [rows] = await pool.query(
       'SELECT id_foto, id_escuela FROM FotosEscuelas WHERE foto_data IS NOT NULL ORDER BY id_foto'
@@ -143,22 +106,6 @@ async function attachFotos(escuelas) {
   return escuelas;
 }
 
-/*
- * saveFoto
- * ───────────────────────────────────────────────────────────────────────────
- * Persists a single uploaded file to the database.
- *
- * `file` is the object that multer creates when it processes a multipart
- * request.  With memoryStorage() it looks like:
- *   {
- *     originalname: "patio.jpg",   ← filename from the user's computer
- *     mimetype:     "image/jpeg",  ← detected MIME type
- *     buffer:       <Buffer …>,    ← the actual image bytes in RAM
- *   }
- *
- * We insert those three fields plus the school ID into FotosEscuelas.
- * MySQL stores the Buffer as MEDIUMBLOB bytes automatically.
- */
 async function saveFoto(id_escuela, file) {
   const [result] = await pool.query(
     'INSERT INTO FotosEscuelas (id_escuela, foto_nombre, foto_mime, foto_data) VALUES (?, ?, ?, ?)',
@@ -167,13 +114,6 @@ async function saveFoto(id_escuela, file) {
   return result.insertId;
 }
 
-/*
- * getFotoById
- * ───────────────────────────────────────────────────────────────────────────
- * Fetches the full row for a single photo including its binary data.
- * This is the only place we read foto_data — called exclusively by the
- * GET /api/fotos/:id route that streams the image to the browser.
- */
 async function getFotoById(id_foto) {
   const [rows] = await pool.query(
     'SELECT foto_mime, foto_data, foto_nombre FROM FotosEscuelas WHERE id_foto = ?',
@@ -182,13 +122,6 @@ async function getFotoById(id_foto) {
   return rows[0] || null;
 }
 
-/*
- * deleteFotoById
- * ───────────────────────────────────────────────────────────────────────────
- * Removes a single photo row.  When an entire school is deleted, the
- * ON DELETE CASCADE on the foreign key removes all its photos automatically
- * without needing to call this function.
- */
 async function deleteFotoById(id_foto) {
   await pool.query('DELETE FROM FotosEscuelas WHERE id_foto = ?', [id_foto]);
 }
@@ -337,7 +270,6 @@ async function updateEscuela(id, data) {
   if (personal_escolar !== undefined) updates.personal_escolar = parseInt(personal_escolar) || 0;
   if (estudiantes      !== undefined) updates.estudiantes      = parseInt(estudiantes)      || 0;
 
-  // Resolve FK values in parallel
   const fkEntries = [];
   if (municipio)     fkEntries.push(['id_municipio',     getOrCreate('Municipio',     'id_municipio',     'nombre_municipio',     municipio)]);
   if (modalidad)     fkEntries.push(['id_modalidad',     getOrCreate('Modalidad',     'id_modalidad',     'nombre_modalidad',     modalidad)]);
@@ -363,10 +295,6 @@ async function updateEscuela(id, data) {
 async function deleteEscuela(id) {
   await pool.query('DELETE FROM Escuela WHERE id_escuela = ?', [id]);
 }
-
-// ─────────────────────────────────────────────────────────────────────────────
-// PROPUESTAS  (called "necesidades" in the frontend)
-// ─────────────────────────────────────────────────────────────────────────────
 
 const PROPUESTA_SELECT = `
   SELECT
@@ -461,10 +389,6 @@ async function deletePropuesta(id) {
   await pool.query('DELETE FROM Propuesta WHERE id_propuesta = ?', [id]);
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// RESPUESTAS DE DONADORES
-// ─────────────────────────────────────────────────────────────────────────────
-
 async function getAllRespuestas() {
   const [rows] = await pool.query(`
     SELECT r.*, e.nombre AS nombre_escuela
@@ -506,10 +430,6 @@ async function createRespuesta(data) {
   );
   return result.insertId;
 }
-
-// ─────────────────────────────────────────────────────────────────────────────
-// IMPORTAR EXCEL
-// ─────────────────────────────────────────────────────────────────────────────
 
 async function importarEscuelas(rows) {
   const errores = [];
@@ -557,20 +477,6 @@ async function importarPropuestas(rows) {
         const nombreBuscar   = String(row.nombre_escuela).trim();
         const municipioBuscar = row.municipio ? String(row.municipio).trim() : null;
 
-        /*
-         * Find schools by plantel or name (exact / partial LIKE).
-         *
-         * The municipio filter used to be injected as raw string interpolation,
-         * which risked SQL syntax errors for names with special characters and
-         * opened a SQL-injection vector.  We now use a LEFT JOIN + parameterised
-         * WHERE condition so every value is properly escaped by mysql2.
-         *
-         * Logic:
-         *   - If municipioBuscar is provided: also require the school's municipio
-         *     to match (via LEFT JOIN so schools with no municipio are still
-         *     returned when the JOIN column is NULL, but filtered by the WHERE).
-         *   - If municipioBuscar is NULL / empty: skip the municipio check.
-         */
         let [found] = await pool.query(
           `SELECT e.id_escuela, e.plantel, e.id_municipio
            FROM   Escuela e
@@ -583,7 +489,6 @@ async function importarPropuestas(rows) {
           ]
         );
 
-        // Last resort: if municipio filter produced no results, retry without it.
         if (!found.length && municipioBuscar) {
           [found] = await pool.query(
             `SELECT id_escuela, plantel, id_municipio FROM Escuela
@@ -597,8 +502,6 @@ async function importarPropuestas(rows) {
           continue;
         }
 
-        // Expand: pull in every school that shares a non-empty plantel with any
-        // matched school (restricted to the same municipio to avoid collisions).
         const idsSet = new Set(found.map(r => r.id_escuela));
         const plantelsByMunicipio = new Map();
         for (const r of found) {
@@ -649,6 +552,14 @@ async function importarPropuestas(rows) {
   return { insertadas, actualizadas, errores };
 }
 
+async function getAdminByCorreo(correo) {
+  const [rows] = await pool.query(
+    'SELECT id_admin, correo, password_hash FROM Administrador WHERE correo = ?',
+    [correo]
+  );
+  return rows[0] || null;
+}
+
 async function getStats() {
   const [[{ escuelas }]]    = await pool.query('SELECT COUNT(*) AS escuelas FROM Escuela');
   const [[{ necesidades }]] = await pool.query('SELECT COUNT(*) AS necesidades FROM Propuesta');
@@ -656,7 +567,6 @@ async function getStats() {
   return { escuelas, necesidades, municipios };
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
 module.exports = {
   getAllEscuelas,
   getEscuelaById,
@@ -676,4 +586,5 @@ module.exports = {
   importarEscuelas,
   importarPropuestas,
   getStats,
+  getAdminByCorreo,
 };

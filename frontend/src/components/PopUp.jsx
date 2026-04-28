@@ -1,5 +1,7 @@
 import { useMemo, useState } from "react";
+import privacyPDF from "../assets/AvisodePrivacidadMEP.pdf";
 import { crearRespuesta } from "../services/api";
+import { validateFormBeforeSubmit } from "../utils/formValidation";
 
 const donationTypes = [
     { value: "formacion_familias", label: "Formación para familias", group: "formacion" },
@@ -32,46 +34,61 @@ const logisticsOptions = [
     { value: "pasar_recoger", label: "Habría que pasar por ello" },
 ];
 
-function InputField({ label, required = false, ...props }) {
+function InputField({ label, required = false, invalid = false, warning, ...props }) {
     return (
         <div className="grid gap-2">
             <label className="text-sm font-semibold text-slate-700">
                 {label}{required ? " *" : ""}
             </label>
             <input
-                className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700 outline-none transition placeholder:text-slate-400 focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100"
+                className={`w-full rounded-2xl border bg-white px-4 py-3 text-sm text-slate-700 outline-none transition placeholder:text-slate-400 ${
+                    invalid
+                        ? "border-red-400 focus:border-red-400 focus:ring-2 focus:ring-red-100"
+                        : "border-slate-200 focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100"
+                }`}
                 {...props}
             />
+            {invalid && warning && <p className="text-xs font-medium text-red-600">{warning}</p>}
         </div>
     );
 }
 
-function TextareaField({ label, required = false, className = "", ...props }) {
+function TextareaField({ label, required = false, className = "", invalid = false, warning, ...props }) {
     return (
         <div className="grid gap-2">
             <label className="text-sm font-semibold text-slate-700">
                 {label}{required ? " *" : ""}
             </label>
             <textarea
-                className={`min-h-[96px] w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700 outline-none transition placeholder:text-slate-400 focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100 ${className}`}
+                className={`min-h-[96px] w-full rounded-2xl border bg-white px-4 py-3 text-sm text-slate-700 outline-none transition placeholder:text-slate-400 ${
+                    invalid
+                        ? "border-red-400 focus:border-red-400 focus:ring-2 focus:ring-red-100"
+                        : "border-slate-200 focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100"
+                } ${className}`}
                 {...props}
             />
+            {invalid && warning && <p className="text-xs font-medium text-red-600">{warning}</p>}
         </div>
     );
 }
 
-function SelectField({ label, required = false, children, ...props }) {
+function SelectField({ label, required = false, children, invalid = false, warning, ...props }) {
     return (
         <div className="grid gap-2">
             <label className="text-sm font-semibold text-slate-700">
                 {label}{required ? " *" : ""}
             </label>
             <select
-                className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700 outline-none transition focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100"
+                className={`w-full rounded-2xl border bg-white px-4 py-3 text-sm text-slate-700 outline-none transition ${
+                    invalid
+                        ? "border-red-400 focus:border-red-400 focus:ring-2 focus:ring-red-100"
+                        : "border-slate-200 focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100"
+                }`}
                 {...props}
             >
                 {children}
             </select>
+            {invalid && warning && <p className="text-xs font-medium text-red-600">{warning}</p>}
         </div>
     );
 }
@@ -81,8 +98,10 @@ export default function PopUp({ closePopup, escuela }) {
     const [otherDonationType, setOtherDonationType] = useState("");
     const [audiences, setAudiences] = useState([]);
     const [logistics, setLogistics] = useState("");
+    const [acceptedTerms, setAcceptedTerms] = useState(false);
     const [submitted, setSubmitted] = useState(false);
     const [error, setError] = useState(null);
+    const [invalidFields, setInvalidFields] = useState([]);
 
     // Contact fields
     const [nombre, setNombre] = useState("");
@@ -105,6 +124,17 @@ export default function PopUp({ closePopup, escuela }) {
     );
 
     const donationGroup = selectedType?.group || "";
+    const warningText = "Por favor llena este espacio";
+    const isInvalid = (fieldName) => invalidFields.includes(fieldName);
+
+    function clearFieldError(fieldName) {
+        setInvalidFields((prev) => prev.filter((item) => item !== fieldName));
+    }
+
+    function markInvalidFields(fields) {
+        setInvalidFields(fields);
+        setError(null);
+    }
 
     function handleAudienceChange(value) {
         setAudiences((prev) =>
@@ -114,10 +144,11 @@ export default function PopUp({ closePopup, escuela }) {
 
     async function handleSubmit(event) {
         event.preventDefault();
+        if (!validateFormBeforeSubmit(event, setError, setInvalidFields)) return;
         setError(null);
 
         const tipoLabel = donationType === "otro"
-            ? otherDonationType
+            ? otherDonationType || selectedType?.label || donationType
             : selectedType?.label || donationType;
 
         // Build detalles from the conditional fields specific to each donation group
@@ -147,6 +178,7 @@ export default function PopUp({ closePopup, escuela }) {
 
         try {
             await crearRespuesta({
+                form_type: "donacion",
                 nombre,
                 correo,
                 telefono,
@@ -159,7 +191,21 @@ export default function PopUp({ closePopup, escuela }) {
             });
             setSubmitted(true);
         } catch (err) {
-            setError("Ocurrió un error al enviar tu información. Por favor intenta de nuevo.");
+            const serverMessage = err?.response?.data?.mensaje;
+            if (serverMessage === "Nombre, correo y teléfono son obligatorios") {
+                markInvalidFields(["nombre", "correo", "telefono"].filter((field) => {
+                    const values = { nombre, correo, telefono };
+                    return !values[field]?.trim();
+                }));
+                return;
+            }
+
+            if (serverMessage === "El tipo de donativo o apoyo es obligatorio") {
+                markInvalidFields(["tipo_apoyo"]);
+                return;
+            }
+
+            setError(serverMessage || "Ocurrió un error al enviar tu información. Por favor intenta de nuevo.");
         }
     }
 
@@ -207,31 +253,55 @@ export default function PopUp({ closePopup, escuela }) {
                         </div>
                     </div>
                 ) : (
-                    <form className="mt-6 grid max-h-[58vh] grid-cols-1 gap-4 overflow-y-auto pr-1" onSubmit={handleSubmit}>
+                    <form
+                        className="mt-6 grid max-h-[58vh] grid-cols-1 gap-4 overflow-y-auto pr-1"
+                        onSubmit={handleSubmit}
+                        noValidate
+                        onInputCapture={() => error && setError(null)}
+                        onChangeCapture={() => error && setError(null)}
+                    >
                         <InputField
                             label="Nombre Completo"
+                            name="nombre"
                             type="text"
                             placeholder="Tu nombre"
                             value={nombre}
-                            onChange={(e) => setNombre(e.target.value)}
+                            onChange={(e) => {
+                                setNombre(e.target.value);
+                                clearFieldError("nombre");
+                            }}
+                            invalid={isInvalid("nombre")}
+                            warning={warningText}
                             required
                         />
 
                         <InputField
                             label="Correo Electrónico"
+                            name="correo"
                             type="email"
                             placeholder="mi.correo@empresa.com"
                             value={correo}
-                            onChange={(e) => setCorreo(e.target.value)}
+                            onChange={(e) => {
+                                setCorreo(e.target.value);
+                                clearFieldError("correo");
+                            }}
+                            invalid={isInvalid("correo")}
+                            warning={warningText}
                             required
                         />
 
                         <InputField
                             label="Celular"
+                            name="telefono"
                             type="tel"
                             placeholder="Tu número de contacto"
                             value={telefono}
-                            onChange={(e) => setTelefono(e.target.value)}
+                            onChange={(e) => {
+                                setTelefono(e.target.value);
+                                clearFieldError("telefono");
+                            }}
+                            invalid={isInvalid("telefono")}
+                            warning={warningText}
                             required
                         />
 
@@ -245,8 +315,14 @@ export default function PopUp({ closePopup, escuela }) {
 
                         <SelectField
                             label="Tipo de donativo"
+                            name="tipo_apoyo"
                             value={donationType}
-                            onChange={(event) => setDonationType(event.target.value)}
+                            onChange={(event) => {
+                                setDonationType(event.target.value);
+                                clearFieldError("tipo_apoyo");
+                            }}
+                            invalid={isInvalid("tipo_apoyo")}
+                            warning={warningText}
                             required
                         >
                             <option value="">Selecciona un tipo de donativo</option>
@@ -264,16 +340,19 @@ export default function PopUp({ closePopup, escuela }) {
                                 placeholder="Describe el tipo de apoyo"
                                 value={otherDonationType}
                                 onChange={(event) => setOtherDonationType(event.target.value)}
-                                required
                             />
                         )}
 
                         <InputField
                             label="Escuela(s) destino"
+                            name="escuela_destino"
                             type="text"
                             placeholder={escuela?.nombre || "Escribe la escuela o escuelas"}
                             defaultValue={escuela?.nombre || ""}
                             readOnly={!!escuela?.nombre}
+                            onChange={() => clearFieldError("escuela_destino")}
+                            invalid={isInvalid("escuela_destino")}
+                            warning={warningText}
                             required
                         />
 
@@ -285,12 +364,11 @@ export default function PopUp({ closePopup, escuela }) {
                                     placeholder="Ej. habilidades socioemocionales, lectura, tecnología..."
                                     value={tema}
                                     onChange={(e) => setTema(e.target.value)}
-                                    required
                                 />
 
                                 <div className="grid gap-2">
                                     <label className="text-sm font-semibold text-slate-700">
-                                        Público al que va dirigido *
+                                        Público al que va dirigido
                                     </label>
                                     <div className="grid gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-3">
                                         {audienceOptions.map((option) => (
@@ -313,7 +391,6 @@ export default function PopUp({ closePopup, escuela }) {
                                     placeholder="Ej. 8 sesiones de 2 horas"
                                     value={horas}
                                     onChange={(e) => setHoras(e.target.value)}
-                                    required
                                 />
                             </>
                         )}
@@ -322,7 +399,7 @@ export default function PopUp({ closePopup, escuela }) {
                             <>
                                 <div className="grid gap-2">
                                     <label className="text-sm font-semibold text-slate-700">
-                                        Público al que va dirigido *
+                                        Público al que va dirigido
                                     </label>
                                     <div className="grid gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-3">
                                         {audienceOptions.map((option) => (
@@ -345,7 +422,6 @@ export default function PopUp({ closePopup, escuela }) {
                                     placeholder="Ej. 10 sesiones semanales"
                                     value={horas}
                                     onChange={(e) => setHoras(e.target.value)}
-                                    required
                                 />
                             </>
                         )}
@@ -358,7 +434,6 @@ export default function PopUp({ closePopup, escuela }) {
                                     placeholder="Ej. pupitres, laptops, libros, pintura..."
                                     value={articulo}
                                     onChange={(e) => setArticulo(e.target.value)}
-                                    required
                                 />
 
                                 <InputField
@@ -368,14 +443,12 @@ export default function PopUp({ closePopup, escuela }) {
                                     placeholder="Cantidad"
                                     value={cantidadArticulos}
                                     onChange={(e) => setCantidadArticulos(e.target.value)}
-                                    required
                                 />
 
                                 <SelectField
                                     label="Logística de entrega"
                                     value={logistics}
                                     onChange={(event) => setLogistics(event.target.value)}
-                                    required
                                 >
                                     <option value="">Selecciona una opción</option>
                                     {logisticsOptions.map((option) => (
@@ -391,7 +464,6 @@ export default function PopUp({ closePopup, escuela }) {
                                         placeholder="Comparte la dirección completa y referencias"
                                         value={direccionRecogida}
                                         onChange={(e) => setDireccionRecogida(e.target.value)}
-                                        required
                                         className="min-h-[88px]"
                                     />
                                 )}
@@ -404,17 +476,51 @@ export default function PopUp({ closePopup, escuela }) {
                                 placeholder="Describe cómo te gustaría apoyar a la escuela"
                                 value={descripcionApoyo}
                                 onChange={(e) => setDescripcionApoyo(e.target.value)}
-                                required
                                 className="min-h-[88px]"
                             />
                         )}
 
                         <TextareaField
                             label="Mensaje Adicional (opcional)"
-                            placeholder="Cuéntanos más sobre tu interés en apoyar..."
+                                placeholder="Cuéntanos más sobre tu interés en apoyar..."
                             value={mensajeAdicional}
                             onChange={(e) => setMensajeAdicional(e.target.value)}
                         />
+
+                        <div className="grid gap-2">
+                            <label className={`flex items-start gap-3 rounded-2xl border px-4 py-4 text-sm leading-6 ${
+                                isInvalid("acepto_terminos")
+                                    ? "border-red-400 bg-red-50 text-red-700"
+                                    : "border-slate-200 bg-slate-50 text-slate-600"
+                            }`}>
+                                <input
+                                    className="mt-1 h-4 w-4 shrink-0 accent-emerald-600"
+                                    type="checkbox"
+                                    name="acepto_terminos"
+                                    checked={acceptedTerms}
+                                    onChange={(event) => {
+                                        setAcceptedTerms(event.target.checked);
+                                        clearFieldError("acepto_terminos");
+                                    }}
+                                    required
+                                />
+                                <span>
+                                    Acepto los términos y condiciones y el{" "}
+                                    <a
+                                        className="font-semibold text-emerald-700 underline underline-offset-4 hover:text-emerald-800"
+                                        href={privacyPDF}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                    >
+                                        aviso de privacidad
+                                    </a>
+                                    .
+                                </span>
+                            </label>
+                            {isInvalid("acepto_terminos") && (
+                                <p className="text-xs font-medium text-red-600">{warningText}</p>
+                            )}
+                        </div>
 
                         <div className="rounded-2xl border border-emerald-100 bg-emerald-50/70 px-4 py-3 text-sm leading-6 text-slate-600">
                             <p>
@@ -422,7 +528,7 @@ export default function PopUp({ closePopup, escuela }) {
                             </p>
                         </div>
 
-                        {error && (
+                        {error && invalidFields.length === 0 && (
                             <p className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
                                 {error}
                             </p>
