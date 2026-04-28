@@ -19,6 +19,7 @@ export default function RespuestasDonadores({ showToast }) {
 
   useEffect(() => {
     cargarRespuestas();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   async function cargarRespuestas() {
@@ -34,8 +35,8 @@ export default function RespuestasDonadores({ showToast }) {
   }
 
   const especificas = respuestas.filter((r) => r.id_escuela);
-  const generales   = respuestas.filter((r) => !r.id_escuela);
-  const activas     = tab === "especificas" ? especificas : generales;
+  const generales = respuestas.filter((r) => !r.id_escuela);
+  const activas = tab === "especificas" ? especificas : generales;
 
   const filtradas = activas.filter(
     (r) =>
@@ -43,7 +44,7 @@ export default function RespuestasDonadores({ showToast }) {
       r.nombre?.toLowerCase().includes(filtro.toLowerCase()) ||
       r.correo?.toLowerCase().includes(filtro.toLowerCase()) ||
       r.empresa?.toLowerCase().includes(filtro.toLowerCase()) ||
-      r.nombre_escuela?.toLowerCase().includes(filtro.toLowerCase())
+      r.nombre_escuela?.toLowerCase().includes(filtro.toLowerCase()),
   );
 
   function handleExportar() {
@@ -56,30 +57,38 @@ export default function RespuestasDonadores({ showToast }) {
 
     if (tab === "especificas") {
       const data = filtradas.map((r) => ({
-        Nombre:          r.nombre,
-        Correo:          r.correo  || "",
-        Teléfono:        r.telefono || "",
-        Empresa:         r.empresa  || "",
-        Escuela:         r.nombre_escuela || "",
+        Nombre: r.nombre,
+        Correo: r.correo || "",
+        Teléfono: r.telefono || "",
+        Empresa: r.empresa || "",
+        Escuela: r.nombre_escuela || "",
         "Tipo de apoyo": r.tipo_apoyo || "",
-        Cantidad:        r.cantidad  || "",
-        Detalles:        r.detalles  || "",
-        Mensaje:         r.mensaje   || "",
-        Fecha:           r.fecha     || "",
+        Cantidad: r.cantidad || "",
+        Detalles: r.detalles || "",
+        Mensaje: r.mensaje || "",
+        Fecha: r.fecha || "",
       }));
-      XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(data), "Específicas");
+      XLSX.utils.book_append_sheet(
+        wb,
+        XLSX.utils.json_to_sheet(data),
+        "Específicas",
+      );
     } else {
       const data = filtradas.map((r) => ({
-        Nombre:     r.nombre,
-        Correo:     r.correo    || "",
-        Teléfono:   r.telefono  || "",
-        Instancia:  INSTANCIA_LABELS[r.instancia] || r.instancia || "",
-        Empresa:    r.empresa   || "",
-        Municipio:  r.municipio || "",
-        Mensaje:    r.mensaje   || "",
-        Fecha:      r.fecha     || "",
+        Nombre: r.nombre,
+        Correo: r.correo || "",
+        Teléfono: r.telefono || "",
+        Instancia: INSTANCIA_LABELS[r.instancia] || r.instancia || "",
+        Empresa: r.empresa || "",
+        Municipio: r.municipio || "",
+        Mensaje: r.mensaje || "",
+        Fecha: r.fecha || "",
       }));
-      XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(data), "Generales");
+      XLSX.utils.book_append_sheet(
+        wb,
+        XLSX.utils.json_to_sheet(data),
+        "Generales",
+      );
     }
 
     XLSX.writeFile(wb, `respuestas_${tab}.xlsx`);
@@ -91,7 +100,9 @@ export default function RespuestasDonadores({ showToast }) {
       {/* Header */}
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h2 className="text-2xl font-bold text-slate-900">Respuestas de Donadores</h2>
+          <h2 className="text-2xl font-bold text-slate-900">
+            Respuestas de Donadores
+          </h2>
           <p className="mt-1 text-sm text-slate-500">
             Contactos recibidos desde los formularios del sitio
           </p>
@@ -177,8 +188,21 @@ function TablaEspecificas({ filas, filtro }) {
         <table className="w-full min-w-[1000px] text-sm">
           <thead>
             <tr className="border-b border-slate-200 bg-slate-50">
-              {["Nombre", "Correo", "Teléfono", "Empresa", "Escuela", "Tipo de apoyo", "Detalles", "Mensaje", "Fecha"].map((h) => (
-                <th key={h} className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wide text-slate-500">
+              {[
+                "Nombre",
+                "Correo",
+                "Teléfono",
+                "Empresa",
+                "Escuela",
+                "Tipo de apoyo",
+                "Detalles",
+                "Mensaje",
+                "Fecha",
+              ].map((h) => (
+                <th
+                  key={h}
+                  className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wide text-slate-500"
+                >
                   {h}
                 </th>
               ))}
@@ -187,32 +211,48 @@ function TablaEspecificas({ filas, filtro }) {
           <tbody className="divide-y divide-slate-100">
             {filas.map((r) => (
               <tr key={r.id} className="transition hover:bg-slate-50">
-                <td className="px-4 py-3 font-semibold text-slate-800">{r.nombre}</td>
+                <td className="px-4 py-3 font-semibold text-slate-800">
+                  {r.nombre}
+                </td>
                 <td className="px-4 py-3 text-slate-600">{r.correo || "—"}</td>
-                <td className="px-4 py-3 text-slate-500">{r.telefono || "—"}</td>
+                <td className="px-4 py-3 text-slate-500">
+                  {r.telefono || "—"}
+                </td>
                 <td className="px-4 py-3 text-slate-600">{r.empresa || "—"}</td>
                 <td className="px-4 py-3 text-slate-600">
                   {r.nombre_escuela ? (
                     <span className="rounded-lg border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-700">
                       {r.nombre_escuela}
                     </span>
-                  ) : "—"}
+                  ) : (
+                    "—"
+                  )}
                 </td>
                 <td className="px-4 py-3">
                   {r.tipo_apoyo ? (
                     <span className="rounded-lg border border-blue-200 bg-blue-50 px-2.5 py-1 text-xs font-semibold text-blue-700">
                       {r.tipo_apoyo}
                     </span>
-                  ) : <span className="text-slate-400">—</span>}
+                  ) : (
+                    <span className="text-slate-400">—</span>
+                  )}
                 </td>
-                <td className="max-w-[200px] px-4 py-3 text-slate-500" title={r.detalles}>
+                <td
+                  className="max-w-[200px] px-4 py-3 text-slate-500"
+                  title={r.detalles}
+                >
                   <span className="line-clamp-2">{r.detalles || "—"}</span>
                 </td>
-                <td className="max-w-[180px] px-4 py-3 text-slate-500" title={r.mensaje}>
+                <td
+                  className="max-w-[180px] px-4 py-3 text-slate-500"
+                  title={r.mensaje}
+                >
                   <span className="line-clamp-2">{r.mensaje || "—"}</span>
                 </td>
                 <td className="whitespace-nowrap px-4 py-3 text-slate-500">
-                  {r.fecha ? new Date(r.fecha).toLocaleDateString("es-MX") : "—"}
+                  {r.fecha
+                    ? new Date(r.fecha).toLocaleDateString("es-MX")
+                    : "—"}
                 </td>
               </tr>
             ))}
@@ -236,8 +276,20 @@ function TablaGenerales({ filas, filtro }) {
         <table className="w-full min-w-[900px] text-sm">
           <thead>
             <tr className="border-b border-slate-200 bg-slate-50">
-              {["Nombre", "Correo", "Teléfono", "Tipo de instancia", "Empresa / Org.", "Municipio", "Mensaje", "Fecha"].map((h) => (
-                <th key={h} className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wide text-slate-500">
+              {[
+                "Nombre",
+                "Correo",
+                "Teléfono",
+                "Tipo de instancia",
+                "Empresa / Org.",
+                "Municipio",
+                "Mensaje",
+                "Fecha",
+              ].map((h) => (
+                <th
+                  key={h}
+                  className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wide text-slate-500"
+                >
                   {h}
                 </th>
               ))}
@@ -246,23 +298,36 @@ function TablaGenerales({ filas, filtro }) {
           <tbody className="divide-y divide-slate-100">
             {filas.map((r) => (
               <tr key={r.id} className="transition hover:bg-slate-50">
-                <td className="px-4 py-3 font-semibold text-slate-800">{r.nombre}</td>
+                <td className="px-4 py-3 font-semibold text-slate-800">
+                  {r.nombre}
+                </td>
                 <td className="px-4 py-3 text-slate-600">{r.correo || "—"}</td>
-                <td className="px-4 py-3 text-slate-500">{r.telefono || "—"}</td>
+                <td className="px-4 py-3 text-slate-500">
+                  {r.telefono || "—"}
+                </td>
                 <td className="px-4 py-3 text-slate-600">
                   {r.instancia ? (
                     <span className="rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1 text-xs font-semibold text-slate-700">
                       {INSTANCIA_LABELS[r.instancia] || r.instancia}
                     </span>
-                  ) : "—"}
+                  ) : (
+                    "—"
+                  )}
                 </td>
                 <td className="px-4 py-3 text-slate-600">{r.empresa || "—"}</td>
-                <td className="px-4 py-3 text-slate-500">{r.municipio || "—"}</td>
-                <td className="max-w-[200px] px-4 py-3 text-slate-500" title={r.mensaje}>
+                <td className="px-4 py-3 text-slate-500">
+                  {r.municipio || "—"}
+                </td>
+                <td
+                  className="max-w-[200px] px-4 py-3 text-slate-500"
+                  title={r.mensaje}
+                >
                   <span className="line-clamp-2">{r.mensaje || "—"}</span>
                 </td>
                 <td className="whitespace-nowrap px-4 py-3 text-slate-500">
-                  {r.fecha ? new Date(r.fecha).toLocaleDateString("es-MX") : "—"}
+                  {r.fecha
+                    ? new Date(r.fecha).toLocaleDateString("es-MX")
+                    : "—"}
                 </td>
               </tr>
             ))}

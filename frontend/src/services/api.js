@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "http://localhost:3000/api",
+  baseURL: import.meta.env.VITE_API_URL || "http://localhost:3000/api",
 });
 
 function getAuthHeaders() {
@@ -9,8 +9,8 @@ function getAuthHeaders() {
 
   return {
     headers: {
-      Authorization: `Bearer ${token}`
-    }
+      Authorization: `Bearer ${token}`,
+    },
   };
 }
 
@@ -26,7 +26,7 @@ export function getEscuelaById(id) {
   return api.get(`/escuelas/${id}`);
 }
 
-export function login(datos){
+export function login(datos) {
   return api.post("/login", datos);
 }
 
@@ -72,8 +72,8 @@ export function crearRespuesta(datos) {
 
 export function uploadFotos(id_escuela, files) {
   const formData = new FormData();
-  files.forEach((file) => formData.append('fotos', file));
-  const token = localStorage.getItem('token');
+  files.forEach((file) => formData.append("fotos", file));
+  const token = localStorage.getItem("token");
   return api.post(`/escuelas/${id_escuela}/fotos`, formData, {
     headers: { Authorization: `Bearer ${token}` },
   });
@@ -88,7 +88,11 @@ export function importarEscuelas(datos) {
 }
 
 export function importarNecesidades(datos) {
-  return api.post("/importar/necesidades", { necesidades: datos }, getAuthHeaders());
+  return api.post(
+    "/importar/necesidades",
+    { necesidades: datos },
+    getAuthHeaders(),
+  );
 }
 
 export default api;

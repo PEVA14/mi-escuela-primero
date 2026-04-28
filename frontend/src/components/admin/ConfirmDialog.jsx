@@ -1,4 +1,11 @@
-export default function ConfirmDialog({ open, message, onConfirm, onCancel, confirmLabel = "Eliminar", danger = true }) {
+export default function ConfirmDialog({
+  open,
+  message,
+  onConfirm,
+  onCancel,
+  confirmLabel = "Eliminar",
+  danger = true,
+}) {
   if (!open) return null;
   return (
     <div className="fixed inset-0 z-[2000] flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
@@ -15,7 +22,9 @@ export default function ConfirmDialog({ open, message, onConfirm, onCancel, conf
           <button
             onClick={onConfirm}
             className={`rounded-xl px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition ${
-              danger ? "bg-red-600 hover:bg-red-700" : "bg-emerald-700 hover:bg-emerald-800"
+              danger
+                ? "bg-red-600 hover:bg-red-700"
+                : "bg-emerald-700 hover:bg-emerald-800"
             }`}
           >
             {confirmLabel}

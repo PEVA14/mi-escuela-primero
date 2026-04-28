@@ -7,7 +7,11 @@ const faqItems = [
     question: "¿A qué se destinan los donativos?",
     answer: (
       <p className="text-sm leading-7 text-slate-600 md:text-base">
-        Los donativos recibidos son destinados directamente a las escuelas que forman parte del proyecto Mi Escuela Primero, escuelas de educación básica de sostenimiento público en contextos vulnerables. A través de una priorización de necesidades, destinamos cada apoyo a la escuela que más lo necesita.
+        Los donativos recibidos son destinados directamente a las escuelas que
+        forman parte del proyecto Mi Escuela Primero, escuelas de educación
+        básica de sostenimiento público en contextos vulnerables. A través de
+        una priorización de necesidades, destinamos cada apoyo a la escuela que
+        más lo necesita.
       </p>
     ),
   },
@@ -15,7 +19,8 @@ const faqItems = [
     question: "¿Cómo puedo realizar mi donativo?",
     answer: ({ openDonationPopup }) => (
       <p className="text-sm leading-7 text-slate-600 md:text-base">
-        El primer paso para realizar tu donativo es llenar el formulario de contacto{" "}
+        El primer paso para realizar tu donativo es llenar el formulario de
+        contacto{" "}
         <button
           type="button"
           className="font-semibold text-emerald-700 underline underline-offset-4 hover:text-emerald-800"
@@ -23,7 +28,9 @@ const faqItems = [
         >
           aquí
         </button>
-        . A partir de ahí, el personal de Mi Escuela Primero se pondrá en contacto contigo para realizar las gestiones necesarias y dar seguimiento a tu donación.
+        . A partir de ahí, el personal de Mi Escuela Primero se pondrá en
+        contacto contigo para realizar las gestiones necesarias y dar
+        seguimiento a tu donación.
       </p>
     ),
   },
@@ -32,10 +39,15 @@ const faqItems = [
     answer: (
       <p className="text-sm leading-7 text-slate-600 md:text-base">
         Sí, se puede donar en especie. Conoce nuestro apartado{" "}
-        <Link className="font-semibold text-emerald-700 underline underline-offset-4 hover:text-emerald-800" to="/escuelas">
+        <Link
+          className="font-semibold text-emerald-700 underline underline-offset-4 hover:text-emerald-800"
+          to="/escuelas"
+        >
           aquí
         </Link>
-        . A partir de ahí, el personal de Mi Escuela Primero se pondrá en contacto contigo para realizar las gestiones necesarias y dar seguimiento a tu donación.
+        . A partir de ahí, el personal de Mi Escuela Primero se pondrá en
+        contacto contigo para realizar las gestiones necesarias y dar
+        seguimiento a tu donación.
       </p>
     ),
   },
@@ -43,7 +55,11 @@ const faqItems = [
     question: "¿Qué impacto tiene mi donativo?",
     answer: (
       <p className="text-sm leading-7 text-slate-600 md:text-base">
-        Cada aportación contribuye directamente a mejorar las condiciones y oportunidades de los niños, niñas y adolescentes de escuelas públicas en contextos vulnerables. Al momento de hacer la donación, te compartiremos los avances y resultados al correo que registras para que puedas conocer el impacto generado.
+        Cada aportación contribuye directamente a mejorar las condiciones y
+        oportunidades de los niños, niñas y adolescentes de escuelas públicas en
+        contextos vulnerables. Al momento de hacer la donación, te compartiremos
+        los avances y resultados al correo que registras para que puedas conocer
+        el impacto generado.
       </p>
     ),
   },
@@ -51,15 +67,20 @@ const faqItems = [
     question: "¿Existe un monto mínimo para donar?",
     answer: (
       <p className="text-sm leading-7 text-slate-600 md:text-base">
-        No, cualquier cantidad económica o de materiales suma y es bienvenida. Lo más importante es la intención de apoyar y formar parte del cambio.
+        No, cualquier cantidad económica o de materiales suma y es bienvenida.
+        Lo más importante es la intención de apoyar y formar parte del cambio.
       </p>
     ),
   },
   {
-    question: "¿Puedo donar algo que no está dentro de las necesidades prioritarias de la escuela?",
+    question:
+      "¿Puedo donar algo que no está dentro de las necesidades prioritarias de la escuela?",
     answer: (
       <p className="text-sm leading-7 text-slate-600 md:text-base">
-        Sí, cualquier donación que pueda ser de utilidad para las escuelas, sus estudiantes, docentes, personal escolar o padres de familia es bienvenida. De esta manera seguimos fortaleciendo las comunidades educativas.
+        Sí, cualquier donación que pueda ser de utilidad para las escuelas, sus
+        estudiantes, docentes, personal escolar o padres de familia es
+        bienvenida. De esta manera seguimos fortaleciendo las comunidades
+        educativas.
       </p>
     ),
   },
@@ -119,7 +140,8 @@ export default function PopUpFAQ({ closePopup }) {
             FAQ
           </h2>
           <p className="mt-2 text-sm leading-7 text-slate-600 md:text-base">
-            Resolvemos algunas dudas comunes sobre los donativos y el proceso de apoyo.
+            Resolvemos algunas dudas comunes sobre los donativos y el proceso de
+            apoyo.
           </p>
         </div>
 
@@ -127,14 +149,21 @@ export default function PopUpFAQ({ closePopup }) {
           {faqItems.map((item, index) => {
             const isOpen = openQuestion === index;
             return (
-              <div key={item.question} className="rounded-2xl border border-slate-200 bg-slate-50">
+              <div
+                key={item.question}
+                className="rounded-2xl border border-slate-200 bg-slate-50"
+              >
                 <button
                   type="button"
                   onClick={() => toggleQuestion(index)}
                   className="flex w-full items-center justify-between gap-4 px-4 py-4 text-left transition hover:bg-slate-100"
                 >
-                  <span className="text-base font-semibold text-slate-900">{item.question}</span>
-                  <span className={`shrink-0 text-xl font-bold text-emerald-700 transition-transform ${isOpen ? "rotate-45" : "rotate-0"}`}>
+                  <span className="text-base font-semibold text-slate-900">
+                    {item.question}
+                  </span>
+                  <span
+                    className={`shrink-0 text-xl font-bold text-emerald-700 transition-transform ${isOpen ? "rotate-45" : "rotate-0"}`}
+                  >
                     +
                   </span>
                 </button>
@@ -142,7 +171,9 @@ export default function PopUpFAQ({ closePopup }) {
                 {isOpen && (
                   <div className="border-t border-slate-200 px-4 py-4">
                     {typeof item.answer === "function"
-                      ? item.answer({ openDonationPopup: () => setShowPopup(true) })
+                      ? item.answer({
+                          openDonationPopup: () => setShowPopup(true),
+                        })
                       : item.answer}
                   </div>
                 )}
@@ -152,7 +183,9 @@ export default function PopUpFAQ({ closePopup }) {
         </div>
       </div>
 
-      {showPopup && <PopUp closePopup={() => setShowPopup(false)} escuela={null} />}
+      {showPopup && (
+        <PopUp closePopup={() => setShowPopup(false)} escuela={null} />
+      )}
     </div>
   );
 }

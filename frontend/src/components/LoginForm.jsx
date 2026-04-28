@@ -54,7 +54,10 @@ export default function LoginForm() {
 
         <form onSubmit={handleSubmit} noValidate className="grid gap-5">
           <div className="grid gap-2 text-left">
-            <label className="text-sm font-semibold text-slate-700" htmlFor="correo">
+            <label
+              className="text-sm font-semibold text-slate-700"
+              htmlFor="correo"
+            >
               Correo electrónico
             </label>
             <input
@@ -64,7 +67,10 @@ export default function LoginForm() {
               type="email"
               placeholder="admin@miescuela.mx"
               value={correo}
-              onChange={(e) => { setCorreo(e.target.value); clearFieldError("correo"); }}
+              onChange={(e) => {
+                setCorreo(e.target.value);
+                clearFieldError("correo");
+              }}
               required
             />
             {invalidFields.includes("correo") && (
@@ -73,7 +79,10 @@ export default function LoginForm() {
           </div>
 
           <div className="grid gap-2 text-left">
-            <label className="text-sm font-semibold text-slate-700" htmlFor="contraseña">
+            <label
+              className="text-sm font-semibold text-slate-700"
+              htmlFor="contraseña"
+            >
               Contraseña
             </label>
             <input
@@ -83,7 +92,10 @@ export default function LoginForm() {
               type="password"
               placeholder="Tu contraseña"
               value={contraseña}
-              onChange={(e) => { setContraseña(e.target.value); clearFieldError("contraseña"); }}
+              onChange={(e) => {
+                setContraseña(e.target.value);
+                clearFieldError("contraseña");
+              }}
               required
             />
             {invalidFields.includes("contraseña") && (

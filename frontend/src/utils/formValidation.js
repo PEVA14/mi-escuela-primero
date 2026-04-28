@@ -1,20 +1,17 @@
 export function getInvalidFieldNames(form) {
   return Array.from(form.elements)
-    .filter((field) => (
-      field instanceof HTMLElement &&
-      typeof field.checkValidity === "function" &&
-      (
-        !field.checkValidity() ||
-        (
-          "required" in field &&
-          field.required &&
-          "value" in field &&
-          typeof field.value === "string" &&
-          field.type !== "checkbox" &&
-          field.value.trim() === ""
-        )
-      )
-    ))
+    .filter(
+      (field) =>
+        field instanceof HTMLElement &&
+        typeof field.checkValidity === "function" &&
+        (!field.checkValidity() ||
+          ("required" in field &&
+            field.required &&
+            "value" in field &&
+            typeof field.value === "string" &&
+            field.type !== "checkbox" &&
+            field.value.trim() === "")),
+    )
     .map((field) => field.name)
     .filter(Boolean);
 }
