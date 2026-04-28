@@ -30,10 +30,10 @@ function closeDonatePopup() {
                     type="button"
                 >
                     <img className="h-12 w-auto object-contain md:h-14" src={logo} alt="Mi Escuela Primero Logo.png" />
-                    <div className="hidden sm:block">
+                    {/* <div className="hidden sm:block">
                         <p className="text-base font-bold tracking-[-0.03em] text-slate-900">Mi Escuela Primero</p>
                         <p className="text-sm text-slate-500">Apoyo escolar con impacto real</p>
-                    </div>
+                    </div> */}
                 </button>
 
                 <div className="flex flex-wrap items-center gap-2 md:justify-end">

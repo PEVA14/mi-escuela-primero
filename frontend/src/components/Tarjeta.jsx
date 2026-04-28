@@ -23,9 +23,11 @@ export default function Tarjeta({ escuela }) {
         ? escuela.categoria.filter(Boolean)
         : [];
 
+    // fotos arrives as [{ id_foto, url }] from the API — each url points to
+    // GET /api/fotos/:id which streams the image bytes from the database.
     const fotos = Array.isArray(escuela.fotos) && escuela.fotos.length > 0
         ? escuela.fotos
-        : (escuela.foto_url ? [escuela.foto_url] : []);
+        : [];
     const current = fotos.length ? fotoIndex % fotos.length : 0;
 
     function stop(e) {
@@ -48,9 +50,9 @@ export default function Tarjeta({ escuela }) {
                     {fotos.length > 0 ? (
                         <div className="absolute inset-0 overflow-hidden">
                             <img
-                                key={fotos[current]}
+                                key={fotos[current]?.id_foto ?? current}
                                 className="h-full w-full object-cover"
-                                src={fotos[current]}
+                                src={fotos[current]?.url}
                                 alt={`${escuela.nombre} — foto ${current + 1}`}
                             />
 

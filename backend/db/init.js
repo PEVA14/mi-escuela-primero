@@ -13,14 +13,12 @@ async function initDatabase(config){
     await connection.query(`USE \`${config.database}\`;`);
 
     try{
-        //municipios table
         await connection.query(`
             CREATE TABLE IF NOT EXISTS Municipio(
                 id_municipio INT AUTO_INCREMENT PRIMARY KEY,
                 nombre_municipio VARCHAR(100) NOT NULL UNIQUE
             ); 
         `);
-        //admin table
         await connection.query(`
             CREATE TABLE IF NOT EXISTS Administrador(
                 id_admin INT AUTO_INCREMENT PRIMARY KEY,
@@ -28,7 +26,6 @@ async function initDatabase(config){
                 password_hash VARCHAR(255) NOT NULL
             );
         `);
-        //categoria and subcategoria tables
         await connection.query(`
             CREATE TABLE IF NOT EXISTS Categoria (
                 id_categoria INT AUTO_INCREMENT PRIMARY KEY,
@@ -44,7 +41,6 @@ async function initDatabase(config){
                 ON DELETE CASCADE ON UPDATE CASCADE
             );
         `)
-        //modalidad, turno y sostenimiento
         await connection.query(`
             CREATE TABLE IF NOT EXISTS Modalidad (
                 id_modalidad INT AUTO_INCREMENT PRIMARY KEY,
@@ -87,8 +83,6 @@ async function initDatabase(config){
             );
         `);
 
-        
-        //escuelas table
         await connection.query(`
             CREATE TABLE IF NOT EXISTS Escuela (
                 id_escuela INT AUTO_INCREMENT PRIMARY KEY,
@@ -172,13 +166,33 @@ async function initDatabase(config){
 
         await connection.query(`
             CREATE TABLE IF NOT EXISTS FotosEscuelas (
-                id_foto INT AUTO_INCREMENT PRIMARY KEY,
-                foto_link VARCHAR(255),
-                id_escuela INT,
+                id_foto     INT AUTO_INCREMENT PRIMARY KEY,
+                foto_nombre VARCHAR(255),
+                foto_mime   VARCHAR(100),
+                foto_data   MEDIUMBLOB NOT NULL,
+                id_escuela  INT,
                 FOREIGN KEY (id_escuela) REFERENCES Escuela(id_escuela)
                 ON DELETE CASCADE ON UPDATE CASCADE
             );
         `);
+
+        const [existingCols] = await connection.query(`
+            SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS
+            WHERE TABLE_SCHEMA = DATABASE()
+              AND TABLE_NAME   = 'FotosEscuelas'
+        `);
+        const colNames = existingCols.map(r => r.COLUMN_NAME);
+
+        if (!colNames.includes('foto_nombre'))
+            await connection.query(`ALTER TABLE FotosEscuelas ADD COLUMN foto_nombre VARCHAR(255)`);
+        if (!colNames.includes('foto_mime'))
+            await connection.query(`ALTER TABLE FotosEscuelas ADD COLUMN foto_mime VARCHAR(100)`);
+        if (!colNames.includes('foto_data'))
+            await connection.query(`ALTER TABLE FotosEscuelas ADD COLUMN foto_data MEDIUMBLOB`);
+        if (colNames.includes('foto_link'))
+            await connection.query(`ALTER TABLE FotosEscuelas DROP COLUMN foto_link`);
+
+        await connection.query(`DELETE FROM FotosEscuelas WHERE foto_data IS NULL`);
 
     console.log("Database was successfully created :DDD");
     }catch(err){

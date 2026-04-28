@@ -1,5 +1,3 @@
-import donation from "../assets/donation_icon.png";
-import project_completed from "../assets/achivement_icon.png";
 import transparenci from "../assets/login_password_icon.png";
 
 export default function TrustBuilding() {
@@ -19,32 +17,6 @@ export default function TrustBuilding() {
                     <p className="mx-auto mt-6 max-w-[760px] text-[clamp(1rem,1.6vw,1.3rem)] leading-[1.7] text-slate-600">
                         Construimos confianza con métricas visibles, seguimiento puntual y transparencia en cada etapa del apoyo a las escuelas.
                     </p>
-                </div>
-
-                <div className="mb-6 grid grid-cols-1 gap-4 lg:grid-cols-3">
-                    <article className="flex min-h-[180px] flex-col items-center justify-center rounded-3xl border border-emerald-100 bg-white px-5 py-6 text-center shadow-[0_18px_45px_rgba(15,23,42,0.08)]">
-                        <div className="mb-4 flex h-[58px] w-[58px] items-center justify-center rounded-[18px] bg-emerald-50">
-                            <img className="h-8 w-8 object-contain" src={donation} alt="Donaciones canalizadas" />
-                        </div>
-                        <p className="m-0 text-[clamp(2rem,3vw,3rem)] font-extrabold leading-none text-slate-900">$12M</p>
-                        <p className="mt-3 text-base font-medium text-slate-600">En donaciones canalizadas</p>
-                    </article>
-
-                    <article className="flex min-h-[180px] flex-col items-center justify-center rounded-3xl border border-emerald-100 bg-white px-5 py-6 text-center shadow-[0_18px_45px_rgba(15,23,42,0.08)]">
-                        <div className="mb-4 flex h-[58px] w-[58px] items-center justify-center rounded-[18px] bg-emerald-50">
-                            <img className="h-8 w-8 object-contain" src={project_completed} alt="Proyectos completados" />
-                        </div>
-                        <p className="m-0 text-[clamp(2rem,3vw,3rem)] font-extrabold leading-none text-slate-900">85%</p>
-                        <p className="mt-3 text-base font-medium text-slate-600">Proyectos completados</p>
-                    </article>
-
-                    <article className="flex min-h-[180px] flex-col items-center justify-center rounded-3xl border border-emerald-100 bg-white px-5 py-6 text-center shadow-[0_18px_45px_rgba(15,23,42,0.08)]">
-                        <div className="mb-4 flex h-[58px] w-[58px] items-center justify-center rounded-[18px] bg-emerald-50">
-                            <img className="h-8 w-8 object-contain" src={transparenci} alt="Transparencia garantizada" />
-                        </div>
-                        <p className="m-0 text-[clamp(2rem,3vw,3rem)] font-extrabold leading-none text-slate-900">100%</p>
-                        <p className="mt-3 text-base font-medium text-slate-600">Transparencia garantizada</p>
-                    </article>
                 </div>
 
                 <div className="grid items-start gap-6 rounded-[30px] border border-white/40 bg-white/95 p-8 text-slate-900 shadow-[0_24px_60px_rgba(15,23,42,0.16)] md:grid-cols-[120px_minmax(0,1fr)] md:p-8">

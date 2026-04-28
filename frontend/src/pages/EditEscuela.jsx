@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { getEscuelaById, updateEscuela, deleteEscuela } from "../services/api";
 import NavBar from "../components/NavBar";
 import Footer from "../components/Footer";
+import { validateFormBeforeSubmit } from "../utils/formValidation";
 
 export default function EditarEscuela() {
 
@@ -27,6 +28,14 @@ export default function EditarEscuela() {
   });
 
   const [loading, setLoading] = useState(true);
+  const [invalidFields, setInvalidFields] = useState([]);
+  const warningText = "Por favor llena este espacio";
+  const inputCls = (fieldName) =>
+    `w-full rounded-2xl border bg-white px-4 py-3 text-sm text-slate-700 outline-none transition placeholder:text-slate-400 ${
+      invalidFields.includes(fieldName)
+        ? "border-red-400 focus:border-red-400 focus:ring-2 focus:ring-red-100"
+        : "border-slate-200 focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100"
+    }`;
 
   // proteger ruta (solo admin)
   useEffect(() => {
@@ -68,6 +77,7 @@ export default function EditarEscuela() {
   }, [id]);
 
   function handleChange(e) {
+    setInvalidFields((prev) => prev.filter((item) => item !== e.target.name));
 
     setEscuela({
       ...escuela,
@@ -77,6 +87,7 @@ export default function EditarEscuela() {
   }
 
   async function handleSubmit(e) {
+    if (!validateFormBeforeSubmit(e, null, setInvalidFields)) return;
 
     e.preventDefault();
 
@@ -159,71 +170,83 @@ export default function EditarEscuela() {
               <div className="grid gap-2 md:col-span-2">
                 <label className="text-sm font-semibold text-slate-700">Nombre</label>
                 <input
-                  className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700 outline-none transition placeholder:text-slate-400 focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100"
+                  className={inputCls("nombre")}
                   name="nombre"
                   value={escuela.nombre}
                   onChange={handleChange}
+                  required
                 />
+                {invalidFields.includes("nombre") && <p className="text-xs font-medium text-red-600">{warningText}</p>}
               </div>
 
               <div className="grid gap-2">
                 <label className="text-sm font-semibold text-slate-700">Plantel</label>
                 <input
-                  className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700 outline-none transition placeholder:text-slate-400 focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100"
+                  className={inputCls("plantel")}
                   name="plantel"
                   value={escuela.plantel}
                   onChange={handleChange}
+                  required
                 />
+                {invalidFields.includes("plantel") && <p className="text-xs font-medium text-red-600">{warningText}</p>}
               </div>
 
               <div className="grid gap-2">
                 <label className="text-sm font-semibold text-slate-700">Municipio</label>
                 <input
-                  className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700 outline-none transition placeholder:text-slate-400 focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100"
+                  className={inputCls("municipio")}
                   name="municipio"
                   value={escuela.municipio}
                   onChange={handleChange}
+                  required
                 />
+                {invalidFields.includes("municipio") && <p className="text-xs font-medium text-red-600">{warningText}</p>}
               </div>
 
               <div className="grid gap-2 md:col-span-2">
                 <label className="text-sm font-semibold text-slate-700">Dirección</label>
                 <input
-                  className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700 outline-none transition placeholder:text-slate-400 focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100"
+                  className={inputCls("direccion")}
                   name="direccion"
                   value={escuela.direccion}
                   onChange={handleChange}
+                  required
                 />
+                {invalidFields.includes("direccion") && <p className="text-xs font-medium text-red-600">{warningText}</p>}
               </div>
 
               <div className="grid gap-2">
                 <label className="text-sm font-semibold text-slate-700">CCT</label>
                 <input
-                  className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700 outline-none transition placeholder:text-slate-400 focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100"
+                  className={inputCls("cct")}
                   name="cct"
                   value={escuela.cct}
                   onChange={handleChange}
+                  required
                 />
+                {invalidFields.includes("cct") && <p className="text-xs font-medium text-red-600">{warningText}</p>}
               </div>
 
               <div className="grid gap-2">
                 <label className="text-sm font-semibold text-slate-700">Estudiantes</label>
                 <input
-                  className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700 outline-none transition placeholder:text-slate-400 focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100"
+                  className={inputCls("nivelEducativo")}
                   name="estudiantes"
                   value={escuela.estudiantes}
                   onChange={handleChange}
                 />
+                {invalidFields.includes("nivelEducativo") && <p className="text-xs font-medium text-red-600">{warningText}</p>}
               </div>
 
               <div className="grid gap-2">
                 <label className="text-sm font-semibold text-slate-700">Personal Escolar</label>
                 <input
-                  className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700 outline-none transition placeholder:text-slate-400 focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100"
+                  className={inputCls("categoria")}
                   name="personal_escolar"
                   value={escuela.personal_escolar}
                   onChange={handleChange}
                 />
+                {invalidFields.includes("categoria") && <p className="text-xs font-medium text-red-600">{warningText}</p>}
               </div>
 
               <div className="grid gap-2">
@@ -233,6 +256,7 @@ export default function EditarEscuela() {
                   name="nivelEducativo"
                   value={escuela.nivelEducativo}
                   onChange={handleChange}
+                  required
                 />
               </div>
 
@@ -273,6 +297,7 @@ export default function EditarEscuela() {
                   name="categoria"
                   value={escuela.categoria}
                   onChange={handleChange}
+                  required
                 />
               </div>
 

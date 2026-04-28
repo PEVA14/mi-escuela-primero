@@ -73,43 +73,57 @@ function formatEscuela(row) {
     modalidad:        row.modalidad        || '',
     turno:            row.turno            || '',
     sostenimiento:    row.sostenimiento    || '',
-    // Derived from the school's Propuestas via a subquery
     categoria: row.categoria
       ? row.categoria.split(',').map(c => c.trim()).filter(Boolean)
       : [],
-    // Filled in by the caller via a second query (see attachFotos).
     fotos: [],
   };
 }
 
-// Attach foto_link arrays to a list of already-formatted escuelas.
+const BASE_URL = process.env.BASE_URL || 'http://localhost:3000';
+
 async function attachFotos(escuelas) {
   if (!escuelas.length) return escuelas;
-  const [fotos] = await pool.query(
-    'SELECT id_escuela, foto_link FROM FotosEscuelas ORDER BY id_foto'
-  );
-  const byId = new Map();
-  for (const f of fotos) {
-    if (!byId.has(f.id_escuela)) byId.set(f.id_escuela, []);
-    byId.get(f.id_escuela).push(f.foto_link);
-  }
-  for (const e of escuelas) {
-    e.fotos = byId.get(e.id_escuela) || [];
+  try {
+    const [rows] = await pool.query(
+      'SELECT id_foto, id_escuela FROM FotosEscuelas WHERE foto_data IS NOT NULL ORDER BY id_foto'
+    );
+    const byId = new Map();
+    for (const r of rows) {
+      if (!byId.has(r.id_escuela)) byId.set(r.id_escuela, []);
+      byId.get(r.id_escuela).push({
+        id_foto: r.id_foto,
+        url: `${BASE_URL}/api/fotos/${r.id_foto}`,
+      });
+    }
+    for (const e of escuelas) {
+      e.fotos = byId.get(e.id_escuela) || [];
+    }
+  } catch (err) {
+    console.error('attachFotos: could not load photos, returning empty arrays:', err.message);
+    for (const e of escuelas) { e.fotos = []; }
   }
   return escuelas;
 }
 
-async function setFotosForEscuela(id_escuela, fotos) {
-  await pool.query('DELETE FROM FotosEscuelas WHERE id_escuela = ?', [id_escuela]);
-  const cleaned = (Array.isArray(fotos) ? fotos : [])
-    .map(f => (typeof f === 'string' ? f.trim() : ''))
-    .filter(Boolean);
-  for (const link of cleaned) {
-    await pool.query(
-      'INSERT INTO FotosEscuelas (id_escuela, foto_link) VALUES (?, ?)',
-      [id_escuela, link]
-    );
-  }
+async function saveFoto(id_escuela, file) {
+  const [result] = await pool.query(
+    'INSERT INTO FotosEscuelas (id_escuela, foto_nombre, foto_mime, foto_data) VALUES (?, ?, ?, ?)',
+    [id_escuela, file.originalname, file.mimetype, file.buffer]
+  );
+  return result.insertId;
+}
+
+async function getFotoById(id_foto) {
+  const [rows] = await pool.query(
+    'SELECT foto_mime, foto_data, foto_nombre FROM FotosEscuelas WHERE id_foto = ?',
+    [id_foto]
+  );
+  return rows[0] || null;
+}
+
+async function deleteFotoById(id_foto) {
+  await pool.query('DELETE FROM FotosEscuelas WHERE id_foto = ?', [id_foto]);
 }
 
 function formatPropuesta(row) {
@@ -237,9 +251,6 @@ async function createEscuela(data) {
   );
 
   await setNivelEducativo(result.insertId, nivelEducativo);
-  if (data.fotos !== undefined) {
-    await setFotosForEscuela(result.insertId, data.fotos);
-  }
   return result.insertId;
 }
 
@@ -259,7 +270,6 @@ async function updateEscuela(id, data) {
   if (personal_escolar !== undefined) updates.personal_escolar = parseInt(personal_escolar) || 0;
   if (estudiantes      !== undefined) updates.estudiantes      = parseInt(estudiantes)      || 0;
 
-  // Resolve FK values in parallel
   const fkEntries = [];
   if (municipio)     fkEntries.push(['id_municipio',     getOrCreate('Municipio',     'id_municipio',     'nombre_municipio',     municipio)]);
   if (modalidad)     fkEntries.push(['id_modalidad',     getOrCreate('Modalidad',     'id_modalidad',     'nombre_modalidad',     modalidad)]);
@@ -280,19 +290,11 @@ async function updateEscuela(id, data) {
   if (nivelEducativo !== undefined) {
     await setNivelEducativo(id, nivelEducativo);
   }
-
-  if (data.fotos !== undefined) {
-    await setFotosForEscuela(id, data.fotos);
-  }
 }
 
 async function deleteEscuela(id) {
   await pool.query('DELETE FROM Escuela WHERE id_escuela = ?', [id]);
 }
-
-// ─────────────────────────────────────────────────────────────────────────────
-// PROPUESTAS  (called "necesidades" in the frontend)
-// ─────────────────────────────────────────────────────────────────────────────
 
 const PROPUESTA_SELECT = `
   SELECT
@@ -387,10 +389,6 @@ async function deletePropuesta(id) {
   await pool.query('DELETE FROM Propuesta WHERE id_propuesta = ?', [id]);
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// RESPUESTAS DE DONADORES
-// ─────────────────────────────────────────────────────────────────────────────
-
 async function getAllRespuestas() {
   const [rows] = await pool.query(`
     SELECT r.*, e.nombre AS nombre_escuela
@@ -433,10 +431,6 @@ async function createRespuesta(data) {
   return result.insertId;
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// IMPORTAR EXCEL
-// ─────────────────────────────────────────────────────────────────────────────
-
 async function importarEscuelas(rows) {
   const errores = [];
   let insertadas = 0;
@@ -467,7 +461,9 @@ async function importarEscuelas(rows) {
 
 async function importarPropuestas(rows) {
   const errores = [];
-  let insertadas = 0;
+  let insertadas  = 0;
+  let actualizadas = 0;
+
   for (const [i, row] of rows.entries()) {
     if (!row.titulo) {
       errores.push(`Fila ${i + 2}: falta el nombre de la propuesta`);
@@ -476,24 +472,24 @@ async function importarPropuestas(rows) {
     try {
       let id_escuela = row.id_escuela;
       let escuelasDestino = [];
+
       if (!id_escuela && row.nombre_escuela) {
-        const nombreBuscar = String(row.nombre_escuela).trim();
+        const nombreBuscar   = String(row.nombre_escuela).trim();
         const municipioBuscar = row.municipio ? String(row.municipio).trim() : null;
 
-        // Find schools matching by plantel or by name (exact / partial). Keep plantel
-        // info so we can expand the match to every school that shares a plantel.
-        const municipioFilter = municipioBuscar
-          ? `JOIN Municipio m ON e.id_municipio = m.id_municipio AND m.nombre_municipio = '${municipioBuscar.replace(/'/g, "''")}'`
-          : '';
-
         let [found] = await pool.query(
-          `SELECT e.id_escuela, e.plantel, e.id_municipio FROM Escuela e ${municipioFilter}
-           WHERE e.plantel = ? OR e.nombre = ? OR e.nombre LIKE ? OR ? LIKE CONCAT('%', e.nombre, '%')`,
-          [nombreBuscar, nombreBuscar, `%${nombreBuscar}%`, nombreBuscar]
+          `SELECT e.id_escuela, e.plantel, e.id_municipio
+           FROM   Escuela e
+           LEFT JOIN Municipio m ON e.id_municipio = m.id_municipio
+           WHERE (e.plantel = ? OR e.nombre = ? OR e.nombre LIKE ? OR ? LIKE CONCAT('%', e.nombre, '%'))
+             AND (? IS NULL OR m.nombre_municipio = ?)`,
+          [
+            nombreBuscar, nombreBuscar, `%${nombreBuscar}%`, nombreBuscar,
+            municipioBuscar, municipioBuscar,
+          ]
         );
 
         if (!found.length && municipioBuscar) {
-          // Last resort: ignore municipio, match only by name
           [found] = await pool.query(
             `SELECT id_escuela, plantel, id_municipio FROM Escuela
              WHERE plantel = ? OR nombre = ? OR nombre LIKE ? OR ? LIKE CONCAT('%', nombre, '%')`,
@@ -506,8 +502,6 @@ async function importarPropuestas(rows) {
           continue;
         }
 
-        // Expand: pull in every school that shares a non-empty plantel with any
-        // matched school (restricted to the same municipio to avoid collisions).
         const idsSet = new Set(found.map(r => r.id_escuela));
         const plantelsByMunicipio = new Map();
         for (const r of found) {
@@ -518,11 +512,11 @@ async function importarPropuestas(rows) {
           plantelsByMunicipio.get(key).add(plantel);
         }
         for (const [muniKey, plantels] of plantelsByMunicipio) {
-          const plist = [...plantels];
+          const plist        = [...plantels];
           const placeholders = plist.map(() => '?').join(',');
-          const muniClause = muniKey === 'null' ? 'id_municipio IS NULL' : 'id_municipio = ?';
-          const params = muniKey === 'null' ? plist : [muniKey, ...plist];
-          const [siblings] = await pool.query(
+          const muniClause   = muniKey === 'null' ? 'id_municipio IS NULL' : 'id_municipio = ?';
+          const params       = muniKey === 'null' ? plist : [muniKey, ...plist];
+          const [siblings]   = await pool.query(
             `SELECT id_escuela FROM Escuela
              WHERE ${muniClause} AND plantel IN (${placeholders})`,
             params
@@ -530,6 +524,7 @@ async function importarPropuestas(rows) {
           siblings.forEach(s => idsSet.add(s.id_escuela));
         }
         escuelasDestino = [...idsSet];
+
       } else if (id_escuela) {
         escuelasDestino = [id_escuela];
       } else {
@@ -544,6 +539,7 @@ async function importarPropuestas(rows) {
         );
         if (existing.length > 0) {
           await updatePropuesta(existing[0].id_propuesta, { ...row, id_escuela: esc_id });
+          actualizadas++;
         } else {
           await createPropuesta({ ...row, id_escuela: esc_id });
           insertadas++;
@@ -553,16 +549,33 @@ async function importarPropuestas(rows) {
       errores.push(`Fila ${i + 2}: ${err.message}`);
     }
   }
-  return { insertadas, errores };
+  return { insertadas, actualizadas, errores };
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
+async function getAdminByCorreo(correo) {
+  const [rows] = await pool.query(
+    'SELECT id_admin, correo, password_hash FROM Administrador WHERE correo = ?',
+    [correo]
+  );
+  return rows[0] || null;
+}
+
+async function getStats() {
+  const [[{ escuelas }]]    = await pool.query('SELECT COUNT(*) AS escuelas FROM Escuela');
+  const [[{ necesidades }]] = await pool.query('SELECT COUNT(*) AS necesidades FROM Propuesta');
+  const [[{ municipios }]]  = await pool.query('SELECT COUNT(DISTINCT id_municipio) AS municipios FROM Escuela WHERE id_municipio IS NOT NULL');
+  return { escuelas, necesidades, municipios };
+}
+
 module.exports = {
   getAllEscuelas,
   getEscuelaById,
   createEscuela,
   updateEscuela,
   deleteEscuela,
+  saveFoto,
+  getFotoById,
+  deleteFotoById,
   getAllPropuestas,
   getPropuestasByEscuela,
   createPropuesta,
@@ -572,4 +585,6 @@ module.exports = {
   createRespuesta,
   importarEscuelas,
   importarPropuestas,
+  getStats,
+  getAdminByCorreo,
 };

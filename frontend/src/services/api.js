@@ -14,6 +14,10 @@ function getAuthHeaders() {
   };
 }
 
+export function getStats() {
+  return api.get("/stats");
+}
+
 export function getEscuelas() {
   return api.get("/escuelas");
 }
@@ -38,7 +42,6 @@ export function deleteEscuela(id) {
   return api.delete(`/escuelas/${id}`, getAuthHeaders());
 }
 
-// --- Necesidades ---
 export function getNecesidades() {
   return api.get("/necesidades");
 }
@@ -59,7 +62,6 @@ export function deleteNecesidad(id) {
   return api.delete(`/necesidades/${id}`, getAuthHeaders());
 }
 
-// --- Respuestas de donadores ---
 export function getRespuestas() {
   return api.get("/respuestas", getAuthHeaders());
 }
@@ -68,7 +70,19 @@ export function crearRespuesta(datos) {
   return api.post("/respuestas", datos);
 }
 
-// --- Importar Excel (envía JSON parseado desde frontend) ---
+export function uploadFotos(id_escuela, files) {
+  const formData = new FormData();
+  files.forEach((file) => formData.append('fotos', file));
+  const token = localStorage.getItem('token');
+  return api.post(`/escuelas/${id_escuela}/fotos`, formData, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+}
+
+export function deleteFoto(id_foto) {
+  return api.delete(`/fotos/${id_foto}`, getAuthHeaders());
+}
+
 export function importarEscuelas(datos) {
   return api.post("/importar/escuelas", { escuelas: datos }, getAuthHeaders());
 }

@@ -1,10 +1,11 @@
 import { useState } from "react";
 import { agregarEscuela } from "../services/api"; 
 import { useNavigate } from "react-router-dom";
+import { validateFormBeforeSubmit } from "../utils/formValidation";
 
 export default function AgregarEscuela() {
     const navigate = useNavigate();
-        const [formData, setFormData] = useState({
+    const [formData, setFormData] = useState({
         nombre: "",
         plantel: "",
         municipio: "",
@@ -19,9 +20,22 @@ export default function AgregarEscuela() {
         sostenimiento: "",
         categoria: ""
     });
+    const [invalidFields, setInvalidFields] = useState([]);
+    const warningText = "Por favor llena este espacio";
+    const inputCls = (fieldName) =>
+        `w-full rounded-2xl border bg-white px-4 py-3 text-sm text-slate-700 outline-none transition placeholder:text-slate-400 ${
+            invalidFields.includes(fieldName)
+                ? "border-red-400 focus:border-red-400 focus:ring-2 focus:ring-red-100"
+                : "border-slate-200 focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100"
+        }`;
+
+    const clearFieldError = (fieldName) => {
+        setInvalidFields((prev) => prev.filter((item) => item !== fieldName));
+    };
 
     const handleChange = (e) => {
         const { name, value } = e.target;
+        clearFieldError(name);
         setFormData({
             ...formData,
             [name]: value
@@ -29,6 +43,7 @@ export default function AgregarEscuela() {
     };
 
     const handleSubmit = async (e) => {
+        if (!validateFormBeforeSubmit(e, null, setInvalidFields)) return;
         e.preventDefault();
         try {
             await agregarEscuela(formData);
@@ -72,45 +87,49 @@ export default function AgregarEscuela() {
                         <div className="grid gap-2 md:col-span-2">
                             <label className="text-sm font-semibold text-slate-700">Nombre de la Escuela</label>
                             <input
-                                className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700 outline-none transition placeholder:text-slate-400 focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100"
+                                className={inputCls("nombre")}
                                 name="nombre"
                                 placeholder="Nombre de la Escuela"
                                 onChange={handleChange}
                                 required
                             />
+                            {invalidFields.includes("nombre") && <p className="text-xs font-medium text-red-600">{warningText}</p>}
                         </div>
 
                         <div className="grid gap-2">
                             <label className="text-sm font-semibold text-slate-700">Plantel</label>
                             <input
-                                className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700 outline-none transition placeholder:text-slate-400 focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100"
+                                className={inputCls("plantel")}
                                 name="plantel"
                                 placeholder="Plantel"
                                 onChange={handleChange}
                                 required
                             />
+                            {invalidFields.includes("plantel") && <p className="text-xs font-medium text-red-600">{warningText}</p>}
                         </div>
 
                         <div className="grid gap-2">
                             <label className="text-sm font-semibold text-slate-700">CCT</label>
                             <input
-                                className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700 outline-none transition placeholder:text-slate-400 focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100"
+                                className={inputCls("cct")}
                                 name="cct"
                                 placeholder="CCT (Clave de Centro de Trabajo)"
                                 onChange={handleChange}
                                 required
                             />
+                            {invalidFields.includes("cct") && <p className="text-xs font-medium text-red-600">{warningText}</p>}
                         </div>
 
                         <div className="grid gap-2">
                             <label className="text-sm font-semibold text-slate-700">Municipio</label>
                             <input
-                                className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700 outline-none transition placeholder:text-slate-400 focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100"
+                                className={inputCls("municipio")}
                                 name="municipio"
                                 placeholder="Municipio"
                                 onChange={handleChange}
                                 required
                             />
+                            {invalidFields.includes("municipio") && <p className="text-xs font-medium text-red-600">{warningText}</p>}
                         </div>
 
                         <div className="grid gap-2">
@@ -126,12 +145,13 @@ export default function AgregarEscuela() {
                         <div className="grid gap-2 md:col-span-2">
                             <label className="text-sm font-semibold text-slate-700">Dirección Completa</label>
                             <input
-                                className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700 outline-none transition placeholder:text-slate-400 focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100"
+                                className={inputCls("direccion")}
                                 name="direccion"
                                 placeholder="Dirección Completa"
                                 onChange={handleChange}
                                 required
                             />
+                            {invalidFields.includes("direccion") && <p className="text-xs font-medium text-red-600">{warningText}</p>}
                         </div>
 
                         <div className="grid gap-2">
@@ -159,7 +179,7 @@ export default function AgregarEscuela() {
                         <div className="grid gap-2">
                             <label className="text-sm font-semibold text-slate-700">Nivel Educativo</label>
                             <select
-                                className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700 outline-none transition focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100"
+                                className={inputCls("nivelEducativo")}
                                 name="nivelEducativo"
                                 onChange={handleChange}
                                 required
@@ -172,6 +192,7 @@ export default function AgregarEscuela() {
                                 <option value="Superior">Superior</option>
                                 <option value="Especial">Especial</option>
                             </select>
+                            {invalidFields.includes("nivelEducativo") && <p className="text-xs font-medium text-red-600">{warningText}</p>}
                         </div>
 
                         <div className="grid gap-2">
@@ -212,7 +233,7 @@ export default function AgregarEscuela() {
                         <div className="grid gap-2 md:col-span-2">
                             <label className="text-sm font-semibold text-slate-700">Categoría</label>
                             <select
-                                className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700 outline-none transition focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100"
+                                className={inputCls("categoria")}
                                 name="categoria"
                                 onChange={handleChange}
                                 required
@@ -223,6 +244,7 @@ export default function AgregarEscuela() {
                                 <option value="Formacion">Formación</option>
                                 <option value="Salud">Salud</option>
                             </select>
+                            {invalidFields.includes("categoria") && <p className="text-xs font-medium text-red-600">{warningText}</p>}
                         </div>
 
                         <div className="mt-2 flex md:col-span-2 md:justify-end">
