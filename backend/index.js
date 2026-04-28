@@ -24,7 +24,7 @@ const PORT       = process.env.PORT       || 3000;
 const SECRET_KEY = process.env.JWT_SECRET || 'pachandini';
 
 app.use(cors({
-  origin: "https://hospitable-cat-production-3175.up.railway.app"
+  origin: "https://mi-escuela-primero-3175.up.railway.app"
 }));
 app.use(express.json({ limit: '10mb' }));
 
