@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { agregarEscuela, updateEscuela, uploadFotos, deleteFoto } from "../../services/api";
 import { validateFormBeforeSubmit } from "../../utils/formValidation";
+import camara from "../../assets/camera_icon.png";
 
 const NIVELES       = ["Preescolar", "Primaria", "Secundaria", "Bachillerato", "Otro"];
 const MODALIDADES   = ["SEP-General", "SEP-Multigrado", "CONAFE", "Indígena", "Telesecundaria", "Otra"];
@@ -186,7 +187,7 @@ export default function ModalEscuela({ open, escuela, onClose, onSuccess }) {
                 onClick={() => fileInputRef.current?.click()}
                 className="rounded-xl border-2 border-dashed border-slate-200 bg-slate-50 px-4 py-6 text-center text-xs text-slate-400 transition hover:border-emerald-300 hover:bg-emerald-50 hover:text-emerald-600"
               >
-                <span className="block text-2xl mb-1">📷</span>
+                <img className="h-12 w-12 object-contain mx-auto mb-2" src={camara} alt="subir fotos" />
                 Haz clic aquí o en "Subir imágenes" para agregar fotos
               </button>
             ) : (
