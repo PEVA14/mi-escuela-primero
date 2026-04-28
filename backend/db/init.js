@@ -170,15 +170,76 @@ async function initDatabase(config){
             );
         `);
 
+        /*
+         * FotosEscuelas — binary file storage
+         * ─────────────────────────────────────────────────────────────────────
+         * Instead of saving a URL string we store the actual image bytes in the
+         * database.  Three columns handle this:
+         *
+         *   foto_data   MEDIUMBLOB  — the raw bytes of the image file.
+         *                             MEDIUMBLOB holds up to 16 MB per row,
+         *                             which is plenty for any school photo.
+         *
+         *   foto_mime   VARCHAR(100) — the MIME type the browser sent with the
+         *                             upload (e.g. "image/jpeg", "image/png").
+         *                             We store this so the server can set the
+         *                             correct Content-Type header when serving
+         *                             the image back, making the browser render
+         *                             it properly inside an <img> tag.
+         *
+         *   foto_nombre VARCHAR(255) — the original filename from the user's
+         *                             computer (e.g. "patio.jpg").  Kept for
+         *                             the Content-Disposition header and for
+         *                             display in the admin UI.
+         *
+         * Images are never stored on disk — they live only in MySQL rows.
+         * To display a photo the frontend points an <img src> at
+         * GET /api/fotos/:id_foto, which reads that row and streams the bytes.
+         */
         await connection.query(`
             CREATE TABLE IF NOT EXISTS FotosEscuelas (
-                id_foto INT AUTO_INCREMENT PRIMARY KEY,
-                foto_link VARCHAR(255),
-                id_escuela INT,
+                id_foto     INT AUTO_INCREMENT PRIMARY KEY,
+                foto_nombre VARCHAR(255),
+                foto_mime   VARCHAR(100),
+                foto_data   MEDIUMBLOB NOT NULL,
+                id_escuela  INT,
                 FOREIGN KEY (id_escuela) REFERENCES Escuela(id_escuela)
                 ON DELETE CASCADE ON UPDATE CASCADE
             );
         `);
+
+        /*
+         * Schema migration — compatible with any MySQL version (5.7+).
+         *
+         * We query INFORMATION_SCHEMA to check exactly which columns exist
+         * before issuing any ALTER TABLE.  This avoids relying on
+         * "ADD COLUMN IF NOT EXISTS" which only arrived in MySQL 8.0.21.
+         *
+         * After the structural migration we purge any rows that have no
+         * binary data (foto_data IS NULL).  These are orphaned rows created
+         * by the old link-based version of the app.  Keeping them causes two
+         * problems:
+         *   1. attachFotos returns them as valid-looking URLs.
+         *   2. GET /api/fotos/:id tries to stream a NULL buffer → broken image.
+         */
+        const [existingCols] = await connection.query(`
+            SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS
+            WHERE TABLE_SCHEMA = DATABASE()
+              AND TABLE_NAME   = 'FotosEscuelas'
+        `);
+        const colNames = existingCols.map(r => r.COLUMN_NAME);
+
+        if (!colNames.includes('foto_nombre'))
+            await connection.query(`ALTER TABLE FotosEscuelas ADD COLUMN foto_nombre VARCHAR(255)`);
+        if (!colNames.includes('foto_mime'))
+            await connection.query(`ALTER TABLE FotosEscuelas ADD COLUMN foto_mime VARCHAR(100)`);
+        if (!colNames.includes('foto_data'))
+            await connection.query(`ALTER TABLE FotosEscuelas ADD COLUMN foto_data MEDIUMBLOB`);
+        if (colNames.includes('foto_link'))
+            await connection.query(`ALTER TABLE FotosEscuelas DROP COLUMN foto_link`);
+
+        // Remove stale rows that have no binary image data (legacy link-based rows).
+        await connection.query(`DELETE FROM FotosEscuelas WHERE foto_data IS NULL`);
 
     console.log("Database was successfully created :DDD");
     }catch(err){

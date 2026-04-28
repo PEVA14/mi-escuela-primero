@@ -158,8 +158,8 @@ export default function Detalles() {
                             {escuela?.fotos?.length > 0 ? (
                                 <div className="relative h-[340px] w-full overflow-hidden bg-slate-100 md:h-[480px]">
                                     <img
-                                        key={escuela.fotos[fotoIndex % escuela.fotos.length]}
-                                        src={escuela.fotos[fotoIndex % escuela.fotos.length]}
+                                        key={escuela.fotos[fotoIndex % escuela.fotos.length]?.id_foto}
+                                        src={escuela.fotos[fotoIndex % escuela.fotos.length]?.url}
                                         alt={`${escuela.nombre} — foto ${(fotoIndex % escuela.fotos.length) + 1}`}
                                         className="absolute inset-0 h-full w-full object-cover"
                                     />

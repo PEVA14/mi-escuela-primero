@@ -1,10 +1,11 @@
-import { useState, useEffect } from "react";
-import { agregarEscuela, updateEscuela } from "../../services/api";
+import { useState, useEffect, useRef, useCallback } from "react";
+import { agregarEscuela, updateEscuela, uploadFotos, deleteFoto } from "../../services/api";
 
-const NIVELES = ["Preescolar", "Primaria", "Secundaria", "Bachillerato", "Otro"];
-const MODALIDADES = ["SEP-General", "SEP-Multigrado", "CONAFE", "Indígena", "Telesecundaria", "Otra"];
-const TURNOS = ["Matutino", "Vespertino", "Nocturno", "Mixto"];
+const NIVELES       = ["Preescolar", "Primaria", "Secundaria", "Bachillerato", "Otro"];
+const MODALIDADES   = ["SEP-General", "SEP-Multigrado", "CONAFE", "Indígena", "Telesecundaria", "Otra"];
+const TURNOS        = ["Matutino", "Vespertino", "Nocturno", "Mixto"];
 const SOSTENIMIENTOS = ["Estatal", "Federal", "Federalizado", "Privado", "Autónomo"];
+
 const EMPTY = {
   nombre: "",
   plantel: "",
@@ -18,7 +19,6 @@ const EMPTY = {
   modalidad: "SEP-General",
   turno: "Matutino",
   sostenimiento: "Federal",
-  fotos: [],
 };
 
 const inputCls =
@@ -26,42 +26,85 @@ const inputCls =
 const labelCls = "text-xs font-bold uppercase tracking-wide text-slate-600";
 
 export default function ModalEscuela({ open, escuela, onClose, onSuccess }) {
-  const [form, setForm] = useState(EMPTY);
-  const [saving, setSaving] = useState(false);
-  const [error, setError] = useState(null);
+  const [form, setForm]               = useState(EMPTY);
+  const [existingFotos, setExisting]  = useState([]);
+  const [newFiles, setNewFiles]       = useState([]);
+  /*
+   * previewUrls — one stable blob URL per file in newFiles.
+   * Created once per file in a useEffect, revoked on cleanup.
+   * Keeping them in state means they survive re-renders without
+   * being regenerated (which breaks the img src in React Strict Mode).
+   */
+  const [previewUrls, setPreviewUrls] = useState([]);
+  const [toDelete, setToDelete]       = useState([]);
+  const [saving, setSaving]           = useState(false);
+  const [error, setError]             = useState(null);
+
+  const fileInputRef   = useRef(null);
+  /*
+   * photoSectionRef — used to scroll the photo strip into view
+   * automatically after the user picks new files, so they can
+   * immediately see their selection without having to scroll down.
+   */
+  const photoSectionRef = useRef(null);
   const isEditing = !!escuela;
 
+  // Reset all state every time the modal opens.
   useEffect(() => {
     if (open) {
-      const initial = escuela ? { ...EMPTY, ...escuela } : { ...EMPTY };
-      initial.fotos = Array.isArray(initial.fotos) ? [...initial.fotos] : [];
-      setForm(initial);
+      const { fotos: _, ...rest } = escuela ?? {};
+      setForm(escuela ? { ...EMPTY, ...rest } : { ...EMPTY });
+      setExisting(Array.isArray(escuela?.fotos) ? [...escuela.fotos] : []);
+      setNewFiles([]);
+      setPreviewUrls([]);
+      setToDelete([]);
       setError(null);
     }
   }, [open, escuela]);
+
+  /*
+   * Keep previewUrls in sync with newFiles.
+   * Each time newFiles changes we create one blob URL per File,
+   * store them in state, and schedule revocation on cleanup.
+   * This means every File gets exactly one URL that stays valid
+   * for the lifetime of that file in the queue.
+   */
+  useEffect(() => {
+    const urls = newFiles.map((f) => URL.createObjectURL(f));
+    setPreviewUrls(urls);
+    return () => {
+      urls.forEach((u) => URL.revokeObjectURL(u));
+    };
+  }, [newFiles]);
 
   function handleChange(e) {
     setForm({ ...form, [e.target.name]: e.target.value });
   }
 
-  function handleFotoChange(i, value) {
-    const next = [...form.fotos];
-    next[i] = value;
-    setForm({ ...form, fotos: next });
+  const handleFilePick = useCallback((e) => {
+    const picked = Array.from(e.target.files);
+    if (!picked.length) return;
+    setNewFiles((prev) => [...prev, ...picked]);
+    e.target.value = "";
+    // Scroll the photo strip into view so the user can see the preview.
+    setTimeout(() => {
+      photoSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }, 80);
+  }, []);
+
+  function handleNewFileRemove(index) {
+    setNewFiles((prev) => prev.filter((_, i) => i !== index));
   }
 
-  function handleFotoAdd() {
-    setForm({ ...form, fotos: [...form.fotos, ""] });
-  }
-
-  function handleFotoRemove(i) {
-    setForm({ ...form, fotos: form.fotos.filter((_, idx) => idx !== i) });
+  function handleExistingRemove(id_foto) {
+    setToDelete((prev) => [...prev, id_foto]);
+    setExisting((prev) => prev.filter((f) => f.id_foto !== id_foto));
   }
 
   const missingRequired = [
-    !form.nombre.trim() && "Nombre",
+    !form.nombre.trim()    && "Nombre",
     !form.municipio.trim() && "Municipio",
-    !form.cct.trim() && "CCT",
+    !form.cct.trim()       && "CCT",
   ].filter(Boolean);
 
   async function handleSubmit(e) {
@@ -76,17 +119,30 @@ export default function ModalEscuela({ open, escuela, onClose, onSuccess }) {
       const datos = {
         ...form,
         personal_escolar: parseInt(form.personal_escolar) || 0,
-        estudiantes: parseInt(form.estudiantes) || 0,
-        fotos: form.fotos.map(f => f.trim()).filter(Boolean),
+        estudiantes:       parseInt(form.estudiantes)      || 0,
       };
+
+      let schoolId;
       if (isEditing) {
         await updateEscuela(escuela.id_escuela, datos);
+        schoolId = escuela.id_escuela;
       } else {
-        await agregarEscuela(datos);
+        const res = await agregarEscuela(datos);
+        schoolId = res.data.escuela.id_escuela;
       }
+
+      if (newFiles.length > 0) {
+        await uploadFotos(schoolId, newFiles);
+      }
+
+      for (const id_foto of toDelete) {
+        await deleteFoto(id_foto);
+      }
+
       onSuccess();
-    } catch {
-      setError("Error al guardar. Verifica que tu sesión esté activa.");
+    } catch (err) {
+      const serverMsg = err?.response?.data?.mensaje;
+      setError(serverMsg || "Error al guardar. Revisa tu conexión e intenta de nuevo.");
     } finally {
       setSaving(false);
     }
@@ -94,175 +150,107 @@ export default function ModalEscuela({ open, escuela, onClose, onSuccess }) {
 
   if (!open) return null;
 
+  const totalFotos = existingFotos.length + newFiles.length;
+
   return (
     <div className="fixed inset-0 z-[2000] flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
       <div className="flex max-h-[90vh] w-full max-w-2xl flex-col overflow-hidden rounded-[28px] bg-white shadow-xl">
+
+        {/* Header */}
         <div className="flex-shrink-0 bg-emerald-700 px-6 py-4">
           <h2 className="text-lg font-bold text-white">
             {isEditing ? "Editar Escuela" : "Nueva Escuela"}
           </h2>
           <p className="text-sm text-emerald-200">
-            {isEditing ? "Modifica los datos de la escuela" : "Registra una nueva escuela en el catálogo"}
+            {isEditing
+              ? "Modifica los datos de la escuela"
+              : "Registra una nueva escuela en el catálogo"}
           </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="grid grid-cols-2 gap-4 overflow-y-auto p-6">
-          <div className="col-span-2 grid gap-1.5">
-            <label className={labelCls}>Nombre *</label>
-            <input
-              className={inputCls}
-              name="nombre"
-              value={form.nombre}
-              onChange={handleChange}
-              placeholder="Nombre oficial de la escuela"
-              required
-              aria-required="true"
-            />
-          </div>
+        <form onSubmit={handleSubmit} noValidate className="grid grid-cols-2 gap-4 overflow-y-auto p-6">
 
-          <div className="grid gap-1.5">
-            <label className={labelCls}>Plantel</label>
-            <input
-              className={inputCls}
-              name="plantel"
-              value={form.plantel}
-              onChange={handleChange}
-              placeholder="Nombre del plantel"
-            />
-          </div>
-
-          <div className="grid gap-1.5">
-            <label className={labelCls}>Municipio *</label>
-            <input
-              className={inputCls}
-              name="municipio"
-              value={form.municipio}
-              onChange={handleChange}
-              placeholder="Municipio"
-              required
-              aria-required="true"
-            />
-          </div>
-
-          <div className="col-span-2 grid gap-1.5">
-            <label className={labelCls}>Dirección</label>
-            <input
-              className={inputCls}
-              name="direccion"
-              value={form.direccion}
-              onChange={handleChange}
-              placeholder="Dirección completa"
-            />
-          </div>
-
-          <div className="col-span-2 grid gap-1.5">
-            <label className={labelCls}>URL Google Maps</label>
-            <input
-              className={inputCls}
-              name="ubicacion"
-              value={form.ubicacion}
-              onChange={handleChange}
-              placeholder="https://maps.app.goo.gl/..."
-            />
-          </div>
-
-          <div className="grid gap-1.5">
-            <label className={labelCls}>CCT *</label>
-            <input
-              className={inputCls}
-              name="cct"
-              value={form.cct}
-              onChange={handleChange}
-              placeholder="Ej. 14DPR1234X"
-              required
-              aria-required="true"
-            />
-          </div>
-
-          <div className="grid gap-1.5">
-            <label className={labelCls}>Nivel Educativo</label>
-            <select className={inputCls} name="nivelEducativo" value={form.nivelEducativo} onChange={handleChange}>
-              {NIVELES.map((n) => <option key={n} value={n}>{n}</option>)}
-            </select>
-          </div>
-
-          <div className="grid gap-1.5">
-            <label className={labelCls}>Modalidad</label>
-            <select className={inputCls} name="modalidad" value={form.modalidad} onChange={handleChange}>
-              {MODALIDADES.map((m) => <option key={m} value={m}>{m}</option>)}
-            </select>
-          </div>
-
-          <div className="grid gap-1.5">
-            <label className={labelCls}>Turno</label>
-            <select className={inputCls} name="turno" value={form.turno} onChange={handleChange}>
-              {TURNOS.map((t) => <option key={t} value={t}>{t}</option>)}
-            </select>
-          </div>
-
-          <div className="grid gap-1.5">
-            <label className={labelCls}>Sostenimiento</label>
-            <select className={inputCls} name="sostenimiento" value={form.sostenimiento} onChange={handleChange}>
-              {SOSTENIMIENTOS.map((s) => <option key={s} value={s}>{s}</option>)}
-            </select>
-          </div>
-
-          <div className="grid gap-1.5">
-            <label className={labelCls}>Estudiantes</label>
-            <input
-              className={inputCls}
-              name="estudiantes"
-              type="number"
-              min="0"
-              value={form.estudiantes}
-              onChange={handleChange}
-              placeholder="0"
-            />
-          </div>
-
-          <div className="grid gap-1.5">
-            <label className={labelCls}>Personal Escolar</label>
-            <input
-              className={inputCls}
-              name="personal_escolar"
-              type="number"
-              min="0"
-              value={form.personal_escolar}
-              onChange={handleChange}
-              placeholder="0"
-            />
-          </div>
-
-          <div className="col-span-2 grid gap-2">
+          {/* ── Photo upload section — placed first so it's immediately visible ── */}
+          <div ref={photoSectionRef} className="col-span-2 grid gap-3">
             <div className="flex items-center justify-between">
-              <label className={labelCls}>Fotos (links)</label>
+              <label className={labelCls}>
+                Fotos
+                {totalFotos > 0 && (
+                  <span className="ml-2 rounded-full bg-emerald-100 px-2 py-0.5 text-emerald-700">
+                    {totalFotos}
+                  </span>
+                )}
+              </label>
+              {/* Hidden native file input */}
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                multiple
+                className="hidden"
+                onChange={handleFilePick}
+              />
               <button
                 type="button"
-                onClick={handleFotoAdd}
-                className="rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700 transition hover:bg-emerald-100"
+                onClick={() => fileInputRef.current?.click()}
+                className="rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-xs font-semibold text-emerald-700 transition hover:bg-emerald-100 active:scale-95"
               >
-                + Agregar foto
+                + Subir imágenes
               </button>
             </div>
-            {form.fotos.length === 0 ? (
-              <p className="rounded-xl border border-dashed border-slate-200 bg-slate-50 px-4 py-3 text-xs text-slate-500">
-                Sin fotos. Haz clic en "Agregar foto" para pegar un link.
-              </p>
+
+            {totalFotos === 0 ? (
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                className="rounded-xl border-2 border-dashed border-slate-200 bg-slate-50 px-4 py-6 text-center text-xs text-slate-400 transition hover:border-emerald-300 hover:bg-emerald-50 hover:text-emerald-600"
+              >
+                <span className="block text-2xl mb-1">📷</span>
+                Haz clic aquí o en "Subir imágenes" para agregar fotos
+              </button>
             ) : (
-              <div className="grid gap-2">
-                {form.fotos.map((url, i) => (
-                  <div key={i} className="flex gap-2">
-                    <input
-                      className={inputCls}
-                      value={url}
-                      onChange={(e) => handleFotoChange(i, e.target.value)}
-                      placeholder="https://..."
+              <div className="grid grid-cols-3 gap-3 sm:grid-cols-4">
+                {/* Existing photos from the DB */}
+                {existingFotos.map((foto) => (
+                  <div
+                    key={foto.id_foto}
+                    className="group relative aspect-square overflow-hidden rounded-xl border border-slate-200 bg-slate-100"
+                  >
+                    <img
+                      src={foto.url}
+                      alt="foto guardada"
+                      className="h-full w-full object-cover"
                     />
                     <button
                       type="button"
-                      onClick={() => handleFotoRemove(i)}
+                      onClick={() => handleExistingRemove(foto.id_foto)}
+                      aria-label="Eliminar foto"
+                      className="absolute right-1 top-1 flex h-6 w-6 items-center justify-center rounded-full bg-red-600 text-xs font-bold text-white opacity-0 shadow transition group-hover:opacity-100"
+                    >
+                      ×
+                    </button>
+                  </div>
+                ))}
+
+                {/* Newly picked files — stable previewUrls from useEffect */}
+                {previewUrls.map((url, i) => (
+                  <div
+                    key={i}
+                    className="group relative aspect-square overflow-hidden rounded-xl border border-emerald-300 bg-slate-100"
+                  >
+                    <img
+                      src={url}
+                      alt={newFiles[i]?.name ?? `foto ${i + 1}`}
+                      className="h-full w-full object-cover"
+                    />
+                    <div className="absolute bottom-0 left-0 right-0 bg-emerald-700/80 py-0.5 text-center text-[10px] font-semibold text-white">
+                      Nueva
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => handleNewFileRemove(i)}
                       aria-label="Quitar foto"
-                      className="shrink-0 rounded-xl border border-red-200 bg-red-50 px-3 text-sm font-bold text-red-600 transition hover:bg-red-100"
+                      className="absolute right-1 top-1 flex h-6 w-6 items-center justify-center rounded-full bg-red-600 text-xs font-bold text-white opacity-0 shadow transition group-hover:opacity-100"
                     >
                       ×
                     </button>
@@ -272,6 +260,89 @@ export default function ModalEscuela({ open, escuela, onClose, onSuccess }) {
             )}
           </div>
 
+          {/* Divider */}
+          <div className="col-span-2 border-t border-slate-100" />
+
+          {/* ── Text fields ── */}
+          <div className="col-span-2 grid gap-1.5">
+            <label className={labelCls}>Nombre *</label>
+            <input className={inputCls} name="nombre" value={form.nombre}
+              onChange={handleChange} placeholder="Nombre oficial de la escuela"
+              required aria-required="true" />
+          </div>
+
+          <div className="grid gap-1.5">
+            <label className={labelCls}>Plantel</label>
+            <input className={inputCls} name="plantel" value={form.plantel}
+              onChange={handleChange} placeholder="Nombre del plantel" />
+          </div>
+
+          <div className="grid gap-1.5">
+            <label className={labelCls}>Municipio *</label>
+            <input className={inputCls} name="municipio" value={form.municipio}
+              onChange={handleChange} placeholder="Municipio"
+              required aria-required="true" />
+          </div>
+
+          <div className="col-span-2 grid gap-1.5">
+            <label className={labelCls}>Dirección</label>
+            <input className={inputCls} name="direccion" value={form.direccion}
+              onChange={handleChange} placeholder="Dirección completa" />
+          </div>
+
+          <div className="col-span-2 grid gap-1.5">
+            <label className={labelCls}>URL Google Maps</label>
+            <input className={inputCls} name="ubicacion" value={form.ubicacion}
+              onChange={handleChange} placeholder="https://maps.app.goo.gl/..." />
+          </div>
+
+          <div className="grid gap-1.5">
+            <label className={labelCls}>CCT *</label>
+            <input className={inputCls} name="cct" value={form.cct}
+              onChange={handleChange} placeholder="Ej. 14DPR1234X"
+              required aria-required="true" />
+          </div>
+
+          <div className="grid gap-1.5">
+            <label className={labelCls}>Nivel Educativo</label>
+            <select className={inputCls} name="nivelEducativo" value={form.nivelEducativo} onChange={handleChange}>
+              {NIVELES.map((n) => <option key={n}>{n}</option>)}
+            </select>
+          </div>
+
+          <div className="grid gap-1.5">
+            <label className={labelCls}>Modalidad</label>
+            <select className={inputCls} name="modalidad" value={form.modalidad} onChange={handleChange}>
+              {MODALIDADES.map((m) => <option key={m}>{m}</option>)}
+            </select>
+          </div>
+
+          <div className="grid gap-1.5">
+            <label className={labelCls}>Turno</label>
+            <select className={inputCls} name="turno" value={form.turno} onChange={handleChange}>
+              {TURNOS.map((t) => <option key={t}>{t}</option>)}
+            </select>
+          </div>
+
+          <div className="grid gap-1.5">
+            <label className={labelCls}>Sostenimiento</label>
+            <select className={inputCls} name="sostenimiento" value={form.sostenimiento} onChange={handleChange}>
+              {SOSTENIMIENTOS.map((s) => <option key={s}>{s}</option>)}
+            </select>
+          </div>
+
+          <div className="grid gap-1.5">
+            <label className={labelCls}>Estudiantes</label>
+            <input className={inputCls} name="estudiantes" type="number" min="0"
+              value={form.estudiantes} onChange={handleChange} placeholder="0" />
+          </div>
+
+          <div className="grid gap-1.5">
+            <label className={labelCls}>Personal Escolar</label>
+            <input className={inputCls} name="personal_escolar" type="number" min="0"
+              value={form.personal_escolar} onChange={handleChange} placeholder="0" />
+          </div>
+
           {error && (
             <div className="col-span-2 rounded-xl border border-red-200 bg-red-50 px-4 py-2.5 text-sm text-red-700">
               {error}
@@ -279,11 +350,8 @@ export default function ModalEscuela({ open, escuela, onClose, onSuccess }) {
           )}
 
           <div className="col-span-2 flex justify-end gap-3 border-t border-slate-100 pt-2">
-            <button
-              type="button"
-              onClick={onClose}
-              className="rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
-            >
+            <button type="button" onClick={onClose}
+              className="rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50">
               Cancelar
             </button>
             <button

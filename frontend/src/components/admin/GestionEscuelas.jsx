@@ -215,10 +215,13 @@ export default function GestionEscuelas({ showToast }) {
         const datos = raw.map(normalizarFilaNecesidad).filter(r => r.titulo && r.nombre_escuela);
         if (datos.length) {
           const res = await importarNecesidades(datos);
-          messages.push(`${res.data.insertadas} necesidad(es) importada(s)`);
-          if (res.data.errores?.length) {
-            messages.push(`${res.data.errores.length} sin vincular`);
-            console.warn("Errores importando necesidades:", res.data.errores);
+          const { insertadas = 0, actualizadas = 0, errores: necErr = [] } = res.data;
+          if (insertadas)   messages.push(`${insertadas} necesidad(es) nueva(s)`);
+          if (actualizadas) messages.push(`${actualizadas} necesidad(es) actualizada(s)`);
+          if (!insertadas && !actualizadas) messages.push('Necesidades: sin cambios');
+          if (necErr.length) {
+            messages.push(`${necErr.length} sin vincular`);
+            console.warn("Necesidades sin vincular:", necErr);
           }
         }
       }
@@ -594,6 +597,38 @@ export default function GestionEscuelas({ showToast }) {
                 </div>
               </div>
 
+              {/* Photo gallery */}
+              {escuelaActiva.fotos && escuelaActiva.fotos.length > 0 && (
+                <div className="rounded-[24px] border border-slate-200 bg-white p-6 shadow-sm">
+                  <h4 className="mb-4 text-base font-bold text-slate-800">
+                    Fotos
+                    <span className="ml-2 rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs font-semibold text-emerald-700">
+                      {escuelaActiva.fotos.length}
+                    </span>
+                  </h4>
+                  <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
+                    {escuelaActiva.fotos.map((foto) => (
+                      <a
+                        key={foto.id_foto}
+                        href={foto.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="group block aspect-square overflow-hidden rounded-xl border border-slate-200 bg-slate-100 transition hover:border-emerald-300 hover:shadow-md"
+                      >
+                        <img
+                          src={foto.url}
+                          alt="Foto de la escuela"
+                          className="h-full w-full object-cover transition group-hover:scale-105"
+                        />
+                      </a>
+                    ))}
+                  </div>
+                  <p className="mt-3 text-xs text-slate-400">
+                    Haz clic en una foto para verla a tamaño completo · Para agregar o eliminar fotos usa "Editar escuela"
+                  </p>
+                </div>
+              )}
+
               {/* Needs table */}
               <div className="overflow-hidden rounded-[24px] border border-slate-200 bg-white shadow-sm">
                 <div className="flex items-center justify-between border-b border-slate-200 px-6 py-4">
@@ -727,9 +762,13 @@ export default function GestionEscuelas({ showToast }) {
           setModalEscuela({ open: false, escuela: null });
           showToast(editedId ? "Escuela actualizada correctamente" : "Escuela creada correctamente");
           const data = await cargarEscuelas();
-          if (data && editedId && escuelaActiva?.id_escuela === editedId) {
+          // Refresh escuelaActiva so the photo gallery updates immediately after edit
+          if (data && editedId) {
             const updated = data.find((e) => e.id_escuela === editedId);
-            if (updated) setEscuelaActiva(updated);
+            if (updated) {
+              setEscuelaActiva(updated);
+              setVistaGeneral(false);
+            }
           }
         }}
       />
