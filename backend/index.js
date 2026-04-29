@@ -23,8 +23,16 @@ const app        = express();
 const PORT       = process.env.PORT       || 3000;
 const SECRET_KEY = process.env.JWT_SECRET || 'pachandini';
 
+const ALLOWED_ORIGINS = [
+  "https://mi-escuela-primero-3175.up.railway.app",
+  "http://localhost:5173",
+  "http://localhost:4173",
+];
 app.use(cors({
-  origin: "https://mi-escuela-primero-3175.up.railway.app"
+  origin: (origin, cb) => {
+    if (!origin || ALLOWED_ORIGINS.includes(origin)) return cb(null, true);
+    cb(new Error(`CORS: origin ${origin} not allowed`));
+  },
 }));
 app.use(express.json({ limit: '10mb' }));
 
