@@ -141,11 +141,18 @@ app.get('/api/fotos/:id', async (req, res) => {
       return res.status(404).json({ mensaje: 'Foto sin datos válidos' });
     }
 
+    // foto_data is NULL when the stored blob exceeds the 6 MB query guard in getFotoById.
+    // Return 410 so the browser doesn't retry endlessly, and the admin can delete + re-upload.
+    if (!foto.foto_data) {
+      return res.status(410).json({ mensaje: 'Foto demasiado grande. Elimínala y vuelve a subirla con el nuevo sistema.' });
+    }
+
     res.set('Content-Type', foto.foto_mime);
     res.set('Content-Disposition', `inline; filename="${foto.foto_nombre ?? 'foto'}"`);
     res.set('Cache-Control', 'public, max-age=31536000');
     res.send(foto.foto_data);
   } catch (err) {
+    console.error('GET /api/fotos/:id:', err.message);
     res.status(500).json({ mensaje: 'Error al obtener la foto', error: err.message });
   }
 });
