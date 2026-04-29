@@ -31,7 +31,12 @@ export default function RespuestasDonadores({ showToast }) {
   }
 
   async function handleDelete(id) {
-    if (!window.confirm("¿Eliminar esta respuesta? Esta acción no se puede deshacer.")) return;
+    if (
+      !window.confirm(
+        "¿Eliminar esta respuesta? Esta acción no se puede deshacer.",
+      )
+    )
+      return;
     setDeletingId(id);
     try {
       await deleteRespuesta(id);
@@ -183,9 +188,19 @@ export default function RespuestasDonadores({ showToast }) {
           </p>
         </div>
       ) : tab === "especificas" ? (
-        <TablaEspecificas filas={filtradas} filtro={filtro} onDelete={handleDelete} deletingId={deletingId} />
+        <TablaEspecificas
+          filas={filtradas}
+          filtro={filtro}
+          onDelete={handleDelete}
+          deletingId={deletingId}
+        />
       ) : (
-        <TablaGenerales filas={filtradas} filtro={filtro} onDelete={handleDelete} deletingId={deletingId} />
+        <TablaGenerales
+          filas={filtradas}
+          filtro={filtro}
+          onDelete={handleDelete}
+          deletingId={deletingId}
+        />
       )}
     </div>
   );

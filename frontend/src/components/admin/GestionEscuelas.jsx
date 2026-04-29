@@ -843,77 +843,77 @@ export default function GestionEscuelas({ showToast }) {
                       </thead>
                       <tbody className="divide-y divide-slate-100">
                         {necesidades.map((n) => (
-                            <tr
-                              key={n.id_necesidad}
-                              className="transition hover:bg-slate-50"
-                            >
-                              <td className="px-4 py-3">
-                                <p className="font-semibold text-slate-800">
-                                  {n.titulo}
+                          <tr
+                            key={n.id_necesidad}
+                            className="transition hover:bg-slate-50"
+                          >
+                            <td className="px-4 py-3">
+                              <p className="font-semibold text-slate-800">
+                                {n.titulo}
+                              </p>
+                              {n.descripcion && (
+                                <p
+                                  className="mt-0.5 max-w-[200px] truncate text-xs text-slate-500"
+                                  title={n.descripcion}
+                                >
+                                  {n.descripcion}
                                 </p>
-                                {n.descripcion && (
-                                  <p
-                                    className="mt-0.5 max-w-[200px] truncate text-xs text-slate-500"
-                                    title={n.descripcion}
-                                  >
-                                    {n.descripcion}
-                                  </p>
-                                )}
-                              </td>
-                              <td className="px-4 py-3">
-                                <span className="rounded-lg bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-600">
-                                  {CAT_LABELS[n.categoria] || n.categoria}
-                                </span>
-                              </td>
-                              <td className="px-4 py-3">
-                                <span
-                                  className={`rounded-lg px-2.5 py-1 text-xs font-semibold ${
-                                    PRIORIDAD_CLS[n.prioridad] ||
-                                    "bg-slate-100 text-slate-600"
-                                  }`}
+                              )}
+                            </td>
+                            <td className="px-4 py-3">
+                              <span className="rounded-lg bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-600">
+                                {CAT_LABELS[n.categoria] || n.categoria}
+                              </span>
+                            </td>
+                            <td className="px-4 py-3">
+                              <span
+                                className={`rounded-lg px-2.5 py-1 text-xs font-semibold ${
+                                  PRIORIDAD_CLS[n.prioridad] ||
+                                  "bg-slate-100 text-slate-600"
+                                }`}
+                              >
+                                {n.prioridad}
+                              </span>
+                            </td>
+                            <td className="px-4 py-3 font-medium text-slate-700">
+                              {n.monto_requerido > 0
+                                ? n.unidad
+                                  ? `${Number(n.monto_requerido).toLocaleString()} ${n.unidad}`
+                                  : `$${Number(n.monto_requerido).toLocaleString()} MXN`
+                                : "—"}
+                            </td>
+                            <td className="px-4 py-3">
+                              <span
+                                className={`rounded-lg px-2.5 py-1 text-xs font-semibold ${
+                                  ESTADO_CLS[n.estado] ||
+                                  "bg-slate-100 text-slate-600"
+                                }`}
+                              >
+                                {n.estado}
+                              </span>
+                            </td>
+                            <td className="px-4 py-3">
+                              <div className="flex gap-1.5">
+                                <button
+                                  onClick={() =>
+                                    setModalNecesidad({
+                                      open: true,
+                                      necesidad: n,
+                                    })
+                                  }
+                                  className="rounded-lg border border-slate-200 px-2.5 py-1 text-xs font-semibold text-slate-700 transition hover:border-emerald-300 hover:text-emerald-700"
                                 >
-                                  {n.prioridad}
-                                </span>
-                              </td>
-                              <td className="px-4 py-3 font-medium text-slate-700">
-                                {n.monto_requerido > 0
-                                  ? n.unidad
-                                    ? `${Number(n.monto_requerido).toLocaleString()} ${n.unidad}`
-                                    : `$${Number(n.monto_requerido).toLocaleString()} MXN`
-                                  : "—"}
-                              </td>
-                              <td className="px-4 py-3">
-                                <span
-                                  className={`rounded-lg px-2.5 py-1 text-xs font-semibold ${
-                                    ESTADO_CLS[n.estado] ||
-                                    "bg-slate-100 text-slate-600"
-                                  }`}
+                                  Editar
+                                </button>
+                                <button
+                                  onClick={() => handleEliminarNecesidad(n)}
+                                  className="rounded-lg border border-red-200 px-2.5 py-1 text-xs font-semibold text-red-600 transition hover:bg-red-50"
                                 >
-                                  {n.estado}
-                                </span>
-                              </td>
-                              <td className="px-4 py-3">
-                                <div className="flex gap-1.5">
-                                  <button
-                                    onClick={() =>
-                                      setModalNecesidad({
-                                        open: true,
-                                        necesidad: n,
-                                      })
-                                    }
-                                    className="rounded-lg border border-slate-200 px-2.5 py-1 text-xs font-semibold text-slate-700 transition hover:border-emerald-300 hover:text-emerald-700"
-                                  >
-                                    Editar
-                                  </button>
-                                  <button
-                                    onClick={() => handleEliminarNecesidad(n)}
-                                    className="rounded-lg border border-red-200 px-2.5 py-1 text-xs font-semibold text-red-600 transition hover:bg-red-50"
-                                  >
-                                    Eliminar
-                                  </button>
-                                </div>
-                              </td>
-                            </tr>
+                                  Eliminar
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
                         ))}
                       </tbody>
                     </table>

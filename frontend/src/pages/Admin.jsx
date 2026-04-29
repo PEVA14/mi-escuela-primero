@@ -90,7 +90,11 @@ export default function Admin() {
           <div className="mt-auto border-t border-slate-200 pt-4">
             <button
               onClick={async () => {
-                try { await logout(); } catch { /* token already invalid, continue */ }
+                try {
+                  await logout();
+                } catch {
+                  /* token already invalid, continue */
+                }
                 localStorage.removeItem("token");
                 navigate("/login");
               }}
