@@ -226,7 +226,9 @@ export default function PopUpDonativos({ closePopup, escuela }) {
                 )}
                 <div className="flex justify-between gap-4">
                   <dt className="font-semibold text-slate-600">Municipio</dt>
-                  <dd className="text-right text-slate-800">{municipioEstado}</dd>
+                  <dd className="text-right text-slate-800">
+                    {municipioEstado}
+                  </dd>
                 </div>
               </dl>
             </div>
