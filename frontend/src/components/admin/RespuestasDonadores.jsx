@@ -30,6 +30,7 @@ export default function RespuestasDonadores({ showToast }) {
   }
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     cargarRespuestas();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
