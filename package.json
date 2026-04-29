@@ -6,6 +6,7 @@
     "lint": "eslint .",
     "format": "prettier --write frontend/src/",
     "format:check": "prettier --check frontend/src/",
+    "prettier:check": "prettier --check frontend/src/",
     "test": "cd frontend && npm install && npm test"
   },
   "dependencies": {
