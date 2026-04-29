@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import * as XLSX from "xlsx";
-import { getRespuestas } from "../../services/api";
+import { getRespuestas, deleteRespuesta } from "../../services/api";
 
 const INSTANCIA_LABELS = {
   empresa: "Empresa",
@@ -16,6 +16,7 @@ export default function RespuestasDonadores({ showToast }) {
   const [loading, setLoading] = useState(true);
   const [filtro, setFiltro] = useState("");
   const [tab, setTab] = useState("especificas"); // "especificas" | "generales"
+  const [deletingId, setDeletingId] = useState(null);
 
   async function cargarRespuestas() {
     setLoading(true);
@@ -26,6 +27,20 @@ export default function RespuestasDonadores({ showToast }) {
       showToast("Error al cargar respuestas", "error");
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function handleDelete(id) {
+    if (!window.confirm("¿Eliminar esta respuesta? Esta acción no se puede deshacer.")) return;
+    setDeletingId(id);
+    try {
+      await deleteRespuesta(id);
+      setRespuestas((prev) => prev.filter((r) => r.id !== id));
+      showToast("Respuesta eliminada");
+    } catch {
+      showToast("Error al eliminar la respuesta", "error");
+    } finally {
+      setDeletingId(null);
     }
   }
 
@@ -168,15 +183,15 @@ export default function RespuestasDonadores({ showToast }) {
           </p>
         </div>
       ) : tab === "especificas" ? (
-        <TablaEspecificas filas={filtradas} filtro={filtro} />
+        <TablaEspecificas filas={filtradas} filtro={filtro} onDelete={handleDelete} deletingId={deletingId} />
       ) : (
-        <TablaGenerales filas={filtradas} filtro={filtro} />
+        <TablaGenerales filas={filtradas} filtro={filtro} onDelete={handleDelete} deletingId={deletingId} />
       )}
     </div>
   );
 }
 
-function TablaEspecificas({ filas, filtro }) {
+function TablaEspecificas({ filas, filtro, onDelete, deletingId }) {
   return (
     <div className="overflow-hidden rounded-[24px] border border-slate-200 bg-white shadow-sm">
       <div className="border-b border-slate-200 px-6 py-4">
@@ -199,9 +214,10 @@ function TablaEspecificas({ filas, filtro }) {
                 "Detalles",
                 "Mensaje",
                 "Fecha",
-              ].map((h) => (
+                "",
+              ].map((h, i) => (
                 <th
-                  key={h}
+                  key={i}
                   className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wide text-slate-500"
                 >
                   {h}
@@ -255,6 +271,15 @@ function TablaEspecificas({ filas, filtro }) {
                     ? new Date(r.fecha).toLocaleDateString("es-MX")
                     : "—"}
                 </td>
+                <td className="px-4 py-3">
+                  <button
+                    onClick={() => onDelete(r.id)}
+                    disabled={deletingId === r.id}
+                    className="rounded-lg border border-red-200 bg-red-50 px-2.5 py-1 text-xs font-semibold text-red-600 transition hover:bg-red-100 disabled:opacity-50"
+                  >
+                    {deletingId === r.id ? "…" : "Eliminar"}
+                  </button>
+                </td>
               </tr>
             ))}
           </tbody>
@@ -264,7 +289,7 @@ function TablaEspecificas({ filas, filtro }) {
   );
 }
 
-function TablaGenerales({ filas, filtro }) {
+function TablaGenerales({ filas, filtro, onDelete, deletingId }) {
   return (
     <div className="overflow-hidden rounded-[24px] border border-slate-200 bg-white shadow-sm">
       <div className="border-b border-slate-200 px-6 py-4">
@@ -286,9 +311,10 @@ function TablaGenerales({ filas, filtro }) {
                 "Municipio",
                 "Mensaje",
                 "Fecha",
-              ].map((h) => (
+                "",
+              ].map((h, i) => (
                 <th
-                  key={h}
+                  key={i}
                   className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wide text-slate-500"
                 >
                   {h}
@@ -329,6 +355,15 @@ function TablaGenerales({ filas, filtro }) {
                   {r.fecha
                     ? new Date(r.fecha).toLocaleDateString("es-MX")
                     : "—"}
+                </td>
+                <td className="px-4 py-3">
+                  <button
+                    onClick={() => onDelete(r.id)}
+                    disabled={deletingId === r.id}
+                    className="rounded-lg border border-red-200 bg-red-50 px-2.5 py-1 text-xs font-semibold text-red-600 transition hover:bg-red-100 disabled:opacity-50"
+                  >
+                    {deletingId === r.id ? "…" : "Eliminar"}
+                  </button>
                 </td>
               </tr>
             ))}

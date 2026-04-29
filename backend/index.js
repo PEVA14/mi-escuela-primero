@@ -223,9 +223,25 @@ app.delete('/api/necesidades/:id', authenticateToken, async (req, res) => {
   res.json({ mensaje: 'Necesidad eliminada' });
 });
 
+app.post('/api/logout', authenticateToken, (req, res) => {
+  // JWT is stateless; the client should discard the token.
+  // This endpoint exists so logout is an explicit, documented action.
+  res.json({ mensaje: 'Sesión cerrada correctamente' });
+});
+
 app.get('/api/respuestas', authenticateToken, async (req, res) => {
   const respuestas = await queries.getAllRespuestas();
   res.json(respuestas);
+});
+
+app.delete('/api/respuestas/:id', authenticateToken, async (req, res) => {
+  try {
+    await queries.deleteRespuesta(parseInt(req.params.id));
+    res.json({ mensaje: 'Respuesta eliminada' });
+  } catch (err) {
+    console.error('DELETE /api/respuestas/:id:', err.message);
+    res.status(500).json({ mensaje: 'Error al eliminar la respuesta' });
+  }
 });
 
 app.post('/api/respuestas', async (req, res) => {

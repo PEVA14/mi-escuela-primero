@@ -19,6 +19,7 @@ const EMPTY = {
   prioridad: "Media",
   monto_requerido: "",
   monto_recaudado: "",
+  unidad: "",
   estado: "Pendiente",
 };
 
@@ -192,6 +193,23 @@ export default function ModalNecesidad({
               value={form.monto_recaudado}
               onChange={handleChange}
               placeholder="0"
+            />
+          </div>
+
+          <div className="col-span-2 grid gap-1.5">
+            <label className={labelCls}>
+              Unidad{" "}
+              <span className="normal-case font-normal text-slate-400">
+                (opcional — ej. pizarrones, sillas, libros)
+              </span>
+            </label>
+            <input
+              className={inputCls}
+              name="unidad"
+              type="text"
+              value={form.unidad}
+              onChange={handleChange}
+              placeholder="Dejar vacío si la cantidad es en pesos ($)"
             />
           </div>
 

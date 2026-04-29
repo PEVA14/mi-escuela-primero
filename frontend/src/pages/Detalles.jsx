@@ -327,9 +327,10 @@ export default function Detalles() {
                         {n.monto_requerido > 0 && (
                           <span className="text-sm text-slate-700">
                             <strong className="text-slate-900">
-                              {n.monto_requerido}
+                              {n.unidad
+                                ? `${n.monto_requerido} ${n.unidad}`
+                                : `$${Number(n.monto_requerido).toLocaleString("es-MX")} MXN`}
                             </strong>
-                            {n.unidad ? ` ${n.unidad}` : ""}
                           </span>
                         )}
                         <button
@@ -380,7 +381,9 @@ export default function Detalles() {
                     <div className="flex h-full w-full items-center justify-center bg-slate-100 text-slate-400">
                       <div className="text-center">
                         <p className="text-4xl mb-2">📍</p>
-                        <p className="text-sm font-medium">Ubicación no disponible</p>
+                        <p className="text-sm font-medium">
+                          Ubicación no disponible
+                        </p>
                       </div>
                     </div>
                   )}

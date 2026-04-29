@@ -372,7 +372,7 @@ async function createPropuesta(data) {
 }
 
 async function updatePropuesta(id, data) {
-  const { titulo, descripcion, categoria, estado, monto_requerido, id_escuela } = data;
+  const { titulo, descripcion, categoria, estado, monto_requerido, id_escuela, unidad } = data;
   const updates = {};
 
   if (titulo      !== undefined) updates.propuesta = titulo;
@@ -387,6 +387,11 @@ async function updatePropuesta(id, data) {
     updates.id_estadoPropuesta = await getOrCreate(
       'EstadoPropuesta', 'id_estadoPropuesta', 'nombre_estado', estado
     );
+  }
+  if (unidad !== undefined) {
+    updates.id_unidad = unidad
+      ? await getOrCreate('Unidad', 'id_unidad', 'nombre_unidad', unidad)
+      : null;
   }
 
   if (Object.keys(updates).length > 0) {
@@ -442,6 +447,10 @@ async function createRespuesta(data) {
     ]
   );
   return result.insertId;
+}
+
+async function deleteRespuesta(id) {
+  await pool.query('DELETE FROM RespuestaFormulario WHERE id_respuesta = ?', [id]);
 }
 
 async function importarEscuelas(rows) {
@@ -596,6 +605,7 @@ module.exports = {
   deletePropuesta,
   getAllRespuestas,
   createRespuesta,
+  deleteRespuesta,
   importarEscuelas,
   importarPropuestas,
   getStats,

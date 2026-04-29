@@ -2,16 +2,29 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import GestionEscuelas from "../components/admin/GestionEscuelas";
 import RespuestasDonadores from "../components/admin/RespuestasDonadores";
+import { logout } from "../services/api";
 
 const NAV_ITEMS = [
   { key: "escuelas", label: "Gestión de Escuelas" },
   { key: "respuestas", label: "Respuestas de Donadores" },
 ];
 
+function getAdminEmail() {
+  try {
+    const token = localStorage.getItem("token");
+    if (!token) return null;
+    const payload = JSON.parse(atob(token.split(".")[1]));
+    return payload.correo || null;
+  } catch {
+    return null;
+  }
+}
+
 export default function Admin() {
   const navigate = useNavigate();
   const [vista, setVista] = useState("escuelas");
   const [toast, setToast] = useState(null);
+  const adminEmail = getAdminEmail();
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -38,12 +51,20 @@ export default function Admin() {
             Gestiona las escuelas y sus necesidades del catálogo
           </p>
         </div>
-        <button
-          onClick={() => navigate("/")}
-          className="inline-flex items-center gap-2 rounded-xl border border-emerald-500 bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-500"
-        >
-          ← Volver al sitio
-        </button>
+        <div className="flex items-center gap-3">
+          {adminEmail && (
+            <span className="hidden sm:inline-flex items-center gap-2 rounded-xl border border-emerald-500/50 bg-emerald-800/40 px-3 py-2 text-xs font-semibold text-emerald-100">
+              <span className="h-2 w-2 rounded-full bg-emerald-300" />
+              {adminEmail}
+            </span>
+          )}
+          <button
+            onClick={() => navigate("/")}
+            className="inline-flex items-center gap-2 rounded-xl border border-emerald-500 bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-500"
+          >
+            ← Volver al sitio
+          </button>
+        </div>
       </header>
 
       <div className="flex flex-1 overflow-hidden">
@@ -68,7 +89,8 @@ export default function Admin() {
 
           <div className="mt-auto border-t border-slate-200 pt-4">
             <button
-              onClick={() => {
+              onClick={async () => {
+                try { await logout(); } catch { /* token already invalid, continue */ }
                 localStorage.removeItem("token");
                 navigate("/login");
               }}
