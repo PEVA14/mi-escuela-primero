@@ -115,8 +115,13 @@ async function saveFoto(id_escuela, file) {
 }
 
 async function getFotoById(id_foto) {
+  // Only load foto_data if it fits safely in memory (≤ 6 MB).
+  // Returning NULL for oversized blobs prevents OOM crashes on Railway.
   const [rows] = await pool.query(
-    'SELECT foto_mime, foto_data, foto_nombre FROM FotosEscuelas WHERE id_foto = ?',
+    `SELECT foto_mime, foto_nombre,
+       CASE WHEN LENGTH(foto_data) <= 6291456 THEN foto_data ELSE NULL END AS foto_data,
+       LENGTH(foto_data) AS data_size
+     FROM FotosEscuelas WHERE id_foto = ?`,
     [id_foto]
   );
   return rows[0] || null;
