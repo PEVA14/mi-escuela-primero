@@ -133,6 +133,7 @@ export default function GestionEscuelas({ showToast }) {
     if (escuelaActiva) {
       cargarNecesidades(escuelaActiva.id_escuela);
     } else {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setNecesidades([]);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps

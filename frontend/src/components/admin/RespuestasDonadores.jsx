@@ -17,11 +17,6 @@ export default function RespuestasDonadores({ showToast }) {
   const [filtro, setFiltro] = useState("");
   const [tab, setTab] = useState("especificas"); // "especificas" | "generales"
 
-  useEffect(() => {
-    cargarRespuestas();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
   async function cargarRespuestas() {
     setLoading(true);
     try {
@@ -33,6 +28,11 @@ export default function RespuestasDonadores({ showToast }) {
       setLoading(false);
     }
   }
+
+  useEffect(() => {
+    cargarRespuestas();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const especificas = respuestas.filter((r) => r.id_escuela);
   const generales = respuestas.filter((r) => !r.id_escuela);

@@ -41,6 +41,7 @@ export default function ModalNecesidad({
 
   useEffect(() => {
     if (open) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setForm(necesidad ? { ...necesidad } : { ...EMPTY });
       setError(null);
       setInvalidFields([]);

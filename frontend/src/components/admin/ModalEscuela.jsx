@@ -108,6 +108,7 @@ export default function ModalEscuela({ open, escuela, onClose, onSuccess }) {
   useEffect(() => {
     if (open) {
       const { fotos: _, ...rest } = escuela ?? {};
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setForm(escuela ? { ...EMPTY, ...rest } : { ...EMPTY });
       setExisting(Array.isArray(escuela?.fotos) ? [...escuela.fotos] : []);
       setNewFiles([]);
@@ -120,6 +121,7 @@ export default function ModalEscuela({ open, escuela, onClose, onSuccess }) {
 
   useEffect(() => {
     const urls = newFiles.map((f) => URL.createObjectURL(f));
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setPreviewUrls(urls);
     return () => {
       urls.forEach((u) => URL.revokeObjectURL(u));
