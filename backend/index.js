@@ -151,9 +151,8 @@ app.get('/api/fotos/:id', async (req, res) => {
     }
 
     res.set('Content-Type', foto.foto_mime);
-    res.set('Content-Disposition', `inline; filename="${foto.foto_nombre ?? 'foto'}"`);
-    res.set('Cache-Control', 'public, max-age=31536000');
-    res.send(foto.foto_data);
+    res.set('Cache-Control', 'no-store');
+    res.end(foto.foto_data);
   } catch (err) {
     console.error('GET /api/fotos/:id:', err.message);
     res.status(500).json({ mensaje: 'Error al obtener la foto', error: err.message });
