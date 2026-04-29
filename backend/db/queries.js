@@ -115,16 +115,24 @@ async function saveFoto(id_escuela, file) {
 }
 
 async function getFotoById(id_foto) {
-  // Only load foto_data if it fits safely in memory (≤ 6 MB).
-  // Returning NULL for oversized blobs prevents OOM crashes on Railway.
-  const [rows] = await pool.query(
-    `SELECT foto_mime, foto_nombre,
-       CASE WHEN LENGTH(foto_data) <= 6291456 THEN foto_data ELSE NULL END AS foto_data,
-       LENGTH(foto_data) AS data_size
-     FROM FotosEscuelas WHERE id_foto = ?`,
+  // Two-step: check size first without loading the blob, then fetch data only if safe.
+  const [meta] = await pool.query(
+    'SELECT foto_mime, foto_nombre, LENGTH(foto_data) AS size FROM FotosEscuelas WHERE id_foto = ?',
     [id_foto]
   );
-  return rows[0] || null;
+  if (!meta.length) return null;
+  const { foto_mime, foto_nombre, size } = meta[0];
+
+  if (size > 6 * 1024 * 1024) {
+    // Too large to serve safely — return stub so caller can send 410 without crashing.
+    return { foto_mime, foto_nombre, foto_data: null };
+  }
+
+  const [rows] = await pool.query(
+    'SELECT foto_data FROM FotosEscuelas WHERE id_foto = ?',
+    [id_foto]
+  );
+  return rows.length ? { foto_mime, foto_nombre, foto_data: rows[0].foto_data } : null;
 }
 
 async function deleteFotoById(id_foto) {

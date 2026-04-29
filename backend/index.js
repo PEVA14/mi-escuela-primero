@@ -134,7 +134,10 @@ app.delete('/api/escuelas/:id', authenticateToken, async (req, res) => {
 
 app.get('/api/fotos/:id', async (req, res) => {
   try {
-    const foto = await queries.getFotoById(parseInt(req.params.id));
+    const id = parseInt(req.params.id);
+    console.log(`GET /api/fotos/${id}`);
+    const foto = await queries.getFotoById(id);
+    console.log(`foto ${id}: found=${!!foto}, hasData=${!!foto?.foto_data}, mime=${foto?.foto_mime}`);
     if (!foto) return res.status(404).json({ mensaje: 'Foto no encontrada' });
 
     if (!foto.foto_data || !foto.foto_mime) {
