@@ -133,6 +133,7 @@ export default function GestionEscuelas({ showToast }) {
     if (escuelaActiva) {
       cargarNecesidades(escuelaActiva.id_escuela);
     } else {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setNecesidades([]);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -827,8 +828,7 @@ export default function GestionEscuelas({ showToast }) {
                             "Título",
                             "Categoría",
                             "Prioridad",
-                            "Monto requerido",
-                            "Progreso",
+                            "Cantidad",
                             "Estado",
                             "Acciones",
                           ].map((h) => (
@@ -842,104 +842,79 @@ export default function GestionEscuelas({ showToast }) {
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-slate-100">
-                        {necesidades.map((n) => {
-                          const pct =
-                            n.monto_requerido > 0
-                              ? Math.min(
-                                  100,
-                                  Math.round(
-                                    (n.monto_recaudado / n.monto_requerido) *
-                                      100,
-                                  ),
-                                )
-                              : 0;
-                          return (
-                            <tr
-                              key={n.id_necesidad}
-                              className="transition hover:bg-slate-50"
-                            >
-                              <td className="px-4 py-3">
-                                <p className="font-semibold text-slate-800">
-                                  {n.titulo}
-                                </p>
-                                {n.descripcion && (
-                                  <p
-                                    className="mt-0.5 max-w-[200px] truncate text-xs text-slate-500"
-                                    title={n.descripcion}
-                                  >
-                                    {n.descripcion}
-                                  </p>
-                                )}
-                              </td>
-                              <td className="px-4 py-3">
-                                <span className="rounded-lg bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-600">
-                                  {CAT_LABELS[n.categoria] || n.categoria}
-                                </span>
-                              </td>
-                              <td className="px-4 py-3">
-                                <span
-                                  className={`rounded-lg px-2.5 py-1 text-xs font-semibold ${
-                                    PRIORIDAD_CLS[n.prioridad] ||
-                                    "bg-slate-100 text-slate-600"
-                                  }`}
+                        {necesidades.map((n) => (
+                          <tr
+                            key={n.id_necesidad}
+                            className="transition hover:bg-slate-50"
+                          >
+                            <td className="px-4 py-3">
+                              <p className="font-semibold text-slate-800">
+                                {n.titulo}
+                              </p>
+                              {n.descripcion && (
+                                <p
+                                  className="mt-0.5 max-w-[200px] truncate text-xs text-slate-500"
+                                  title={n.descripcion}
                                 >
-                                  {n.prioridad}
-                                </span>
-                              </td>
-                              <td className="px-4 py-3 font-medium text-slate-700">
-                                ${Number(n.monto_requerido).toLocaleString()}
-                              </td>
-                              <td className="min-w-[140px] px-4 py-3">
-                                <div className="flex items-center gap-2">
-                                  <div className="h-2 flex-1 overflow-hidden rounded-full bg-slate-200">
-                                    <div
-                                      className="h-full rounded-full bg-emerald-500 transition-all"
-                                      style={{ width: `${pct}%` }}
-                                    />
-                                  </div>
-                                  <span className="w-9 text-right text-xs font-semibold text-slate-600">
-                                    {pct}%
-                                  </span>
-                                </div>
-                                <p className="mt-0.5 text-xs text-slate-400">
-                                  ${Number(n.monto_recaudado).toLocaleString()}{" "}
-                                  recaudado
+                                  {n.descripcion}
                                 </p>
-                              </td>
-                              <td className="px-4 py-3">
-                                <span
-                                  className={`rounded-lg px-2.5 py-1 text-xs font-semibold ${
-                                    ESTADO_CLS[n.estado] ||
-                                    "bg-slate-100 text-slate-600"
-                                  }`}
+                              )}
+                            </td>
+                            <td className="px-4 py-3">
+                              <span className="rounded-lg bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-600">
+                                {CAT_LABELS[n.categoria] || n.categoria}
+                              </span>
+                            </td>
+                            <td className="px-4 py-3">
+                              <span
+                                className={`rounded-lg px-2.5 py-1 text-xs font-semibold ${
+                                  PRIORIDAD_CLS[n.prioridad] ||
+                                  "bg-slate-100 text-slate-600"
+                                }`}
+                              >
+                                {n.prioridad}
+                              </span>
+                            </td>
+                            <td className="px-4 py-3 font-medium text-slate-700">
+                              {n.monto_requerido > 0
+                                ? n.unidad
+                                  ? `${Number(n.monto_requerido).toLocaleString()} ${n.unidad}`
+                                  : `$${Number(n.monto_requerido).toLocaleString()} MXN`
+                                : "—"}
+                            </td>
+                            <td className="px-4 py-3">
+                              <span
+                                className={`rounded-lg px-2.5 py-1 text-xs font-semibold ${
+                                  ESTADO_CLS[n.estado] ||
+                                  "bg-slate-100 text-slate-600"
+                                }`}
+                              >
+                                {n.estado}
+                              </span>
+                            </td>
+                            <td className="px-4 py-3">
+                              <div className="flex gap-1.5">
+                                <button
+                                  onClick={() =>
+                                    setModalNecesidad({
+                                      open: true,
+                                      necesidad: n,
+                                    })
+                                  }
+                                  className="rounded-lg border border-slate-200 px-2.5 py-1 text-xs font-semibold text-slate-700 transition hover:border-emerald-300 hover:text-emerald-700"
                                 >
-                                  {n.estado}
-                                </span>
-                              </td>
-                              <td className="px-4 py-3">
-                                <div className="flex gap-1.5">
-                                  <button
-                                    onClick={() =>
-                                      setModalNecesidad({
-                                        open: true,
-                                        necesidad: n,
-                                      })
-                                    }
-                                    className="rounded-lg border border-slate-200 px-2.5 py-1 text-xs font-semibold text-slate-700 transition hover:border-emerald-300 hover:text-emerald-700"
-                                  >
-                                    Editar
-                                  </button>
-                                  <button
-                                    onClick={() => handleEliminarNecesidad(n)}
-                                    className="rounded-lg border border-red-200 px-2.5 py-1 text-xs font-semibold text-red-600 transition hover:bg-red-50"
-                                  >
-                                    Eliminar
-                                  </button>
-                                </div>
-                              </td>
-                            </tr>
-                          );
-                        })}
+                                  Editar
+                                </button>
+                                <button
+                                  onClick={() => handleEliminarNecesidad(n)}
+                                  className="rounded-lg border border-red-200 px-2.5 py-1 text-xs font-semibold text-red-600 transition hover:bg-red-50"
+                                >
+                                  Eliminar
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        ))}
                       </tbody>
                     </table>
                   </div>

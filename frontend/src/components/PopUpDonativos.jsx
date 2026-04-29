@@ -174,15 +174,66 @@ export default function PopUpDonativos({ closePopup, escuela }) {
         </div>
 
         {submitted ? (
-          <div className="mt-6 rounded-[24px] border border-emerald-100 bg-emerald-50/80 px-5 py-6 text-slate-700">
-            <h3 className="text-xl font-bold text-slate-900">
-              ¡Gracias por contactarnos!
-            </h3>
-            <p className="mt-3 text-sm leading-7 md:text-base">
-              Hemos recibido tu información y nuestro equipo dará seguimiento
-              para ponerse en contacto contigo lo antes posible.
-            </p>
-            <div className="mt-5 flex justify-end">
+          <div className="mt-6 space-y-4">
+            <div className="rounded-[24px] border border-emerald-100 bg-emerald-50/80 px-5 py-5 text-slate-700">
+              <h3 className="text-xl font-bold text-slate-900">
+                ¡Gracias por contactarnos!
+              </h3>
+              <p className="mt-2 text-sm leading-6 text-slate-600">
+                Hemos recibido tu información y nuestro equipo se pondrá en
+                contacto contigo lo antes posible.
+              </p>
+            </div>
+
+            {/* Submission summary */}
+            <div className="rounded-[24px] border border-slate-200 bg-white px-5 py-4">
+              <p className="mb-3 text-xs font-bold uppercase tracking-wide text-slate-400">
+                Resumen de tu registro
+              </p>
+              <dl className="space-y-2 text-sm">
+                <div className="flex justify-between gap-4">
+                  <dt className="font-semibold text-slate-600">Nombre</dt>
+                  <dd className="text-right text-slate-800">{nombre}</dd>
+                </div>
+                <div className="flex justify-between gap-4">
+                  <dt className="font-semibold text-slate-600">Correo</dt>
+                  <dd className="text-right text-slate-800">{correo}</dd>
+                </div>
+                <div className="flex justify-between gap-4">
+                  <dt className="font-semibold text-slate-600">Teléfono</dt>
+                  <dd className="text-right text-slate-800">{telefono}</dd>
+                </div>
+                <div className="flex justify-between gap-4">
+                  <dt className="font-semibold text-slate-600">
+                    Tipo de instancia
+                  </dt>
+                  <dd className="text-right text-slate-800">
+                    {instanceType === "otro"
+                      ? otherInstance ||
+                        instanceOptions.find((o) => o.value === instanceType)
+                          ?.label
+                      : instanceOptions.find((o) => o.value === instanceType)
+                          ?.label || instanceType}
+                  </dd>
+                </div>
+                {nombreInstancia && (
+                  <div className="flex justify-between gap-4">
+                    <dt className="font-semibold text-slate-600">Instancia</dt>
+                    <dd className="text-right text-slate-800">
+                      {nombreInstancia}
+                    </dd>
+                  </div>
+                )}
+                <div className="flex justify-between gap-4">
+                  <dt className="font-semibold text-slate-600">Municipio</dt>
+                  <dd className="text-right text-slate-800">
+                    {municipioEstado}
+                  </dd>
+                </div>
+              </dl>
+            </div>
+
+            <div className="flex justify-end">
               <button
                 className="inline-flex items-center justify-center rounded-2xl bg-emerald-700 px-6 py-3 text-sm font-semibold text-white shadow-md transition hover:bg-emerald-800"
                 type="button"

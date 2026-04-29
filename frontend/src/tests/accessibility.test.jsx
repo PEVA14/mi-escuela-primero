@@ -1,76 +1,88 @@
-import { describe, it, expect, vi } from 'vitest';
-import { render } from '@testing-library/react';
-import { axe } from 'vitest-axe';
-import { MemoryRouter } from 'react-router-dom';
-import LoginForm from '../components/LoginForm';
-import NavBar from '../components/NavBar';
+import { describe, it, expect, vi } from "vitest";
+import { render } from "@testing-library/react";
+import { axe } from "vitest-axe";
+import { MemoryRouter } from "react-router-dom";
+import LoginForm from "../components/LoginForm";
+import NavBar from "../components/NavBar";
 
-vi.mock('../services/api', () => ({ login: vi.fn() }));
-vi.mock('react-router-dom', async () => {
-  const actual = await vi.importActual('react-router-dom');
+vi.mock("../services/api", () => ({ login: vi.fn() }));
+vi.mock("react-router-dom", async () => {
+  const actual = await vi.importActual("react-router-dom");
   return { ...actual, useNavigate: () => vi.fn() };
 });
 
 // ─── Component Accessibility ──────────────────────────────────────────────
 
-describe('Accessibility - LoginForm', () => {
-  it('has no axe violations', async () => {
+describe("Accessibility - LoginForm", () => {
+  it("has no axe violations", async () => {
     const { container } = render(
-      <MemoryRouter><LoginForm /></MemoryRouter>
+      <MemoryRouter>
+        <LoginForm />
+      </MemoryRouter>,
     );
     const results = await axe(container);
     expect(results).toHaveNoViolations();
   });
 
-  it('email input has an associated label', () => {
+  it("email input has an associated label", () => {
     const { container } = render(
-      <MemoryRouter><LoginForm /></MemoryRouter>
+      <MemoryRouter>
+        <LoginForm />
+      </MemoryRouter>,
     );
-    const input = container.querySelector('#correo');
+    const input = container.querySelector("#correo");
     const label = container.querySelector('label[for="correo"]');
     expect(input).not.toBeNull();
     expect(label).not.toBeNull();
   });
 
-  it('password input has an associated label', () => {
+  it("password input has an associated label", () => {
     const { container } = render(
-      <MemoryRouter><LoginForm /></MemoryRouter>
+      <MemoryRouter>
+        <LoginForm />
+      </MemoryRouter>,
     );
     const label = container.querySelector('label[for="contraseña"]');
     expect(label).not.toBeNull();
     expect(label.textContent.trim()).toBeTruthy();
   });
 
-  it('submit button has an accessible name', () => {
+  it("submit button has an accessible name", () => {
     const { container } = render(
-      <MemoryRouter><LoginForm /></MemoryRouter>
+      <MemoryRouter>
+        <LoginForm />
+      </MemoryRouter>,
     );
-    const buttons = container.querySelectorAll('button');
+    const buttons = container.querySelectorAll("button");
     buttons.forEach((btn) => {
       const hasText = btn.textContent?.trim().length > 0;
-      const hasAriaLabel = btn.hasAttribute('aria-label');
+      const hasAriaLabel = btn.hasAttribute("aria-label");
       expect(hasText || hasAriaLabel).toBe(true);
     });
   });
 });
 
-describe('Accessibility - NavBar', () => {
-  it('has no axe violations', async () => {
+describe("Accessibility - NavBar", () => {
+  it("has no axe violations", async () => {
     const { container } = render(
-      <MemoryRouter><NavBar /></MemoryRouter>
+      <MemoryRouter>
+        <NavBar />
+      </MemoryRouter>,
     );
     const results = await axe(container);
     expect(results).toHaveNoViolations();
   });
 
-  it('all buttons have accessible text', () => {
+  it("all buttons have accessible text", () => {
     const { container } = render(
-      <MemoryRouter><NavBar /></MemoryRouter>
+      <MemoryRouter>
+        <NavBar />
+      </MemoryRouter>,
     );
-    const buttons = container.querySelectorAll('button');
+    const buttons = container.querySelectorAll("button");
     buttons.forEach((btn) => {
       const text = btn.textContent?.trim();
-      const ariaLabel = btn.getAttribute('aria-label');
+      const ariaLabel = btn.getAttribute("aria-label");
       expect(text || ariaLabel).toBeTruthy();
     });
   });

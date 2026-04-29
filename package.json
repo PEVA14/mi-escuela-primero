@@ -5,7 +5,9 @@
     "preview": "vite preview",
     "lint": "eslint .",
     "format": "prettier --write frontend/src/",
-    "format:check": "prettier --check frontend/src/"
+    "format:check": "prettier --check frontend/src/",
+    "prettier:check": "prettier --check frontend/src/",
+    "test": "cd frontend && npm install && npm test"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.2.1",

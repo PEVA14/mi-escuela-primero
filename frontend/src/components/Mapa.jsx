@@ -4,8 +4,27 @@ import "leaflet/dist/leaflet.css";
 import "./fix-leaflet-icon"; // Importa la solución del paso anterior
 
 const MapaEscuela = ({ lat, lng, nombreEscuela }) => {
-  // Coordenadas por defecto si no hay datos (ej. Guadalajara)
-  const position = [lat || 20.6597, lng || -103.3496];
+  // Si no hay coordenadas decirlo
+  if (lat == null || lng == null) {
+    return (
+      <div
+        style={{
+          height: "400px",
+          width: "100%",
+          marginBottom: "20px",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          backgroundColor: "#f5f5f5",
+          borderRadius: "10px",
+          color: "#666",
+        }}
+      >
+        Sin ubicación
+      </div>
+    );
+  }
+  const position = [lat, lng];
 
   return (
     <div style={{ height: "400px", width: "100%", marginBottom: "20px" }}>

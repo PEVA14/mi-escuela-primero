@@ -23,8 +23,16 @@ const app        = express();
 const PORT       = process.env.PORT       || 3000;
 const SECRET_KEY = process.env.JWT_SECRET || 'pachandini';
 
+const ALLOWED_ORIGINS = [
+  "https://mi-escuela-primero-3175.up.railway.app",
+  "http://localhost:5173",
+  "http://localhost:4173",
+];
 app.use(cors({
-  origin: "https://mi-escuela-primero-3175.up.railway.app"
+  origin: (origin, cb) => {
+    if (!origin || ALLOWED_ORIGINS.includes(origin)) return cb(null, true);
+    cb(new Error(`CORS: origin ${origin} not allowed`));
+  },
 }));
 app.use(express.json({ limit: '10mb' }));
 
@@ -133,27 +141,30 @@ app.delete('/api/escuelas/:id', authenticateToken, async (req, res) => {
 });
 
 app.get('/api/fotos/:id', async (req, res) => {
+  const id = parseInt(req.params.id);
+  console.log(`[foto ${id}] START`);
   try {
-    const foto = await queries.getFotoById(parseInt(req.params.id));
+    const foto = await queries.getFotoById(id);
+    console.log(`[foto ${id}] queried: found=${!!foto}, hasData=${!!foto?.foto_data}, size=${foto?.foto_data?.length ?? 0}, mime=${foto?.foto_mime}`);
+
     if (!foto) return res.status(404).json({ mensaje: 'Foto no encontrada' });
+    if (!foto.foto_data) return res.status(410).json({ mensaje: 'Foto demasiado grande. Elimínala y vuelve a subirla.' });
 
-    if (!foto.foto_data || !foto.foto_mime) {
-      return res.status(404).json({ mensaje: 'Foto sin datos válidos' });
-    }
+    const buf = Buffer.isBuffer(foto.foto_data)
+      ? foto.foto_data
+      : Buffer.from(foto.foto_data);
+    console.log(`[foto ${id}] buffer ready: isBuffer=${Buffer.isBuffer(buf)}, length=${buf.length}`);
 
-    // foto_data is NULL when the stored blob exceeds the 6 MB query guard in getFotoById.
-    // Return 410 so the browser doesn't retry endlessly, and the admin can delete + re-upload.
-    if (!foto.foto_data) {
-      return res.status(410).json({ mensaje: 'Foto demasiado grande. Elimínala y vuelve a subirla con el nuevo sistema.' });
-    }
-
-    res.set('Content-Type', foto.foto_mime);
-    res.set('Content-Disposition', `inline; filename="${foto.foto_nombre ?? 'foto'}"`);
-    res.set('Cache-Control', 'public, max-age=31536000');
-    res.send(foto.foto_data);
+    res.writeHead(200, {
+      'Content-Type': foto.foto_mime,
+      'Content-Length': buf.length,
+      'Cache-Control': 'no-store',
+    });
+    console.log(`[foto ${id}] headers sent, writing body...`);
+    res.end(buf, () => console.log(`[foto ${id}] DONE`));
   } catch (err) {
-    console.error('GET /api/fotos/:id:', err.message);
-    res.status(500).json({ mensaje: 'Error al obtener la foto', error: err.message });
+    console.error(`[foto ${id}] ERROR: ${err.stack}`);
+    if (!res.headersSent) res.status(500).json({ mensaje: 'Error al obtener la foto' });
   }
 });
 
@@ -212,9 +223,25 @@ app.delete('/api/necesidades/:id', authenticateToken, async (req, res) => {
   res.json({ mensaje: 'Necesidad eliminada' });
 });
 
+app.post('/api/logout', authenticateToken, (req, res) => {
+  // JWT is stateless; the client should discard the token.
+  // This endpoint exists so logout is an explicit, documented action.
+  res.json({ mensaje: 'Sesión cerrada correctamente' });
+});
+
 app.get('/api/respuestas', authenticateToken, async (req, res) => {
   const respuestas = await queries.getAllRespuestas();
   res.json(respuestas);
+});
+
+app.delete('/api/respuestas/:id', authenticateToken, async (req, res) => {
+  try {
+    await queries.deleteRespuesta(parseInt(req.params.id));
+    res.json({ mensaje: 'Respuesta eliminada' });
+  } catch (err) {
+    console.error('DELETE /api/respuestas/:id:', err.message);
+    res.status(500).json({ mensaje: 'Error al eliminar la respuesta' });
+  }
 });
 
 app.post('/api/respuestas', async (req, res) => {

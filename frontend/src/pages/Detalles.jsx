@@ -45,6 +45,7 @@ export default function Detalles() {
   const [escuela, setEscuela] = useState(null);
   const [necesidades, setNecesidades] = useState([]);
   const [coords, setCoords] = useState([20.6597, -103.3496]); // Guadalajara por defecto
+  const [hasCoords, setHasCoords] = useState(false);
   const { id } = useParams();
   const navigate = useNavigate();
 
@@ -97,6 +98,7 @@ export default function Detalles() {
           const data = await response.json();
           if (data && data.length > 0) {
             setCoords([parseFloat(data[0].lat), parseFloat(data[0].lon)]);
+            setHasCoords(true);
           }
         } catch (error) {
           console.error("Error buscando ubicación:", error);
@@ -325,9 +327,10 @@ export default function Detalles() {
                         {n.monto_requerido > 0 && (
                           <span className="text-sm text-slate-700">
                             <strong className="text-slate-900">
-                              {n.monto_requerido}
+                              {n.unidad
+                                ? `${n.monto_requerido} ${n.unidad}`
+                                : `$${Number(n.monto_requerido).toLocaleString("es-MX")} MXN`}
                             </strong>
-                            {n.unidad ? ` ${n.unidad}` : ""}
                           </span>
                         )}
                         <button
@@ -358,21 +361,32 @@ export default function Detalles() {
                 </div>
 
                 <div className="h-[320px] w-full z-0">
-                  <MapContainer
-                    center={coords}
-                    zoom={15}
-                    style={{ height: "100%", width: "100%" }}
-                    scrollWheelZoom={false}
-                  >
-                    <TileLayer
-                      attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-                      url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                    />
-                    <ActualizarCentroMapa coords={coords} />
-                    <Marker position={coords}>
-                      <Popup>{escuela?.nombre}</Popup>
-                    </Marker>
-                  </MapContainer>
+                  {hasCoords ? (
+                    <MapContainer
+                      center={coords}
+                      zoom={15}
+                      style={{ height: "100%", width: "100%" }}
+                      scrollWheelZoom={false}
+                    >
+                      <TileLayer
+                        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+                        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                      />
+                      <ActualizarCentroMapa coords={coords} />
+                      <Marker position={coords}>
+                        <Popup>{escuela?.nombre}</Popup>
+                      </Marker>
+                    </MapContainer>
+                  ) : (
+                    <div className="flex h-full w-full items-center justify-center bg-slate-100 text-slate-400">
+                      <div className="text-center">
+                        <p className="text-4xl mb-2">📍</p>
+                        <p className="text-sm font-medium">
+                          Ubicación no disponible
+                        </p>
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 <div className="px-6 py-5 text-slate-700 border-t border-slate-100">

@@ -30,6 +30,10 @@ export function login(datos) {
   return api.post("/login", datos);
 }
 
+export function logout() {
+  return api.post("/logout", {}, getAuthHeaders());
+}
+
 export function agregarEscuela(datos) {
   return api.post("/escuelas", datos, getAuthHeaders());
 }
@@ -68,6 +72,10 @@ export function getRespuestas() {
 
 export function crearRespuesta(datos) {
   return api.post("/respuestas", datos);
+}
+
+export function deleteRespuesta(id) {
+  return api.delete(`/respuestas/${id}`, getAuthHeaders());
 }
 
 export function uploadFotos(id_escuela, files) {

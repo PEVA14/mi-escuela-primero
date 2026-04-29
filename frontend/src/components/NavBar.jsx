@@ -79,9 +79,15 @@ export default function NavBar() {
             type="button"
             aria-label={menuOpen ? "Cerrar menú" : "Abrir menú"}
           >
-            <span className={`block h-0.5 w-6 bg-slate-700 transition-transform duration-200 ${menuOpen ? "translate-y-2 rotate-45" : ""}`} />
-            <span className={`block h-0.5 w-6 bg-slate-700 transition-opacity duration-200 ${menuOpen ? "opacity-0" : ""}`} />
-            <span className={`block h-0.5 w-6 bg-slate-700 transition-transform duration-200 ${menuOpen ? "-translate-y-2 -rotate-45" : ""}`} />
+            <span
+              className={`block h-0.5 w-6 bg-slate-700 transition-transform duration-200 ${menuOpen ? "translate-y-2 rotate-45" : ""}`}
+            />
+            <span
+              className={`block h-0.5 w-6 bg-slate-700 transition-opacity duration-200 ${menuOpen ? "opacity-0" : ""}`}
+            />
+            <span
+              className={`block h-0.5 w-6 bg-slate-700 transition-transform duration-200 ${menuOpen ? "-translate-y-2 -rotate-45" : ""}`}
+            />
           </button>
         </div>
 

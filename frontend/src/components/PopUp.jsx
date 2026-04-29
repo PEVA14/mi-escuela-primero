@@ -323,21 +323,83 @@ export default function PopUp({ closePopup, escuela }) {
         </div>
 
         {submitted ? (
-          <div className="mt-6 rounded-[24px] border border-emerald-100 bg-emerald-50/80 px-5 py-6 text-slate-700">
-            <h3 className="text-xl font-bold text-slate-900">
-              Gracias por ser parte del cambio.
-            </h3>
-            <p className="mt-3 text-sm leading-7 md:text-base">
-              Tu donativo representa una oportunidad más para seguir
-              transformando vidas. En menos de 48 horas nos pondremos en
-              contacto contigo para dar seguimiento y realizar las gestiones
-              necesarias para que tu apoyo llegue a las escuelas.
-            </p>
-            <p className="mt-3 text-sm leading-7 md:text-base">
-              Te pedimos estar atento a tu correo y celular. ¡Gracias por creer
-              y actuar!
-            </p>
-            <div className="mt-5 flex justify-end">
+          <div className="mt-6 space-y-4">
+            <div className="rounded-[24px] border border-emerald-100 bg-emerald-50/80 px-5 py-5 text-slate-700">
+              <h3 className="text-xl font-bold text-slate-900">
+                ¡Gracias por ser parte del cambio!
+              </h3>
+              <p className="mt-2 text-sm leading-6 text-slate-600">
+                En menos de 48 horas nos pondremos en contacto contigo para
+                coordinar el apoyo. ¡Gracias por creer y actuar!
+              </p>
+            </div>
+
+            {/* Submission summary */}
+            <div className="rounded-[24px] border border-slate-200 bg-white px-5 py-4">
+              <p className="mb-3 text-xs font-bold uppercase tracking-wide text-slate-400">
+                Resumen de tu registro
+              </p>
+              <dl className="space-y-2 text-sm">
+                <div className="flex justify-between gap-4">
+                  <dt className="font-semibold text-slate-600">Nombre</dt>
+                  <dd className="text-right text-slate-800">{nombre}</dd>
+                </div>
+                <div className="flex justify-between gap-4">
+                  <dt className="font-semibold text-slate-600">Correo</dt>
+                  <dd className="text-right text-slate-800">{correo}</dd>
+                </div>
+                <div className="flex justify-between gap-4">
+                  <dt className="font-semibold text-slate-600">Teléfono</dt>
+                  <dd className="text-right text-slate-800">{telefono}</dd>
+                </div>
+                {empresa && (
+                  <div className="flex justify-between gap-4">
+                    <dt className="font-semibold text-slate-600">
+                      Empresa / Org.
+                    </dt>
+                    <dd className="text-right text-slate-800">{empresa}</dd>
+                  </div>
+                )}
+                <div className="flex justify-between gap-4">
+                  <dt className="font-semibold text-slate-600">Escuela</dt>
+                  <dd className="text-right text-slate-800">
+                    {escuela?.nombre || "—"}
+                  </dd>
+                </div>
+                <div className="flex justify-between gap-4">
+                  <dt className="font-semibold text-slate-600">
+                    Tipo de apoyo
+                  </dt>
+                  <dd className="text-right text-slate-800">
+                    {donationType === "otro"
+                      ? otherDonationType || "Otro"
+                      : selectedType?.label || donationType}
+                  </dd>
+                </div>
+                {(articulo || cantidadArticulos) && (
+                  <div className="flex justify-between gap-4">
+                    <dt className="font-semibold text-slate-600">
+                      Artículo / Cantidad
+                    </dt>
+                    <dd className="text-right text-slate-800">
+                      {[articulo, cantidadArticulos && `×${cantidadArticulos}`]
+                        .filter(Boolean)
+                        .join(" ")}
+                    </dd>
+                  </div>
+                )}
+                {mensajeAdicional && (
+                  <div className="flex justify-between gap-4">
+                    <dt className="font-semibold text-slate-600">Mensaje</dt>
+                    <dd className="text-right text-slate-800 max-w-[200px]">
+                      {mensajeAdicional}
+                    </dd>
+                  </div>
+                )}
+              </dl>
+            </div>
+
+            <div className="flex justify-end">
               <button
                 className="inline-flex items-center justify-center rounded-2xl bg-emerald-700 px-6 py-3 text-sm font-semibold text-white shadow-md transition hover:bg-emerald-800"
                 type="button"

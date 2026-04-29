@@ -115,16 +115,24 @@ async function saveFoto(id_escuela, file) {
 }
 
 async function getFotoById(id_foto) {
-  // Only load foto_data if it fits safely in memory (≤ 6 MB).
-  // Returning NULL for oversized blobs prevents OOM crashes on Railway.
-  const [rows] = await pool.query(
-    `SELECT foto_mime, foto_nombre,
-       CASE WHEN LENGTH(foto_data) <= 6291456 THEN foto_data ELSE NULL END AS foto_data,
-       LENGTH(foto_data) AS data_size
-     FROM FotosEscuelas WHERE id_foto = ?`,
+  // Two-step: check size first without loading the blob, then fetch data only if safe.
+  const [meta] = await pool.query(
+    'SELECT foto_mime, foto_nombre, LENGTH(foto_data) AS size FROM FotosEscuelas WHERE id_foto = ?',
     [id_foto]
   );
-  return rows[0] || null;
+  if (!meta.length) return null;
+  const { foto_mime, foto_nombre, size } = meta[0];
+
+  if (size > 6 * 1024 * 1024) {
+    // Too large to serve safely — return stub so caller can send 410 without crashing.
+    return { foto_mime, foto_nombre, foto_data: null };
+  }
+
+  const [rows] = await pool.query(
+    'SELECT foto_data FROM FotosEscuelas WHERE id_foto = ?',
+    [id_foto]
+  );
+  return rows.length ? { foto_mime, foto_nombre, foto_data: rows[0].foto_data } : null;
 }
 
 async function deleteFotoById(id_foto) {
@@ -364,7 +372,7 @@ async function createPropuesta(data) {
 }
 
 async function updatePropuesta(id, data) {
-  const { titulo, descripcion, categoria, estado, monto_requerido, id_escuela } = data;
+  const { titulo, descripcion, categoria, estado, monto_requerido, id_escuela, unidad } = data;
   const updates = {};
 
   if (titulo      !== undefined) updates.propuesta = titulo;
@@ -379,6 +387,11 @@ async function updatePropuesta(id, data) {
     updates.id_estadoPropuesta = await getOrCreate(
       'EstadoPropuesta', 'id_estadoPropuesta', 'nombre_estado', estado
     );
+  }
+  if (unidad !== undefined) {
+    updates.id_unidad = unidad
+      ? await getOrCreate('Unidad', 'id_unidad', 'nombre_unidad', unidad)
+      : null;
   }
 
   if (Object.keys(updates).length > 0) {
@@ -434,6 +447,10 @@ async function createRespuesta(data) {
     ]
   );
   return result.insertId;
+}
+
+async function deleteRespuesta(id) {
+  await pool.query('DELETE FROM RespuestaFormulario WHERE id_respuesta = ?', [id]);
 }
 
 async function importarEscuelas(rows) {
@@ -588,6 +605,7 @@ module.exports = {
   deletePropuesta,
   getAllRespuestas,
   createRespuesta,
+  deleteRespuesta,
   importarEscuelas,
   importarPropuestas,
   getStats,

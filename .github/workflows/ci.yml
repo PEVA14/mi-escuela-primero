@@ -31,7 +31,9 @@ jobs:
             - name: Install Railway CLI
               run: npm install -g railway
 
-            - name: Deploy to Railway
-              run: railway up --service mi-escuela-primero --project mi-escuela-primero
-              env:
-                RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+            # - name: Deploy to Railway
+            #   run: railway up --service mi-escuela-primero --project mi-escuela-primero
+            #   env:
+            #     RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+
+            #Railway detects pushes automatically, so we didnt need the last part lol
