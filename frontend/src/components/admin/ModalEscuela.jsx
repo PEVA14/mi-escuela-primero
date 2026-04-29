@@ -8,6 +8,46 @@ import {
 import { validateFormBeforeSubmit } from "../../utils/formValidation";
 import camara from "../../assets/camera_icon.png";
 
+// Converts any image (including HEIC) to a compressed JPEG.
+// Max dimension: 1600px. Quality: 85%. Keeps file size small enough for Railway.
+async function compressImage(file) {
+  return new Promise((resolve) => {
+    const img = new Image();
+    const objectUrl = URL.createObjectURL(file);
+    img.onload = () => {
+      const MAX = 1600;
+      let { width, height } = img;
+      if (width > MAX || height > MAX) {
+        if (width >= height) {
+          height = Math.round((height * MAX) / width);
+          width = MAX;
+        } else {
+          width = Math.round((width * MAX) / height);
+          height = MAX;
+        }
+      }
+      const canvas = document.createElement("canvas");
+      canvas.width = width;
+      canvas.height = height;
+      canvas.getContext("2d").drawImage(img, 0, 0, width, height);
+      URL.revokeObjectURL(objectUrl);
+      canvas.toBlob(
+        (blob) => {
+          const safeName = file.name.replace(/\.[^.]+$/, ".jpg");
+          resolve(new File([blob], safeName, { type: "image/jpeg" }));
+        },
+        "image/jpeg",
+        0.85,
+      );
+    };
+    img.onerror = () => {
+      URL.revokeObjectURL(objectUrl);
+      resolve(file); // fallback: upload original if conversion fails
+    };
+    img.src = objectUrl;
+  });
+}
+
 const NIVELES = [
   "Preescolar",
   "Primaria",
@@ -143,7 +183,8 @@ export default function ModalEscuela({ open, escuela, onClose, onSuccess }) {
       }
 
       if (newFiles.length > 0) {
-        await uploadFotos(schoolId, newFiles);
+        const compressed = await Promise.all(newFiles.map(compressImage));
+        await uploadFotos(schoolId, compressed);
       }
 
       for (const id_foto of toDelete) {
