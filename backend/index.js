@@ -133,29 +133,30 @@ app.delete('/api/escuelas/:id', authenticateToken, async (req, res) => {
 });
 
 app.get('/api/fotos/:id', async (req, res) => {
+  const id = parseInt(req.params.id);
+  console.log(`[foto ${id}] START`);
   try {
-    const id = parseInt(req.params.id);
-    console.log(`GET /api/fotos/${id}`);
     const foto = await queries.getFotoById(id);
-    console.log(`foto ${id}: found=${!!foto}, hasData=${!!foto?.foto_data}, size=${foto?.foto_data?.length ?? 0} bytes, mime=${foto?.foto_mime}`);
+    console.log(`[foto ${id}] queried: found=${!!foto}, hasData=${!!foto?.foto_data}, size=${foto?.foto_data?.length ?? 0}, mime=${foto?.foto_mime}`);
+
     if (!foto) return res.status(404).json({ mensaje: 'Foto no encontrada' });
+    if (!foto.foto_data) return res.status(410).json({ mensaje: 'Foto demasiado grande. Elimínala y vuelve a subirla.' });
 
-    if (!foto.foto_data || !foto.foto_mime) {
-      return res.status(404).json({ mensaje: 'Foto sin datos válidos' });
-    }
+    const buf = Buffer.isBuffer(foto.foto_data)
+      ? foto.foto_data
+      : Buffer.from(foto.foto_data);
+    console.log(`[foto ${id}] buffer ready: isBuffer=${Buffer.isBuffer(buf)}, length=${buf.length}`);
 
-    // foto_data is NULL when the stored blob exceeds the 6 MB query guard in getFotoById.
-    // Return 410 so the browser doesn't retry endlessly, and the admin can delete + re-upload.
-    if (!foto.foto_data) {
-      return res.status(410).json({ mensaje: 'Foto demasiado grande. Elimínala y vuelve a subirla con el nuevo sistema.' });
-    }
-
-    res.set('Content-Type', foto.foto_mime);
-    res.set('Cache-Control', 'no-store');
-    res.end(foto.foto_data);
+    res.writeHead(200, {
+      'Content-Type': foto.foto_mime,
+      'Content-Length': buf.length,
+      'Cache-Control': 'no-store',
+    });
+    console.log(`[foto ${id}] headers sent, writing body...`);
+    res.end(buf, () => console.log(`[foto ${id}] DONE`));
   } catch (err) {
-    console.error('GET /api/fotos/:id:', err.message);
-    res.status(500).json({ mensaje: 'Error al obtener la foto', error: err.message });
+    console.error(`[foto ${id}] ERROR: ${err.stack}`);
+    if (!res.headersSent) res.status(500).json({ mensaje: 'Error al obtener la foto' });
   }
 });
 
